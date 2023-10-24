@@ -8,5 +8,5 @@
 .vscode/
 .settings.json
 
-# Ignore output.csv files
-*.csv
+# Ignore result files
+/result/*
