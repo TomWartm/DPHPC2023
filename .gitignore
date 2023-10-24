@@ -1,0 +1,9 @@
+# Ignore object files (.o)
+*.o
+
+# Ignore executable files (.exe)
+*.exe
+
+# Ignore Visual Studio Code workspace and user-specific files
+.vscode/
+.settings.json
