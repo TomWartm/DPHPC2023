@@ -9,4 +9,4 @@
 .settings.json
 
 # Ignore result files
-/result/*
+results/*
