@@ -7,3 +7,6 @@
 # Ignore Visual Studio Code workspace and user-specific files
 .vscode/
 .settings.json
+
+# Ignore output.csv files
+*.csv
