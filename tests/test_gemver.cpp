@@ -31,21 +31,32 @@ TEST(gemverTest, kernel_gemver){
     int n = 10;
     double alpha;
     double beta;
-    double *A = (double *)malloc((n * n) * sizeof(double));
-    double *u1 = (double *)malloc((n) * sizeof(double));
-    double *v1 = (double *)malloc((n) * sizeof(double));
-    double *u2 = (double *)malloc((n) * sizeof(double));
-    double *v2 = (double *)malloc((n) * sizeof(double));
-    double *w = (double *)malloc((n) * sizeof(double));
-    double *x = (double *)malloc((n) * sizeof(double));
-    double *y = (double *)malloc((n) * sizeof(double));
-    double *z = (double *)malloc((n) * sizeof(double));
+    double *A, *A_baseline = (double *)malloc((n * n) * sizeof(double));
+    double *u1, *u1_baseline = (double *)malloc((n) * sizeof(double));
+    double *v1, *v1_baseline = (double *)malloc((n) * sizeof(double));
+    double *u2, *u2_baseline = (double *)malloc((n) * sizeof(double));
+    double *v2, *v2_baseline = (double *)malloc((n) * sizeof(double));
+    double *w , *w_baseline= (double *)malloc((n) * sizeof(double));
+    double *x , *x_baseline= (double *)malloc((n) * sizeof(double));
+    double *y , *y_baseline= (double *)malloc((n) * sizeof(double));
+    double *z , *z_baseline= (double *)malloc((n) * sizeof(double));
 
     init_array(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
+    init_array(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
 
     kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
+    gemver_baseline(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
 
-    ASSERT_EQ(1,1); // TODO: check results
+    for (int i = 0; i < n * n; i++) {
+        ASSERT_NEAR(A[i], A_baseline[i], 1e-6);
+    }
+    for (int i = 0; i < n; i++) {
+        ASSERT_NEAR(x[i], x_baseline[i], 1e-6);
+    }
+    for (int i = 0; i < n; i++) {
+        ASSERT_NEAR(w[i], w_baseline[i], 1e-6);
+    }
+    //ASSERT_EQ(1,1); // TODO: check results
 
     // free memory
     free((void *)A);
@@ -57,6 +68,16 @@ TEST(gemverTest, kernel_gemver){
     free((void *)x);
     free((void *)y);
     free((void *)z);
+
+    free((void *)A_baseline);
+    free((void *)u1_baseline);
+    free((void *)v1_baseline);
+    free((void *)u2_baseline);
+    free((void *)v2_baseline);
+    free((void *)w_baseline);
+    free((void *)x_baseline);
+    free((void *)y_baseline);
+    free((void *)z_baseline);
 }
 
 
