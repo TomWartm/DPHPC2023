@@ -6,8 +6,10 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <mpi.h>
 
-static void init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z) {
+static void init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
+{
 
     *alpha = 1.5;
     *beta = 1.2;
@@ -29,9 +31,7 @@ static void init_array(int n, double *alpha, double *beta, double *A, double *u1
     }
 }
 
-
-
-void measure_gemver(std::string functionName,void (*func)(int, double, double, double*, double*, double*, double*, double*, double*, double*, double*, double*), int n, std::ofstream &outputFile)
+void measure_gemver(std::string functionName, void (*func)(int, double, double, double *, double *, double *, double *, double *, double *, double *, double *, double *), int n, std::ofstream &outputFile)
 {
 
     // initialization
@@ -59,8 +59,9 @@ void measure_gemver(std::string functionName,void (*func)(int, double, double, d
     elapsed_time = (end.tv_sec - start.tv_sec) + (double)(end.tv_nsec - start.tv_nsec) / 1e9;
 
     // write to output file
-    outputFile << n << ";" << elapsed_time << ";" << functionName << std::endl;
+    outputFile << n << ";" << elapsed_time << ";" << functionName << "\n";
 
+    
     // free memory
     free((void *)A);
     free((void *)u1);
