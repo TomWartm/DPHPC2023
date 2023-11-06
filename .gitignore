@@ -1,8 +1,9 @@
 # Ignore object files (.o)
 *.o
 
-# Ignore executable files (.exe)
+# Ignore executable files
 *.exe
+*.out
 
 # Ignore Visual Studio Code workspace and user-specific files
 .vscode/
