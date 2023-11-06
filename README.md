@@ -4,6 +4,10 @@
 3. Run `python plot/plot.py` from the root directory.
 
 
+# Run Tests
+
+- Run `make test`
+
 # How to run jobs on Euler
 
 To connect use ``ssh username@euler.ethz.ch``. To send files over use ``scp file username@euler.ethz.ch:/cluster/home/username/`` (or ``cluster/scratch/username``).
