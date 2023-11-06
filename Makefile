@@ -7,15 +7,16 @@ CXXFLAGS = -std=c++14 -Wall
 # Source file directories
 SRC_DIR = src
 GEMVER_DIR = $(SRC_DIR)/gemver
+TRISOLVE_DIR = $(SRC_DIR)/trisolve
 HELPERS_DIR = $(SRC_DIR)/helpers
 # Source files
-SRCS = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) 
+SRCS = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(TRISOLVE_DIR)/*.cpp)
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
 
 # Executable name
-EXECUTABLE = my_program
+EXECUTABLE = dphpc
 
 # Build rule
 $(EXECUTABLE): $(OBJS)
@@ -29,12 +30,11 @@ $(EXECUTABLE): $(OBJS)
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
-
 # Test file directories
-TEST_EXECUTABLE = my_test
+TEST_EXECUTABLE = dphpc_test
 TEST_DIR = tests
 # Build rule for your test program
-$(TEST_EXECUTABLE):  $(wildcard $(TEST_DIR)/*.o) $(wildcard $(GEMVER_DIR)/*.cpp) 
+$(TEST_EXECUTABLE):  $(wildcard $(TEST_DIR)/*.o) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(TRISOLVE_DIR)/*.cpp)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lgtest -lgtest_main
 
 
