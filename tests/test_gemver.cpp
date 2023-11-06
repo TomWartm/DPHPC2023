@@ -1,8 +1,41 @@
 #include <gtest/gtest.h>
 #include <iostream>
-
+#include <vector>
 #include "../src/gemver/gemver_baseline.h"
+#include <stdlib.h>
+#include <time.h>
 
+static void rand_init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z) {
+
+    srand(time(NULL));
+
+    // Scaling factors
+    double alpha_scale = 20.0, alpha_offset = -10.0;
+    double beta_scale = 20.0, beta_offset = -10.0;
+
+    // Matrix and vector values
+    double A_scale = 2.0, A_offset = -1.0;
+
+    *alpha = (double)rand() / RAND_MAX * alpha_scale + alpha_offset;
+    *beta = (double)rand() / RAND_MAX * beta_scale + beta_offset;
+
+    for (int i = 0; i < n; i++) {
+        u1[i] = (double)rand() / RAND_MAX * A_scale + A_offset;
+        u2[i] = (double)rand() / RAND_MAX * A_scale + A_offset;
+        v1[i] = (double)rand() / RAND_MAX * A_scale + A_offset;
+        v2[i] = (double)rand() / RAND_MAX * A_scale + A_offset;
+        y[i] = (double)rand() / RAND_MAX * A_scale + A_offset;
+        z[i] = (double)rand() / RAND_MAX * A_scale + A_offset;
+        x[i] = 0.0; // Start with zero
+        w[i] = 0.0; // Start with zero
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            A[i * n + j] = (double)rand() / RAND_MAX * A_scale + A_offset;
+        }
+    }
+}
 
 static void init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z) {
 
@@ -14,11 +47,11 @@ static void init_array(int n, double *alpha, double *beta, double *A, double *u1
     for (int i = 0; i < n; i++)
     {
         u1[i] = i;
-        u2[i] = ((i + 1) / fn) / 2.0;
-        v1[i] = ((i + 1) / fn) / 4.0;
-        v2[i] = ((i + 1) / fn) / 6.0;
-        y[i] = ((i + 1) / fn) / 8.0;
-        z[i] = ((i + 1) / fn) / 9.0;
+        u2[i] = ((i + 1.0) / fn) / 2.0;
+        v1[i] = ((i + 1.0) / fn) / 4.0;
+        v2[i] = ((i + 1.0) / fn) / 6.0;
+        y[i] = ((i + 1.0) / fn) / 8.0;
+        z[i] = ((i + 1.0) / fn) / 9.0;
         x[i] = 0.0;
         w[i] = 0.0;
         for (int j = 0; j < n; j++)
@@ -26,66 +59,74 @@ static void init_array(int n, double *alpha, double *beta, double *A, double *u1
     }
 }
 
-TEST(gemverTest, kernel_gemver){
-    
+TEST(gemverTest, RandomInitialization){
+
     int n = 10;
     double alpha;
     double beta;
-    double *A, *A_baseline = (double *)malloc((n * n) * sizeof(double));
-    double *u1, *u1_baseline = (double *)malloc((n) * sizeof(double));
-    double *v1, *v1_baseline = (double *)malloc((n) * sizeof(double));
-    double *u2, *u2_baseline = (double *)malloc((n) * sizeof(double));
-    double *v2, *v2_baseline = (double *)malloc((n) * sizeof(double));
-    double *w , *w_baseline= (double *)malloc((n) * sizeof(double));
-    double *x , *x_baseline= (double *)malloc((n) * sizeof(double));
-    double *y , *y_baseline= (double *)malloc((n) * sizeof(double));
-    double *z , *z_baseline= (double *)malloc((n) * sizeof(double));
+    std::vector<double> A(n * n), A_baseline(n * n);
+    std::vector<double> u1(n), u1_baseline(n);
+    std::vector<double> v1(n), v1_baseline(n);
+    std::vector<double> u2(n), u2_baseline(n);
+    std::vector<double> v2(n), v2_baseline(n);
+    std::vector<double> w(n), w_baseline(n);
+    std::vector<double> x(n), x_baseline(n);
+    std::vector<double> y(n), y_baseline(n);
+    std::vector<double> z(n), z_baseline(n);
 
-    init_array(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
-    init_array(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
+    for (int i = 0; i  < 10; ++i){
+        rand_init_array(n, &alpha, &beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+        rand_init_array(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-    kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
-    gemver_baseline(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
+        kernel_gemver(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+        gemver_baseline(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-    for (int i = 0; i < n * n; i++) {
-        ASSERT_NEAR(A[i], A_baseline[i], 1e-6);
+        for (int j = 0; j < n * n; j++) {
+            EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
+        }
+        for (int j = 0; j < n; j++) {
+            EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
+        }
+        for (int j = 0; j < n; j++) {
+            EXPECT_NEAR(w[j], w_baseline[j], 1e-6);
+        }
     }
-    for (int i = 0; i < n; i++) {
-        ASSERT_NEAR(x[i], x_baseline[i], 1e-6);
-    }
-    for (int i = 0; i < n; i++) {
-        ASSERT_NEAR(w[i], w_baseline[i], 1e-6);
-    }
-    //ASSERT_EQ(1,1); // TODO: check results
-
-    // free memory
-    free((void *)A);
-    free((void *)u1);
-    free((void *)v1);
-    free((void *)u2);
-    free((void *)v2);
-    free((void *)w);
-    free((void *)x);
-    free((void *)y);
-    free((void *)z);
-
-    free((void *)A_baseline);
-    free((void *)u1_baseline);
-    free((void *)v1_baseline);
-    free((void *)u2_baseline);
-    free((void *)v2_baseline);
-    free((void *)w_baseline);
-    free((void *)x_baseline);
-    free((void *)y_baseline);
-    free((void *)z_baseline);
 }
 
+TEST(gemverTest, DifferentSizes){
+    
+    std::vector<int>  n_vec(5);
+    n_vec = {0, 1, 2, 10, 100};
+    double alpha;
+    double beta;
 
+    for (auto n : n_vec){
+        std::vector<double> A(n * n), A_baseline(n * n);
+        std::vector<double> u1(n), u1_baseline(n);
+        std::vector<double> v1(n), v1_baseline(n);
+        std::vector<double> u2(n), u2_baseline(n);
+        std::vector<double> v2(n), v2_baseline(n);
+        std::vector<double> w(n), w_baseline(n);
+        std::vector<double> x(n), x_baseline(n);
+        std::vector<double> y(n), y_baseline(n);
+        std::vector<double> z(n), z_baseline(n);
+        init_array(n, &alpha, &beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+        init_array(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
+        kernel_gemver(n, alpha, beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+        gemver_baseline(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-
-
-
+        for (int i = 0; i < n * n; i++) {
+            EXPECT_DOUBLE_EQ(A[i], A_baseline[i]);
+        }
+        for (int i = 0; i < n; i++) {
+            EXPECT_DOUBLE_EQ(x[i], x_baseline[i]);
+        }
+        for (int i = 0; i < n; i++) {
+            EXPECT_DOUBLE_EQ(w[i], w_baseline[i]);
+        }
+    }
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
