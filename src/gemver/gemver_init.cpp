@@ -3,7 +3,7 @@ void init_gemver(int n, double *alpha, double *beta, double *A, double *u1, doub
     *alpha = 1.5;
     *beta = 1.2;
 
-    double fn = (double)n;
+    double fn = (double) n;
 
     for (int i = 0; i < n; i++)
     {

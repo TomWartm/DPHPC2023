@@ -34,7 +34,7 @@ run: $(EXECUTABLE)
 TEST_EXECUTABLE = dphpc_test
 TEST_DIR = tests
 # Build rule for your test program
-$(TEST_EXECUTABLE):  $(wildcard $(TEST_DIR)/*.o) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(TRISOLVE_DIR)/*.cpp)
+$(TEST_EXECUTABLE):  $(wildcard $(TEST_DIR)/*.cpp) $(wildcard $(TEST_DIR)/gemver/*.cpp) $(wildcard $(TEST_DIR)/trisolv/*.cpp)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(TRISOLVE_DIR)/*.cpp)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lgtest -lgtest_main
 
 
