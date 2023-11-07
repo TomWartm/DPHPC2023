@@ -1,7 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 42f827d34e33c0e630ff6a4ad8d7773d47ef610f
 #include <gtest/gtest.h>
 #include <iostream>
 #include <mpi.h>
@@ -38,7 +35,6 @@ TEST(gemverTest, kernel_gemver)
     int n = 10;
     double alpha;
     double beta;
-<<<<<<< HEAD
     double *A, *A_baseline = (double *)malloc((n * n) * sizeof(double));
     double *u1, *u1_baseline = (double *)malloc((n) * sizeof(double));
     double *v1, *v1_baseline = (double *)malloc((n) * sizeof(double));
@@ -65,23 +61,6 @@ TEST(gemverTest, kernel_gemver)
         ASSERT_NEAR(w[i], w_baseline[i], 1e-6);
     }
     //ASSERT_EQ(1,1); // TODO: check results
-=======
-    double *A = (double *)malloc((n * n) * sizeof(double));
-    double *u1 = (double *)malloc((n) * sizeof(double));
-    double *v1 = (double *)malloc((n) * sizeof(double));
-    double *u2 = (double *)malloc((n) * sizeof(double));
-    double *v2 = (double *)malloc((n) * sizeof(double));
-    double *w = (double *)malloc((n) * sizeof(double));
-    double *x = (double *)malloc((n) * sizeof(double));
-    double *y = (double *)malloc((n) * sizeof(double));
-    double *z = (double *)malloc((n) * sizeof(double));
-
-    init_array(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
-
-    kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
-
-    ASSERT_EQ(1, 1); // TODO: check results
->>>>>>> 42f827d34e33c0e630ff6a4ad8d7773d47ef610f
 
     // free memory
     free((void *)A);
@@ -93,7 +72,6 @@ TEST(gemverTest, kernel_gemver)
     free((void *)x);
     free((void *)y);
     free((void *)z);
-<<<<<<< HEAD
 
     free((void *)A_baseline);
     free((void *)u1_baseline);
@@ -104,8 +82,6 @@ TEST(gemverTest, kernel_gemver)
     free((void *)x_baseline);
     free((void *)y_baseline);
     free((void *)z_baseline);
-=======
->>>>>>> 42f827d34e33c0e630ff6a4ad8d7773d47ef610f
 }
 /// @brief
 /// @param
@@ -237,7 +213,6 @@ int main(int argc, char *argv[])
     MPI_Finalize();
 
     return result;
-<<<<<<< HEAD
 =======
 #include <gtest/gtest.h>
 #include <iostream>
@@ -433,6 +408,4 @@ int main(int argc, char *argv[])
 
     return result;
 >>>>>>> 569af3d (test)
-=======
->>>>>>> 42f827d34e33c0e630ff6a4ad8d7773d47ef610f
 }
