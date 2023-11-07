@@ -6,8 +6,6 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
-#include <mpi.h>
-
 static void init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
 

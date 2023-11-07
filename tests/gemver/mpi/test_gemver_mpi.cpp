@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <mpi.h>
-#include "../src/gemver/gemver_baseline.h"
-#include "../src/gemver/gemver_mpi.h"
+#include "../../../src/gemver/gemver_baseline.h"
+#include "../../../src/gemver/mpi/gemver_mpi.h"
 
-static void init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z) {
+static void init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
+{
 
     *alpha = 1.5;
     *beta = 1.2;
@@ -25,31 +26,11 @@ static void init_array(int n, double *alpha, double *beta, double *A, double *u1
             A[i * n + j] = (double)(i * j % n) / n;
     }
 }
-void init_array_portion(int n, int rank, int num_procs, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z) {
-    *alpha = 1.5;
-    *beta = 1.2;
 
-    double fn = (double)n;
-    int elements_per_proc = n / num_procs;
-    int start = rank * elements_per_proc;
-    int end = (rank + 1) * elements_per_proc;
 
-    for (int i = start; i < end; i++) {
-        u1[i] = i;
-        u2[i] = ((i + 1) / fn) / 2.0;
-        v1[i] = ((i + 1) / fn) / 4.0;
-        v2[i] = ((i + 1) / fn) / 6.0;
-        y[i] = ((i + 1) / fn) / 8.0;
-        z[i] = ((i + 1) / fn) / 9.0;
-        x[i] = 0.0;
-        w[i] = 0.0;
-        for (int j = 0; j < n; j++)
-            A[i * n + j] = (double)(i * j % n) / n;
-    }
-}
+TEST(gemverTest, kernel_gemver)
+{
 
-TEST(gemverTest, kernel_gemver){
-    
     int n = 10;
     double alpha;
     double beta;
@@ -67,7 +48,7 @@ TEST(gemverTest, kernel_gemver){
 
     kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
 
-    ASSERT_EQ(1,1); // TODO: check results
+    ASSERT_EQ(1, 1); // TODO: check results
 
     // free memory
     free((void *)A);
@@ -80,13 +61,14 @@ TEST(gemverTest, kernel_gemver){
     free((void *)y);
     free((void *)z);
 }
-/// @brief 
-/// @param  
-/// @param  
-TEST(gemverTest, gemver_mpi_1){
-    
+/// @brief
+/// @param
+/// @param
+TEST(gemverTest, gemver_mpi_1)
+{
+
     int rank, num_procs;
-    
+
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
@@ -111,8 +93,7 @@ TEST(gemverTest, gemver_mpi_1){
     double *x_baseline;
     double *y_baseline;
     double *z_baseline;
-    // Determine the number of elements to allocate for each process
-    int elements_per_proc = n / num_procs;
+
     MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u1);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
@@ -123,7 +104,6 @@ TEST(gemverTest, gemver_mpi_1){
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &z);
 
-
     MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_baseline);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u1_baseline);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1_baseline);
@@ -133,56 +113,46 @@ TEST(gemverTest, gemver_mpi_1){
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y_baseline);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &z_baseline);
-    
-    if (rank == 0){
-        // Allocate memory
 
 
+    // initialize variables to store the results in
+    double *A_result, *x_result, *w_result;
+    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_result);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
 
 
-        // Initialize memory
+    if (rank == 0)
+    {
+        // initialize data on processer 0
         init_array(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
         init_array(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
         kernel_gemver(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
-        
-
     }
-        // TODO: compute gemver in paralell
 
-    // Broadcast the variables to all other processes
-    MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&alpha, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&beta, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    MPI_Bcast(A, n * n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(u1, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(v1, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(u2, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(v2, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(w, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(x, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(y, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(z, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // compute gemver
+    gemver_mpi_1(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z, A_result, x_result, w_result); // just stupidly compute same in all processes
     
-    // if(rank == 0){
-    //     gemver_mpi_1(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z); // just stupidly compute same in all processes
-    // }
-    double *A_result;
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_result);
-    MPI_Reduce(A,A_result,n*n, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
 
-    if (rank == 0){
+
+    if (rank == 0)
+    {
 
         // check results in process 0
-        for (int i = 0; i < n * n; i++) {
-        ASSERT_NEAR(A[i], A_baseline[i], 1e-6);
+        for (int i = 0; i < n * n; i++)
+        {
+            ASSERT_NEAR(A_result[i], A_baseline[i], 1e-6);
         }
-        for (int i = 0; i < n; i++) {
-            ASSERT_NEAR(x[i], x_baseline[i], 1e-6);
+        for (int i = 0; i < n; i++)
+        {
+            ASSERT_NEAR(x_result[i], x_baseline[i], 1e-6);
         }
-        for (int i = 0; i < n; i++) {
-            ASSERT_NEAR(w[i], w_baseline[i], 1e-6);
+        for (int i = 0; i < n; i++)
+        {
+            ASSERT_NEAR(w_result[i], w_baseline[i], 1e-6);
         }
 
         // Free the allocated memory
@@ -205,25 +175,14 @@ TEST(gemverTest, gemver_mpi_1){
         MPI_Free_mem(y_baseline);
         MPI_Free_mem(z_baseline);
 
-
+        MPI_Free_mem(A_result);
+        MPI_Free_mem(x_result);
+        MPI_Free_mem(w_result);
     }
-    
-    
-
-
-
-    
-    
 }
 
-
-
-
-
-
-
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     int result = 0;
 
     ::testing::InitGoogleTest(&argc, argv);
