@@ -27,5 +27,5 @@ sns.lineplot(
 # plt.xscale('log')
 
 plt.show()
-file_path = "./results/plot.png"
+file_path = "./results/plot_trisolve.png"
 plt.savefig(file_path)

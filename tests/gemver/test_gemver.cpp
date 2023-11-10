@@ -27,7 +27,7 @@ static void init_array(int n, double *alpha, double *beta, double *A, double *u1
 }
 
 TEST(gemverTest, kernel_gemver){
-    
+
     int n = 10;
     double alpha;
     double beta;
@@ -56,7 +56,6 @@ TEST(gemverTest, kernel_gemver){
     for (int i = 0; i < n; i++) {
         ASSERT_NEAR(w[i], w_baseline[i], 1e-6);
     }
-    //ASSERT_EQ(1,1); // TODO: check results
 
     // free memory
     free((void *)A);

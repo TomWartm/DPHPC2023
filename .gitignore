@@ -4,6 +4,9 @@
 # Ignore executable files
 *.exe
 *.out
+dphpc_test
+dphpc
+
 
 # Ignore Visual Studio Code workspace and user-specific files
 .vscode/
