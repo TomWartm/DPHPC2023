@@ -18,7 +18,7 @@ void init(int N, double* A, double* x, double* b) {
 	}
 }
 
-#define N 121
+#define N 1024
 
 int main(int argc, char** argv) {
 	int size, rank;
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 		if (rank == j / std_rows) x[j] = b[j] / A[(j - rank * std_rows) * N + j];
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Bcast(x + j, 1, MPI_DOUBLE, j / std_rows, MPI_COMM_WORLD);
-#ifdef OMP;
+#ifdef OMP
 #pragma omp for
 #endif
 		for (int i = 0; i < rows; ++i) {
