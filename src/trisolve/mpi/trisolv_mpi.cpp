@@ -3,8 +3,11 @@
 #include "trisolv_mpi.h"
 
 /*
-* TODO: describe how this works
+* Process 0 computes its part. Once a value of x is computed, it sends it to all processes with higher rank.
+*   processes that receive a value start using it (in the "subtruction" part). Once process 0 has finished,
+*   process 1 does the same with its part, and so on.
 * It's way slower than the original, but hopefully it has potential...
+* in both the receive and send phase openMP could be used
 */
 void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
 {
