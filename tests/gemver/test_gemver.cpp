@@ -2,47 +2,35 @@
 #include <iostream>
 
 #include "../../src/gemver/gemver_baseline.h"
+#include "../../src/helpers/gemver_init.h"
 
-
-static void init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z) {
-
-    *alpha = 1.5;
-    *beta = 1.2;
-
-    double fn = (double)n;
-
-    for (int i = 0; i < n; i++)
-    {
-        u1[i] = i;
-        u2[i] = ((i + 1) / fn) / 2.0;
-        v1[i] = ((i + 1) / fn) / 4.0;
-        v2[i] = ((i + 1) / fn) / 6.0;
-        y[i] = ((i + 1) / fn) / 8.0;
-        z[i] = ((i + 1) / fn) / 9.0;
-        x[i] = 0.0;
-        w[i] = 0.0;
-        for (int j = 0; j < n; j++)
-            A[i * n + j] = (double)(i * j % n) / n;
-    }
-}
 
 TEST(gemverTest, kernel_gemver){
 
     int n = 10;
     double alpha;
     double beta;
-    double *A, *A_baseline = (double *)malloc((n * n) * sizeof(double));
-    double *u1, *u1_baseline = (double *)malloc((n) * sizeof(double));
-    double *v1, *v1_baseline = (double *)malloc((n) * sizeof(double));
-    double *u2, *u2_baseline = (double *)malloc((n) * sizeof(double));
-    double *v2, *v2_baseline = (double *)malloc((n) * sizeof(double));
-    double *w , *w_baseline= (double *)malloc((n) * sizeof(double));
-    double *x , *x_baseline= (double *)malloc((n) * sizeof(double));
-    double *y , *y_baseline= (double *)malloc((n) * sizeof(double));
-    double *z , *z_baseline= (double *)malloc((n) * sizeof(double));
+    double *A = (double *)malloc((n * n) * sizeof(double));
+    double *A_baseline = (double *)malloc((n * n) * sizeof(double));
+    double *u1 = (double *)malloc((n) * sizeof(double));
+    double *u1_baseline = (double *)malloc((n) * sizeof(double));
+    double *v1 = (double *)malloc((n) * sizeof(double));
+    double *v1_baseline = (double *)malloc((n) * sizeof(double));
+    double *u2 = (double *)malloc((n) * sizeof(double));
+    double *u2_baseline = (double *)malloc((n) * sizeof(double));
+    double *v2 = (double *)malloc((n) * sizeof(double));
+    double *v2_baseline = (double *)malloc((n) * sizeof(double));
+    double *w = (double *)malloc((n) * sizeof(double));
+    double *w_baseline= (double *)malloc((n) * sizeof(double));
+    double *x = (double *)malloc((n) * sizeof(double));
+    double *x_baseline= (double *)malloc((n) * sizeof(double));
+    double *y = (double *)malloc((n) * sizeof(double));
+    double *y_baseline= (double *)malloc((n) * sizeof(double));
+    double *z = (double *)malloc((n) * sizeof(double));
+    double *z_baseline= (double *)malloc((n) * sizeof(double));
 
-    init_array(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
-    init_array(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
+    init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
+    init_gemver(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
 
     kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
     kernel_gemver(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);

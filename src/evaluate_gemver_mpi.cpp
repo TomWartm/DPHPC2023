@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     
     // open file
-    std::string filePath = "./results/output_gemver_mpi.csv";
+    std::string filePath = "./results/gemver/output_gemver_mpi.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
