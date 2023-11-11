@@ -5,7 +5,7 @@
 #include "helper.h"
 
 
-TEST(trisolveTest, kernel_trisolv){
+TEST(trisolvTest, kernel_trisolv){
     int n = 2000;
     double *L = (double*) malloc((n * n) * sizeof(double));
     double *x = (double*) malloc((n) * sizeof(double));

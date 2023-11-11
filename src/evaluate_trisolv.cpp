@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
 
-            measure_trisolve((std::string) "baseline", &kernel_trisolve, n, outputFile);
+            measure_trisolv((std::string) "baseline", &kernel_trisolv, n, outputFile);
         }
     }
     outputFile.close();

@@ -35,7 +35,7 @@ file_path = "./results/plot_gemver.png"
 plt.savefig(file_path)
 
 ###################################################################
-#                           TRISOLVE                              #
+#                           TRISOLV                               #
 ###################################################################
 
 #Path to the directory containing the CSV files
