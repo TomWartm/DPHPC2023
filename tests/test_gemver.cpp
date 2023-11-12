@@ -7,7 +7,7 @@
 
 static void rand_init_array(int n, double *alpha, double *beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z) {
 
-    srand(time(NULL));
+    srand(42);
 
     // Scaling factors
     double alpha_scale = 20.0, alpha_offset = -10.0;
@@ -74,23 +74,23 @@ TEST(gemverTest, RandomInitialization){
     std::vector<double> y(n), y_baseline(n);
     std::vector<double> z(n), z_baseline(n);
 
-    for (int i = 0; i  < 10; ++i){
-        rand_init_array(n, &alpha, &beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
-        rand_init_array(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-        kernel_gemver(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
-        gemver_baseline(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
+    rand_init_array(n, &alpha, &beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+    rand_init_array(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-        for (int j = 0; j < n * n; j++) {
-            EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
-        }
-        for (int j = 0; j < n; j++) {
-            EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
-        }
-        for (int j = 0; j < n; j++) {
-            EXPECT_NEAR(w[j], w_baseline[j], 1e-6);
-        }
+    kernel_gemver(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+    gemver_baseline(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
+
+    for (int j = 0; j < n * n; j++) {
+        EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
     }
+    for (int j = 0; j < n; j++) {
+        EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
+    }
+    for (int j = 0; j < n; j++) {
+        EXPECT_NEAR(w[j], w_baseline[j], 1e-6);
+    }
+
 }
 
 TEST(gemverTest, DifferentSizes){
