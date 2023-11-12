@@ -1,5 +1,6 @@
 #include <mpi.h>
 #include <stdlib.h>
+#include <cassert>
 #include "trisolv_mpi.h"
 
 /*
@@ -17,6 +18,7 @@ void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     //for simplicity
+    assert(n % mpi_size == 0);
     int process_size = n / mpi_size;
     int process_start = mpi_rank * process_size;
     int process_end = (mpi_rank+1) * process_size;
@@ -71,5 +73,13 @@ void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
     }
 
     //SEND BACK TO PROCESS 0
-    //TODO
+    if (mpi_rank == 0) {
+        //receive them in order
+        for (int p = 1; p < mpi_size; p++) {
+            MPI_Recv(&x[p * process_size], process_size, MPI_DOUBLE, p, p, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+    }
+    else {
+        MPI_Send(&x[process_start], process_size, MPI_DOUBLE, 0, mpi_rank, MPI_COMM_WORLD);
+    }
 }
