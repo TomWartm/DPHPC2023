@@ -3,6 +3,8 @@
 #include <cmath>
 #include <stdlib.h>
 #include <omp.h>
+#include <chrono>
+#include <iomanip>
 
 void init(int N, double* A, double* x, double* b) {
 	for (int i = 0; i < N; ++i) {
@@ -18,7 +20,7 @@ void init(int N, double* A, double* x, double* b) {
 	}
 }
 
-#define N 1024
+#define N 16384
 
 int main(int argc, char** argv) {
 	int size, rank;
@@ -58,6 +60,11 @@ int main(int argc, char** argv) {
 		MPI_Recv(b, N, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	if (rank == 0) {
+		start = std::chrono::high_resolution_clock::now();
+	}
+	MPI_Barrier(MPI_COMM_WORLD);
 	for (int j = 0; j < N; ++j) {
 		if (rank == j / std_rows) x[j] = b[j] / A[(j - rank * std_rows) * N + j];
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -74,9 +81,13 @@ int main(int argc, char** argv) {
 	}
 	
 	if (rank == 0) {
+		end = std::chrono::high_resolution_clock::now();
 		std::cout << "x = [";
 		for (int i = 0; i < N; ++i) std::cout << x[i] << " ";
 		std::cout << "]\n";
+		const std::chrono::duration<double> diff = end - start;
+		std::cout << std::fixed << std::setprecision(9) << std::left;
+        std::cout << "Time: " << diff.count() << '\n';
 	}
 		
 	free(A);
