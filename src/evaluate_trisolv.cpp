@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "trisolv/trisolv_baseline.h"
+#include "trisolv/openmp/trisolv_openmp.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,7 +27,8 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
 
-            measure_trisolv((std::string) "baseline", &kernel_trisolv, n, outputFile);
+            measure_trisolv((std::string) "baseline", &trisolv_baseline, n, outputFile);
+            measure_trisolv((std::string) "openmp", &trisolv_openmp, n, outputFile);
         }
     }
     outputFile.close();
