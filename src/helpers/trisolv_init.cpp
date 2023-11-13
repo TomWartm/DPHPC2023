@@ -1,4 +1,4 @@
-void init_trisolve(int n, double* L, double* x, double* b)
+void init_trisolv(int n, double* L, double* x, double* b)
 {
     for (int i = 0; i < n; i++)
     {
