@@ -40,9 +40,7 @@ void init(int N, double* A, double* x, double* b) {
 	}
 }
 
-
-
-int main() {
+void benchmark() {
 	for (int N = 6; N <= POW; ++N) {
 		int n = std::pow(2, N);
 		double* A = (double*)malloc(n * n * sizeof(double));
@@ -59,6 +57,12 @@ int main() {
 		std::cout << n << " ";
 		std::cout << std::fixed << std::setprecision(9) << std::left;
 		std::cout << diff.count() << '\n';
+	}
+}
+
+int main() {
+	for (int repeat = 0; repeat < REPEAT; ++repeat) {
+		benchmark();
 	}
 	return 0;
 }
