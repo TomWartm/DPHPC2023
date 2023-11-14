@@ -1,5 +1,5 @@
 build : trisolv_colmaj_cp.cpp cluster_crossbar.xml
-	smpicxx trisolv_colmaj_cp.cpp -O3 -POW=10 -o trisolv_colmaj_cp
+	smpicxx trisolv_colmaj_cp.cpp -O3 -DPOW=10 -o trisolv_colmaj_cp
 
 run : trisolv_colmaj_cp
 	smpirun -np 4 -platform cluster_crossbar.xml ./trisolv_colmaj_cp
