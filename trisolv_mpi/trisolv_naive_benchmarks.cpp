@@ -44,15 +44,15 @@ void init(int N, double* A, double* x, double* b) {
 
 int main() {
 	int N = std::pow(2, POW);
-	for (int n = 6; i <= N; ++n) {
-		double* A = (double*)malloc(N * N * sizeof(double));
-		double* x = (double*)malloc(N * sizeof(double));
-		double* b = (double*)malloc(N * sizeof(double));
-		init(N, A, x, b);
+	for (int n = 6; n <= N; ++n) {
+		double* A = (double*)malloc(n * n * sizeof(double));
+		double* x = (double*)malloc(n * sizeof(double));
+		double* b = (double*)malloc(n * sizeof(double));
+		init(n, A, x, b);
 		std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 		start = std::chrono::high_resolution_clock::now();
 		
-		kernel_trisolv(N, A, x, b);
+		kernel_trisolv(n, A, x, b);
 		
 		end = std::chrono::high_resolution_clock::now();
 		const std::chrono::duration<double> diff = end - start;
