@@ -72,9 +72,11 @@ int main(int argc, char** argv) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (rank == 0) {
 		end = std::chrono::high_resolution_clock::now();
+#ifdef PRINTX
 		std::cout << "x = [";
 		for (int i = 0; i < NDEF; ++i) std::cout << x[i] << " ";
 		std::cout << "]\n";
+#endif
 		const std::chrono::duration<double> diff = end - start;
 		std::cout << std::fixed << std::setprecision(9) << std::left;
         std::cout << "Time: " << diff.count() << '\n';
