@@ -1,16 +1,16 @@
-64	0.000034184
-128	0.000035016
-256	0.000072035
-512	0.000171753
-1024	0.000427994
-2048	0.001234638
-4096	0.005281325
-8192	0.022648963
+64	0.000080932
+128	0.000035827
+256	0.000071234
+512	0.000165672
+1024	0.000436753
+2048	0.001373487
+4096	0.005398280
+8192	0.018918630
 --------------------------------------------------------------------------
 Primary job  terminated normally, but 1 process returned
 a non-zero exit code. Per user-direction, the job has been aborted.
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
-mpirun noticed that process rank 0 with PID 13940 on node eu-a2p-344 exited on signal 9 (Killed).
+mpirun noticed that process rank 0 with PID 68230 on node eu-a2p-348 exited on signal 9 (Killed).
 --------------------------------------------------------------------------
-slurmstepd: error: Detected 1 oom_kill event in StepId=35713598.batch. Some of the step tasks have been OOM Killed.
+slurmstepd: error: Detected 1 oom_kill event in StepId=35714391.batch. Some of the step tasks have been OOM Killed.
