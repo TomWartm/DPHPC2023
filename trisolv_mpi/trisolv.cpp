@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 			b[rank * std_rows + i] -= A[i * NDEF + j] * x[j];
 		}
 	}
-	
+	MPI_Barrier(MPI_COMM_WORLD);
 	if (rank == 0) {
 		end = std::chrono::high_resolution_clock::now();
 		std::cout << "x = [";
