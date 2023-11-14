@@ -57,6 +57,9 @@ void benchmark() {
 		std::cout << n << " ";
 		std::cout << std::fixed << std::setprecision(9) << std::left;
 		std::cout << diff.count() << '\n';
+		free(A);
+		free(x);
+		free(b);
 	}
 }
 
