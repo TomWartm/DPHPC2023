@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <chrono>
 #include <iomanip>
+#include <cmath>
 
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
@@ -43,7 +44,7 @@ void init(int N, double* A, double* x, double* b) {
 
 int main() {
 	int N = std::pow(2, POW);
-	for (int n = 6; i < N; ++n) {
+	for (int n = 6; i <= N; ++n) {
 		double* A = (double*)malloc(N * N * sizeof(double));
 		double* x = (double*)malloc(N * sizeof(double));
 		double* b = (double*)malloc(N * sizeof(double));
