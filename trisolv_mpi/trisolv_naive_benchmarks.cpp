@@ -44,7 +44,7 @@ void init(int N, double* A, double* x, double* b) {
 
 int main() {
 	for (int N = 6; N <= POW; ++N) {
-		int N = std::pow(2, N);
+		int n = std::pow(2, N);
 		double* A = (double*)malloc(n * n * sizeof(double));
 		double* x = (double*)malloc(n * sizeof(double));
 		double* b = (double*)malloc(n * sizeof(double));
