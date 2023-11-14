@@ -1,12 +1,12 @@
-build : trisolv.cpp cluster_crossbar.xml
-	smpicxx trisolv.cpp -O3 -fopenmp -DNDEF=32 -DOMP -o trisolv
+build : trisolv_colmaj_cp.cpp cluster_crossbar.xml
+	smpicxx trisolv_colmaj_cp.cpp -O3 -POW=10 -o trisolv_colmaj_cp
 
-run : trisolv
-	smpirun -np 1 -platform cluster_crossbar.xml ./trisolv
+run : trisolv_colmaj_cp
+	smpirun -np 4 -platform cluster_crossbar.xml ./trisolv_colmaj_cp
 
 test : roundtrip.c cluster_crossbar.xml
 	smpicc -O3 roundtrip.c -o roundtrip
 	smpirun -np 16 -platform cluster_crossbar.xml ./roundtrip
 
 clean :
-	rm roundtrip trisolv
+	rm roundtrip trisolv trisolv_colmaj
