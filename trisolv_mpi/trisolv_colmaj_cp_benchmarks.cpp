@@ -20,13 +20,8 @@ void init(int N, double* A, double* x, double* b) {
 	}
 }
 
-int main(int argc, char** argv) {
-	int size, rank;
+void benchmark(int size, int rank) {
 	double *A, *x, *b;
-	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	
 	for (int i = 6; i <= POW; ++i) {
 		int NDEF = std::pow(2, i);
 		int std_rows = std::ceil(1.0 * NDEF / size);
@@ -81,7 +76,17 @@ int main(int argc, char** argv) {
 		free(x);
 		free(b);
 	}
+}
+
+int main(int argc, char** argv) {
+	int size, rank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	
+	for (int repeat = 0; repeat < REPEAT; ++repeat) {
+		benchmark(size, rank);
+	}
 	
 	MPI_Finalize();
 	return 0;
