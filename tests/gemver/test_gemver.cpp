@@ -1,31 +1,33 @@
 #include <gtest/gtest.h>
+#include <iostream>
 
 #include "../../src/gemver/gemver_baseline.h"
-#include "../../src/gemver/gemver_init.h"
+#include "../../src/helpers/gemver_init.h"
 
 
 TEST(gemverTest, kernel_gemver){
+
     int n = 10;
     double alpha;
     double beta;
-    double *A = (double*) malloc((n * n) * sizeof(double));
-    double *A_baseline = (double*) malloc((n * n) * sizeof(double));
-    double *u1 = (double*) malloc((n) * sizeof(double));
-    double *u1_baseline =  (double*) malloc((n) * sizeof(double));
-    double *u2 = (double*) malloc((n) * sizeof(double));
-    double *u2_baseline = (double*) malloc((n) * sizeof(double));
-    double *v1 = (double*) malloc((n) * sizeof(double));
-    double *v1_baseline = (double*) malloc((n) * sizeof(double));
-    double *v2 = (double*) malloc((n) * sizeof(double));
-    double *v2_baseline = (double*) malloc((n) * sizeof(double));
-    double *w = (double*) malloc((n) * sizeof(double));
-    double *w_baseline = (double*) malloc((n) * sizeof(double));
-    double *x = (double*) malloc((n) * sizeof(double));
-    double *x_baseline = (double*) malloc((n) * sizeof(double));
-    double *y = (double*) malloc((n) * sizeof(double));
-    double *y_baseline = (double*) malloc((n) * sizeof(double));
-    double *z = (double*) malloc((n) * sizeof(double));
-    double *z_baseline = (double*) malloc((n) * sizeof(double));
+    double *A = (double *)malloc((n * n) * sizeof(double));
+    double *A_baseline = (double *)malloc((n * n) * sizeof(double));
+    double *u1 = (double *)malloc((n) * sizeof(double));
+    double *u1_baseline = (double *)malloc((n) * sizeof(double));
+    double *v1 = (double *)malloc((n) * sizeof(double));
+    double *v1_baseline = (double *)malloc((n) * sizeof(double));
+    double *u2 = (double *)malloc((n) * sizeof(double));
+    double *u2_baseline = (double *)malloc((n) * sizeof(double));
+    double *v2 = (double *)malloc((n) * sizeof(double));
+    double *v2_baseline = (double *)malloc((n) * sizeof(double));
+    double *w = (double *)malloc((n) * sizeof(double));
+    double *w_baseline= (double *)malloc((n) * sizeof(double));
+    double *x = (double *)malloc((n) * sizeof(double));
+    double *x_baseline= (double *)malloc((n) * sizeof(double));
+    double *y = (double *)malloc((n) * sizeof(double));
+    double *y_baseline= (double *)malloc((n) * sizeof(double));
+    double *z = (double *)malloc((n) * sizeof(double));
+    double *z_baseline= (double *)malloc((n) * sizeof(double));
 
     init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
     init_gemver(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
@@ -63,4 +65,16 @@ TEST(gemverTest, kernel_gemver){
     free((void *)x_baseline);
     free((void *)y_baseline);
     free((void *)z_baseline);
+}
+
+
+
+
+
+
+
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

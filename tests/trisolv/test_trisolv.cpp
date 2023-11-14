@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
 
-#include "../../src/trisolve/trisolve_baseline.h"
-#include "../../src/trisolve/trisolve_init.h"
+#include "../../src/trisolv/trisolv_baseline.h"
+#include "../../src/helpers/trisolv_init.h"
 #include "helper.h"
 
 
-TEST(trisolveTest, kernel_trisolve){
+TEST(trisolvTest, kernel_trisolv){
     int n = 2000;
     double *L = (double*) malloc((n * n) * sizeof(double));
     double *x = (double*) malloc((n) * sizeof(double));
     double *b = (double*) malloc((n) * sizeof(double));
 
-    init_trisolve(n, L, x, b);
-    kernel_trisolve(n, L, x, b);
+    init_trisolv(n, L, x, b);
+    kernel_trisolv(n, L, x, b);
 
     ASSERT_EQ(1,1); // TODO: check results
 
@@ -34,7 +34,7 @@ TEST(trisolvTest, from_file) {
         init_matrix(L, test.A, test.N);
         init_vector(x, test.x, test.N);
         init_vector(b, test.b, test.N);
-        kernel_trisolve(test.N, L, x, b);
+        kernel_trisolv(test.N, L, x, b);
         bool correct = check_result(x, test.x, test.N, test.Epsilon);
         EXPECT_TRUE(correct);
         if (!correct) std::cout << "FAILED " << test.test_name << "\n";
