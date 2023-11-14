@@ -34,7 +34,7 @@ $(GEMVER_MPI_EXECUTALE): $(GEMVER_MPI_EXECUTABLE_SRC) $(wildcard $(GEMVER_DIR)/*
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS)
 
 gemver_mpi: $(GEMVER_MPI_EXECUTALE)
-	mpirun -np 3 ./$(GEMVER_MPI_EXECUTALE)
+	mpirun -np 2 ./$(GEMVER_MPI_EXECUTALE)
 
 
 # Compile and run evaluate_trisolv.cpp
@@ -56,7 +56,7 @@ $(TRISOLV_MPI_EXECUTABLE): $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DI
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS)
 
 trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
-	mpirun -np 3 ./$(TRISOLV_MPI_EXECUTABLE)
+	mpirun -np 2 ./$(TRISOLV_MPI_EXECUTABLE)
 
 
 ## Testing
