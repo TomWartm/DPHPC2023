@@ -1,12 +1,12 @@
 #include "helpers/measure.h"
 #include <iostream>
 #include <fstream>
-#include "gemver/gemver_baseline.h"
+#include "trisolv/trisolv_baseline.h"
 
 int main(int argc, char *argv[])
 {
     // open file
-    std::string filePath = "./results/gemver/output_gemver.csv";
+    std::string filePath = "./results/trisolv/output_trisolv.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
 
-            measure_gemver((std::string) "baseline", &kernel_gemver, n, outputFile);
+            measure_trisolv((std::string) "baseline", &kernel_trisolv, n, outputFile);
         }
     }
     outputFile.close();

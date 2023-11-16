@@ -1,8 +1,18 @@
 # Ignore object files (.o)
 *.o
 
-# Ignore executable files (.exe)
+# Ignore executable files
 *.exe
+*.out
+evaluate_gemver
+evaluate_gemver_mpi
+evaluate_trisolv
+evaluate_trisolv_mpi
+build_test_gemver
+build_test_gemver_mpi
+build_test_trisolv
+build_test_trisolv_mpi
+
 
 # Ignore Visual Studio Code workspace and user-specific files
 .vscode/
