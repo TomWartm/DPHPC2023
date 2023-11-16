@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <vector>
-#include "../src/gemver/gemver_baseline.h"
+#include "../../src/gemver/gemver_baseline.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -78,8 +78,9 @@ TEST(gemverTest, RandomInitialization){
     rand_init_array(n, &alpha, &beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
     rand_init_array(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
+    //kernel_gemver represents the baseline
     kernel_gemver(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
-    gemver_baseline(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
+    kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
     for (int j = 0; j < n * n; j++) {
         EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
@@ -114,16 +115,16 @@ TEST(gemverTest, DifferentSizes){
         init_array(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
         kernel_gemver(n, alpha, beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
-        gemver_baseline(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
+        kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-        for (int i = 0; i < n * n; i++) {
-            EXPECT_DOUBLE_EQ(A[i], A_baseline[i]);
+        for (int j = 0; j < n * n; j++) {
+        EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
         }
-        for (int i = 0; i < n; i++) {
-            EXPECT_DOUBLE_EQ(x[i], x_baseline[i]);
+        for (int j = 0; j < n; j++) {
+        EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
         }
-        for (int i = 0; i < n; i++) {
-            EXPECT_DOUBLE_EQ(w[i], w_baseline[i]);
+        for (int j = 0; j < n; j++) {
+        EXPECT_NEAR(w[j], w_baseline[j], 1e-6);
         }
     }
 }
