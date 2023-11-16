@@ -96,7 +96,7 @@ TEST(gemverTest, RandomInitialization){
 TEST(gemverTest, DifferentSizes){
     
     std::vector<int>  n_vec(5);
-    n_vec = {0, 1, 2, 10, 100};
+    n_vec = {0, 10, 100, 1000, 10000};
     double alpha;
     double beta;
 
