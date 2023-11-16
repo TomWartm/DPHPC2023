@@ -40,17 +40,15 @@ void init(int N, double* A, double* x, double* b) {
 }
 
 
-#define N 16384
-
 int main() {
-	double* A = (double*)malloc(N * N * sizeof(double));
-	double* x = (double*)malloc(N * sizeof(double));
-	double* b = (double*)malloc(N * sizeof(double));
-	init(N, A, x, b);
+	double* A = (double*)malloc(NDEF * NDEF * sizeof(double));
+	double* x = (double*)malloc(NDEF * sizeof(double));
+	double* b = (double*)malloc(NDEF * sizeof(double));
+	init(NDEF, A, x, b);
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	start = std::chrono::high_resolution_clock::now();
 	
-	kernel_trisolv(N, A, x, b);
+	kernel_trisolv(NDEF, A, x, b);
 	
 	end = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<double> diff = end - start;

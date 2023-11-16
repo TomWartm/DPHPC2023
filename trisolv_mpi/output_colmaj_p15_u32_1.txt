@@ -1,0 +1,63 @@
+0 sending 33554432 elements to 1
+1 received 33554432 elements
+0 sending 33554432 elements to 2
+2 received 33554432 elements
+0 sending 33554432 elements to 3
+3 received 33554432 elements
+0 sending 33554432 elements to 4
+4 received 33554432 elements
+0 sending 33554432 elements to 5
+5 received 33554432 elements
+0 sending 33554432 elements to 6
+6 received 33554432 elements
+0 sending 33554432 elements to 7
+7 received 33554432 elements
+8 received 33554432 elements
+0 sending 33554432 elements to 8
+0 sending 33554432 elements to 9
+9 received 33554432 elements
+0 sending 33554432 elements to 10
+10 received 33554432 elements
+0 sending 33554432 elements to 11
+11 received 33554432 elements
+0 sending 33554432 elements to 12
+12 received 33554432 elements
+0 sending 33554432 elements to 13
+13 received 33554432 elements
+0 sending 33554432 elements to 14
+14 received 33554432 elements
+0 sending 33554432 elements to 15
+15 received 33554432 elements
+0 sending 33554432 elements to 16
+16 received 33554432 elements
+0 sending 33554432 elements to 17
+17 received 33554432 elements
+0 sending 33554432 elements to 18
+18 received 33554432 elements
+0 sending 33554432 elements to 19
+19 received 33554432 elements
+0 sending 33554432 elements to 20
+20 received 33554432 elements
+0 sending 33554432 elements to 21
+21 received 33554432 elements
+0 sending 33554432 elements to 22
+22 received 33554432 elements
+0 sending 33554432 elements to 23
+23 received 33554432 elements
+0 sending 33554432 elements to 24
+24 received 33554432 elements
+0 sending 33554432 elements to 25
+25 received 33554432 elements
+0 sending 33554432 elements to 26
+26 received 33554432 elements
+0 sending 33554432 elements to 27
+27 received 33554432 elements
+0 sending 33554432 elements to 28
+28 received 33554432 elements
+0 sending 33554432 elements to 29
+29 received 33554432 elements
+0 sending 33554432 elements to 30
+30 received 33554432 elements
+0 sending 33554432 elements to 31
+31 received 33554432 elements
+Time: 0.075680040
