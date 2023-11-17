@@ -67,16 +67,16 @@ void measure_gemver_mpi(std::string functionName, void (*func)(int, double, doub
     }
 
 
-    // free memory
-    free((void *)A);
-    free((void *)u1);
-    free((void *)v1);
-    free((void *)u2);
-    free((void *)v2);
-    free((void *)w);
-    free((void *)x);
-    free((void *)y);
-    free((void *)z);
+    // MPI_Free_mem memory
+    MPI_Free_mem((void *)A);
+    MPI_Free_mem((void *)u1);
+    MPI_Free_mem((void *)v1);
+    MPI_Free_mem((void *)u2);
+    MPI_Free_mem((void *)v2);
+    MPI_Free_mem((void *)w);
+    MPI_Free_mem((void *)x);
+    MPI_Free_mem((void *)y);
+    MPI_Free_mem((void *)z);
 }
 
 
@@ -99,14 +99,11 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     struct timespec start, end;
     double elapsed_time;
 
-    // initialize data on process 0
-    if (rank == 0) {
-        init_trisolv(n, L, x, b);
-    }
+    // initialize data on all processes
+    init_trisolv(n, L, x, b);
 
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    // Broadcast data to all other
     MPI_Barrier(MPI_COMM_WORLD);
+    clock_gettime(CLOCK_MONOTONIC, &start);
     func(n, L, x, b);
     clock_gettime(CLOCK_MONOTONIC, &end);
     MPI_Barrier(MPI_COMM_WORLD);
@@ -114,10 +111,12 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     elapsed_time = (end.tv_sec - start.tv_sec) + (double)(end.tv_nsec - start.tv_nsec) / 1e9;
 
     // write to output file
-    outputFile << n << ";" << elapsed_time << ";" << functionName << std::endl;
+    if (rank == 0) {
+        outputFile << n << ";" << elapsed_time << ";" << functionName << std::endl;
+    }
 
     // free memory
-    free((void*)L);
-    free((void*)x);
-    free((void*)b);
+    MPI_Free_mem(L);
+    MPI_Free_mem(x);
+    MPI_Free_mem(b);
 }
