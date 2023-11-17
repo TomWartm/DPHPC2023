@@ -77,6 +77,11 @@ void measure_gemver_mpi(std::string functionName, void (*func)(int, double, doub
     free((void *)x);
     free((void *)y);
     free((void *)z);
+
+    free((void *)A_result);
+    free((void *)x_result);
+    free((void *)w_result);
+
 }
 
 

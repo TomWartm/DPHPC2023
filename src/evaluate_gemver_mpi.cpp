@@ -5,9 +5,9 @@
 #include <mpi.h>
 
 int main(int argc, char *argv[])
-{   
+{
     MPI_Init(&argc, &argv);
-    
+
     // open file
     std::string filePath = "./results/gemver/output_gemver_mpi.csv";
     std::ofstream outputFile(filePath);
@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 5;
-    for (int n = 4000; n <= 8000; n *= 2)
+    int num_runs = 2;
+    for (int n = 4; n <= 10000; n *= 2)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)
@@ -31,9 +31,8 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
 
-            measure_gemver_mpi((std::string) "gemver_mpi_1", &gemver_mpi_1, n, outputFile);
-            
-            
+            measure_gemver_mpi((std::string) "mpi_baseline", &gemver_mpi_1, n, outputFile);
+            measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
         }
     }
 
