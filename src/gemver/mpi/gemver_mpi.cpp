@@ -196,7 +196,7 @@ void gemver_mpi_2(int n, double alpha, double beta, double *A, double *u1, doubl
 
     // array A_result_transpose: all processes get blockSize rows, except last process which gets the remaining elements
     double* local_A_result_transpose = (double*)malloc(localSize*n * sizeof(double));
-    MPI_Scatterv(A_result,scountsMatrix, displsMatrix, MPI_DOUBLE, local_A_result_transpose, localSize*n, MPI_DOUBLE, 0, MPI_COMM_WORLD); // A_result_transpose -> local_A_result_transpose
+    MPI_Scatterv(A_result_transpose,scountsMatrix, displsMatrix, MPI_DOUBLE, local_A_result_transpose, localSize*n, MPI_DOUBLE, 0, MPI_COMM_WORLD); // A_result_transpose -> local_A_result_transpose
     
     // vectors z,x : all processes get size: blockSize, except last process which gets the remaining elements
     double* local_z = (double*)malloc(localSize * sizeof(double));
