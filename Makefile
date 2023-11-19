@@ -9,6 +9,7 @@ SRC_DIR = src
 HELPERS_DIR = $(SRC_DIR)/helpers
 HELPERS_MPI_DIR = $(SRC_DIR)/helpers/mpi
 GEMVER_DIR = $(SRC_DIR)/gemver
+GEMVER_OPENMP_DIR = $(SRC_DIR)/gemver/openmp
 GEMVER_MPI_DIR = $(SRC_DIR)/gemver/mpi
 TRISOLV_DIR = $(SRC_DIR)/trisolv
 TRISOLV_MPI_DIR = $(SRC_DIR)/trisolv/mpi
@@ -61,14 +62,14 @@ trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
 
 ## Testing
 # Compile and run test_gemver.cpp
-TEST_GEMVER_EXECUTABLE = build_test_gemver
-TEST_GEMVER_DIR = tests/gemver
+TEST_GEMVER_OPENMP_EXECUTABLE = build_test_gemver_openmp
+TEST_GEMVER_OPENMP_DIR = tests/gemver/openmp
 
-$(TEST_GEMVER_EXECUTABLE): $(wildcard $(TEST_GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp)
+$(TEST_GEMVER_OPENMP_EXECUTABLE): $(wildcard $(TEST_GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp)
 	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main
 
-test_gemver: $(TEST_GEMVER_EXECUTABLE)
-	./$(TEST_GEMVER_EXECUTABLE)
+test_gemver_openmp: $(TEST_GEMVER_OPENMP_EXECUTABLE)
+	./$(TEST_GEMVER_OPENMP_EXECUTABLE)
 
 
 # Compile and run test_gemver_mpi.cpp

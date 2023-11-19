@@ -74,13 +74,8 @@ TEST(gemverTest, gemver_mpi_1)
         kernel_gemver(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
     }
 
-
-
     // compute gemver
     gemver_mpi_1(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z, A_result, x_result, w_result); // just stupidly compute same in all processes
-    
-
-
 
     if (rank == 0)
     {
@@ -88,15 +83,15 @@ TEST(gemverTest, gemver_mpi_1)
         // check results in process 0
         for (int i = 0; i < n * n; i++)
         {
-            ASSERT_NEAR(A_result[i], A_baseline[i], 1e-6);
+            EXPECT_NEAR(A_result[i], A_baseline[i], 1e-6);
         }
         for (int i = 0; i < n; i++)
         {
-            ASSERT_NEAR(x_result[i], x_baseline[i], 1e-6);
+            EXPECT_NEAR(x_result[i], x_baseline[i], 1e-6);
         }
         for (int i = 0; i < n; i++)
         {
-            ASSERT_NEAR(w_result[i], w_baseline[i], 1e-6);
+            EXPECT_NEAR(w_result[i], w_baseline[i], 1e-6);
         }
 
         // Free the allocated memory
