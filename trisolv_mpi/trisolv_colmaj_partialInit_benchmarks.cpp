@@ -30,6 +30,7 @@ void init(int N, double* A, double* x, double* b, int first, int rows) {
 void benchmark(int size, int rank) {
 	double *A = nullptr, *x = nullptr, *b = nullptr;
 	for (int i = 6; i <= POW; ++i) {
+		int NDEF = std::pow(2, POW);
 		int std_rows = std::ceil(1.0 * NDEF / size);
 		int rows = std_rows;
 		if (rank == size - 1 && NDEF % rows != 0) rows = NDEF % std_rows;
