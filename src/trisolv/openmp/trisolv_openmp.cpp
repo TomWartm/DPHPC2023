@@ -1,5 +1,7 @@
-#include <mpi.h>
-void trisolv_mpi_v0(int n, double* L, double* x, double* b){
+#include "trisolv_openmp.h"
+
+//v0 represents the baseline function, used as a placeholder
+void trisolv_openmp_v0(int n, double* L, double* x, double* b){
     for (int i = 0; i < n; i++)
     {
         x[i] = b[i];
@@ -11,6 +13,3 @@ void trisolv_mpi_v0(int n, double* L, double* x, double* b){
         x[i] = x[i] / L[i * n + i];
     }
 }
-
-
-
