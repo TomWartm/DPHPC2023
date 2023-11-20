@@ -32,7 +32,7 @@ TEST(trisolvMPITest, IdentityInitialization) {
         identity_trisolv(n, L_baseline, x_baseline, b_baseline);
 
         // Compute baseline solution
-        kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+        trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
     }
 
     // Compute trisolv using MPI
@@ -83,7 +83,7 @@ TEST(trisolvMPITest, RandomInitialization) {
         random_trisolv(n, L_baseline, x_baseline, b_baseline);
 
         // Compute baseline solution
-        kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+        trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
     }
 
     // Compute trisolv using MPI
@@ -134,7 +134,7 @@ TEST(trisolvMPITest, LTriangularInitialization) {
         lowertriangular_trisolv(n, L_baseline, x_baseline, b_baseline);
 
         // Compute baseline solution
-        kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+        trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
     }
 
     // Compute trisolv using MPI
@@ -185,7 +185,7 @@ TEST(trisolvMPITest, DifferentSizes) {
             init_trisolv(n, L_baseline, x_baseline, b_baseline);
 
             // Compute baseline solution
-            kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+            trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
         }
 
         // Compute trisolv using MPI
