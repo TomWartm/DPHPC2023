@@ -1,5 +1,5 @@
 # Compiler flags
-CXXFLAGS = -std=c++14 -Wall
+CXXFLAGS = -std=c++14 -Wall -fopenmp
 
 # MPI flags
 MPIFLAGS = -I/path/to/mpi/include -L/path/to/mpi/lib -lmpi
@@ -41,7 +41,7 @@ gemver_mpi: $(GEMVER_MPI_EXECUTALE)
 TRISOLV_EXECUTABLE = evaluate_trisolv
 TRISOLV_EXECUTABLE_SRC = src/evaluate_trisolv.cpp
 
-$(TRISOLV_EXECUTABLE): $(TRISOLV_EXECUTABLE_SRC)  $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
+$(TRISOLV_EXECUTABLE): $(TRISOLV_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/openmp/*.cpp)  $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
 	g++ $(CXXFLAGS)  -o $@ $^
 
 trisolv: $(TRISOLV_EXECUTABLE)
