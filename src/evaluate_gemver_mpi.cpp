@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 5;
+    int num_runs = 4;
     for (int n = 4; n <= 10000; n *= 2)
     {
 
@@ -30,9 +30,12 @@ int main(int argc, char *argv[])
             std::cout << "N = " << n << std::endl;
 
             /////////////////////////// method 1 /////////////////////////////////////
-
+            MPI_Barrier(MPI_COMM_WORLD);
             measure_gemver_mpi((std::string) "mpi_baseline", &gemver_mpi_1, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
             measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
+            measure_gemver_mpi((std::string) "gemver_mpi_3", &gemver_mpi_3, n, outputFile);
         }
     }
 
