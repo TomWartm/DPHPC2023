@@ -16,8 +16,8 @@ python plot/plot.py
 
 # Run Tests
 
-- Trisolv:  `make test_trisolv`
-- Gemver:  `make test_gemver`
+- Trisolv:  `make test_trisolv_openmp`
+- Gemver:  `make test_gemver_openmp`
 
 
 - Trisolv MPI:  `make test_trisolv_mpi`
