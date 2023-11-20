@@ -20,13 +20,13 @@ TEST(trisolvTest, IdentityInitialization){
     kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
-        ASSERT_NEAR(L[j], L_baseline[j], 1e-6);
+        EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        ASSERT_NEAR(x[j], x_baseline[j], 1e-6);
+        EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        ASSERT_NEAR(b[j], b_baseline[j], 1e-6);
+        EXPECT_NEAR(b[j], b_baseline[j], 1e-6);
     }
     free((void*)L); free((void*)L_baseline);
     free((void*)x); free((void*)x_baseline);
@@ -47,13 +47,13 @@ TEST(trisolvTest, RandomInitialization){
     kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
-        ASSERT_NEAR(L[j], L_baseline[j], 1e-6);
+        EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        ASSERT_NEAR(x[j], x_baseline[j], 1e-6);
+        EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        ASSERT_NEAR(b[j], b_baseline[j], 1e-6);
+        EXPECT_NEAR(b[j], b_baseline[j], 1e-6);
     }
 
     free((void*)L); free((void*)L_baseline);
@@ -75,13 +75,13 @@ TEST(trisolvTest, LTriangularInitialization){
     kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
-        ASSERT_NEAR(L[j], L_baseline[j], 1e-6);
+        EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        ASSERT_NEAR(x[j], x_baseline[j], 1e-6);
+        EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        ASSERT_NEAR(b[j], b_baseline[j], 1e-6);
+        EXPECT_NEAR(b[j], b_baseline[j], 1e-6);
     }
 
     free((void*)L); free((void*)L_baseline);
@@ -104,13 +104,13 @@ TEST(trisolvTest, DifferentSizes){
         kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
 
         for (int j = 0; j < n * n; j++) {
-            ASSERT_NEAR(L[j], L_baseline[j], 1e-6);
+            EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
         }
         for (int j = 0; j < n; j++) {
-            ASSERT_NEAR(x[j], x_baseline[j], 1e-6);
+            EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
         }
         for (int j = 0; j < n; j++) {
-            ASSERT_NEAR(b[j], b_baseline[j], 1e-6);
+            EXPECT_NEAR(b[j], b_baseline[j], 1e-6);
         }
 
         free((void*)L); free((void*)L_baseline);

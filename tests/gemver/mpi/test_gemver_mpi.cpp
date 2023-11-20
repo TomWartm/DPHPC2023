@@ -74,7 +74,7 @@ TEST(gemverTest, SparseInitialization)
     }
 
     // compute gemver
-    kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z); // just stupidly compute same in all processes
+    gemver_mpi_v1(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z, A_result, x_result, w_result); // just stupidly compute same in all processes
 
     if (rank == 0)
     {
@@ -183,7 +183,7 @@ TEST(gemverTest, RandomInitialization){
     }
 
     // compute gemver
-    kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z); // just stupidly compute same in all processes
+    gemver_mpi_v1(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z, A_result, x_result, w_result); // just stupidly compute same in all processes
 
     if (rank == 0){
 
@@ -291,7 +291,7 @@ TEST(gemverTest, DifferentSizes){
         }
 
         // compute gemver
-        kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z); // just stupidly compute same in all processes
+        gemver_mpi_v1(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z, A_result, x_result, w_result); // just stupidly compute same in all processes
 
         if (rank == 0){
 

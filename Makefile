@@ -17,40 +17,40 @@ TRISOLV_MPI_DIR = $(SRC_DIR)/trisolv/mpi
 
 
 ## Timing
-# Compile and run evaluate_gemver.cpp
-GEMVER_EXECUTALE = evaluate_gemver
-GEMVER_EXECUTABLE_SRC = src/evaluate_gemver.cpp
+# Compile and run evaluate_gemver_openmp.cpp
+GEMVER_OPENMP_EXECUTABLE = evaluate_gemver_openmp
+GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver_openmp.cpp
 
-$(GEMVER_EXECUTALE): $(GEMVER_EXECUTABLE_SRC)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
+$(GEMVER_OPENMP_EXECUTABLE): $(GEMVER_OPENMP_EXECUTABLE_SRC)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
 	g++ $(CXXFLAGS)  -o $@ $^
 
-gemver: $(GEMVER_EXECUTALE)
-	./$(GEMVER_EXECUTALE)
+gemver_openmp: $(GEMVER_OPENMP_EXECUTABLE)
+	./$(GEMVER_OPENMP_EXECUTABLE)
 
 
 # Compile and run evaluate_gemver_mpi.cpp
-GEMVER_MPI_EXECUTALE = evaluate_gemver_mpi
+GEMVER_MPI_EXECUTABLE = evaluate_gemver_mpi
 GEMVER_MPI_EXECUTABLE_SRC = src/evaluate_gemver_mpi.cpp
 
-$(GEMVER_MPI_EXECUTALE): $(GEMVER_MPI_EXECUTABLE_SRC) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
+$(GEMVER_MPI_EXECUTABLE): $(GEMVER_MPI_EXECUTABLE_SRC) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS)
 
-gemver_mpi: $(GEMVER_MPI_EXECUTALE)
-	mpirun -np 3 ./$(GEMVER_MPI_EXECUTALE)
+gemver_mpi: $(GEMVER_MPI_EXECUTABLE)
+	mpirun -np 3 ./$(GEMVER_MPI_EXECUTABLE)
 
 
-# Compile and run evaluate_trisolv.cpp
-TRISOLV_EXECUTABLE = evaluate_trisolv
-TRISOLV_EXECUTABLE_SRC = src/evaluate_trisolv.cpp
+# Compile and run evaluate_trisolv_openmp.cpp
+TRISOLV_OPENMP_EXECUTABLE = evaluate_trisolv_openmp
+TRISOLV_OPENMP_EXECUTABLE_SRC = src/evaluate_trisolv_openmp.cpp
 
-$(TRISOLV_EXECUTABLE): $(TRISOLV_EXECUTABLE_SRC)  $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
+$(TRISOLV_OPENMP_EXECUTABLE): $(TRISOLV_OPENMP_EXECUTABLE_SRC)  $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
 	g++ $(CXXFLAGS)  -o $@ $^
 
 trisolv: $(TRISOLV_EXECUTABLE)
-	./$(TRISOLV_EXECUTABLE)
+	./$(TRISOLV_OPENMP_EXECUTABLE)
 
 
-# Compile and run evaluate_gemver_mpi.cpp
+# Compile and run evaluate_trisolv_mpi.cpp
 TRISOLV_MPI_EXECUTABLE = evaluate_trisolv_mpi
 TRISOLV_MPI_EXECUTABLE_SRC = src/evaluate_trisolv_mpi.cpp
 
@@ -62,7 +62,7 @@ trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
 
 
 ## Testing
-# Compile and run test_gemver.cpp
+# Compile and run test_gemver_openmp.cpp
 TEST_GEMVER_OPENMP_EXECUTABLE = build_test_gemver_openmp
 TEST_GEMVER_OPENMP_DIR = tests/gemver/openmp
 
@@ -84,7 +84,7 @@ test_gemver_mpi: $(TEST_GEMVER_MPI_EXECUTABLE)
 	mpirun -np 2 ./$(TEST_GEMVER_MPI_EXECUTABLE)
 
 
-# Compile and run test_trisolv.cpp
+# Compile and run test_trisolv_openmp.cpp
 TEST_TRISOLV_OPENMP_EXECUTABLE = build_test_trisolv_openmp
 TEST_TRISOLV_OPENMP_DIR = tests/trisolv/openmp
 
@@ -107,4 +107,4 @@ test_trisolv_mpi: $(TEST_TRISOLV_MPI_EXECUTABLE)
 
 # remove all .o and executable files
 clean:
-	rm -f *.o $(GEMVER_EXECUTALE) $(GEMVER_MPI_EXECUTALE) $(TRISOLV_EXECUTABLE) $(TRISOLV_MPI_EXECUTABLE) $(TEST_GEMVER_OPENMP_EXECUTABLE) $(TEST_GEMVER_MPI_EXECUTABLE) $(TEST_TRISOLV_OPENMP_EXECUTABLE) $(TEST_TRISOLV_MPI_EXECUTABLE)
+	rm -f *.o $(GEMVER_OPENMP_EXECUTABLE) $(GEMVER_MPI_EXECUTABLE) $(TRISOLV_OPENMP_EXECUTABLE) $(TRISOLV_MPI_EXECUTABLE) $(TEST_GEMVER_OPENMP_EXECUTABLE) $(TEST_GEMVER_MPI_EXECUTABLE) $(TEST_TRISOLV_OPENMP_EXECUTABLE) $(TEST_TRISOLV_MPI_EXECUTABLE)
