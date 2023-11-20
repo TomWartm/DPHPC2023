@@ -40,9 +40,10 @@ int main(int argc, char** argv) {
 		rows = NDEF % std_rows;
 	}
 	std::cout << rank << "    " << rows << "\n";
-	double* A = (double*)malloc(rows * NDEF * sizeof(double) * 2);
-	double* x = (double*)malloc(NDEF * sizeof(double) * 2);
-	double* b = (double*)malloc(NDEF * sizeof(double) * 2);
+	double *A = nullptr, *x = nullptr, *b = nullptr;
+	MPI_Alloc_mem(rows * NDEF * sizeof(double), MPI_INFO_NULL, &A);
+	MPI_Alloc_mem(NDEF * sizeof(double), MPI_INFO_NULL, &x);
+	MPI_Alloc_mem(NDEF * sizeof(double), MPI_INFO_NULL, &b);
 	init(NDEF, A, x, b, std_rows * rank, rows);
 	
 	
@@ -74,9 +75,9 @@ int main(int argc, char** argv) {
         std::cout << "Time: " << diff.count() << '\n';
 	}
 		
-	free(A);
-	free(x);
-	free(b);
+	MPI_Free_mem(A);
+	MPI_Free_mem(x);
+	MPI_Free_mem(b);
 	MPI_Finalize();
 	return 0;
 }
