@@ -1,5 +1,5 @@
 # Compiler flags
-CXXFLAGS = -std=c++14 -Wall
+CXXFLAGS = -std=c++1y -Wall
 
 # MPI flags
 MPIFLAGS = -I/path/to/mpi/include -L/path/to/mpi/lib -lmpi
