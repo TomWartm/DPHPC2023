@@ -6,5 +6,5 @@
 #SBATCH --nodes=1
 export OMP_NUM_THREADS=16
 export OMP_PLACES=cores
-srun --cpus-per-task=16 ./trisolv_colmaj_partialInit_omp.cpp
+srun --cpus-per-task=16 ./trisolv_colmaj_partialInit_omp
 
