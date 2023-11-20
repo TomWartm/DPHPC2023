@@ -9,7 +9,7 @@
 void init(int N, double* A, double* x, double* b, int first, int rows) {
 	for (int j = 0; j < N; ++j) {
 		for (int i = 0; i < rows; ++i) {
-			A[j * N + i] = 1.0 * (i + first >= j);
+			A[j * rows + i] = 1.0 * (i + first >= j);
 		}
 	}
 	int k = 0;
@@ -18,12 +18,13 @@ void init(int N, double* A, double* x, double* b, int first, int rows) {
 		x[i] = 0.0;
 		b[i] = k;
 	}
+	/*
 	for (int i = 0; i < rows; ++i) {
 		for (int j = 0; j < N; ++j) {
-			std::cout << A[j * N + i] << " ";
+			std::cout << A[j * rows + i] << " ";
 		}
 		std::cout << "\n";
-	}
+	}*/
 }
 
 int main(int argc, char** argv) {
@@ -35,34 +36,27 @@ int main(int argc, char** argv) {
 	
 	int std_rows = std::ceil(1.0 * NDEF / size);
 	int rows = std_rows;
-	if (rank == size - 1 && NDEF % rows != 0) {
-		std::cout << "TRUE\n";
-		rows = NDEF % std_rows;
-	}
-	std::cout << rank << "    " << rows << "\n";
+	if (rank == size - 1 && NDEF % rows != 0) rows = NDEF % std_rows;
 	double *A = nullptr, *x = nullptr, *b = nullptr;
 	MPI_Alloc_mem(rows * NDEF * sizeof(double), MPI_INFO_NULL, &A);
 	MPI_Alloc_mem(NDEF * sizeof(double), MPI_INFO_NULL, &x);
 	MPI_Alloc_mem(NDEF * sizeof(double), MPI_INFO_NULL, &b);
 	init(NDEF, A, x, b, std_rows * rank, rows);
 	
-	
 	MPI_Barrier(MPI_COMM_WORLD);
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	if (rank == 0) {
+		std::cout << "N = " << NDEF << "\n#CPUS = " << size << "\n";
 		start = std::chrono::high_resolution_clock::now();
 	}
-	MPI_Barrier(MPI_COMM_WORLD);
 	for (int j = 0; j < NDEF; ++j) {
-		if (rank == j / std_rows) x[j] = b[j] / A[(j - rank * std_rows) * std_rows + j];
+		if (rank == j / std_rows) x[j] = b[j] / A[(j - rank * std_rows) * rows + j];
 		MPI_Bcast(x + j, 1, MPI_DOUBLE, j / std_rows, MPI_COMM_WORLD);
-		for (int i = 0; i < std_rows; ++i) {
-			b[rank * std_rows + i] -= A[j * std_rows + i] * x[j];
+		for (int i = 0; i < rows; ++i) {
+			b[rank * std_rows + i] -= A[j * rows + i] * x[j];
 		}
 	}
 	
-	
-	MPI_Barrier(MPI_COMM_WORLD);
 	if (rank == 0) {
 		end = std::chrono::high_resolution_clock::now();
 #ifdef PRINTX
