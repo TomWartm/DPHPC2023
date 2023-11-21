@@ -16,8 +16,8 @@ TEST(trisolvTest, IdentityInitialization){
     identity_trisolv(n, L, x, b);
     identity_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_v0(n, L, x, b);
-    kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+    trisolv_openmp(n, L, x, b);
+    trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
         EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
@@ -43,8 +43,8 @@ TEST(trisolvTest, RandomInitialization){
     random_trisolv(n, L, x, b);
     random_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_v0(n, L, x, b);
-    kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+    trisolv_openmp(n, L, x, b);
+    trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
         EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
@@ -71,8 +71,8 @@ TEST(trisolvTest, LTriangularInitialization){
     lowertriangular_trisolv(n, L, x, b);
     lowertriangular_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_v0(n, L, x, b);
-    kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+    trisolv_openmp(n, L, x, b);
+    trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
         EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
@@ -100,8 +100,8 @@ TEST(trisolvTest, DifferentSizes){
         init_trisolv(n, L, x, b);
         init_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-        trisolv_openmp_v0(n, L, x, b);
-        kernel_trisolv(n, L_baseline, x_baseline, b_baseline);
+        trisolv_openmp(n, L, x, b);
+        trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
         for (int j = 0; j < n * n; j++) {
             EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
