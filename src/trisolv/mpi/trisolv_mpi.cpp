@@ -93,6 +93,8 @@ void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
 */
 void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
 {
+    const int doubles_per_line = 8; //per cache line: 8 x 8 bytes = 64 bytes
+    assert(n % doubles_per_line == 0);
 
     int i, j;
 
@@ -118,7 +120,7 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
         MPI_Group_incl(group_world, num_origins, origin_ranks, &group_origin);
     }
 
-    assert(n % world_size == 0);
+    assert(n % (world_size * doubles_per_line) == 0);
     int process_size = n / world_size;
     int process_start = world_rank * process_size;
     int process_end = (world_rank+1) * process_size;
@@ -132,7 +134,7 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
     MPI_Win_create(x, n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &x_win);
 
     //GET PHASE
-    for (i = 0; i < process_start; i++) {
+    for (i = 0; i < process_start; i += doubles_per_line) {
         //create group containing the target process
         if (i % process_size == 0) {
             target_rank++;
@@ -140,12 +142,14 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
         }
 
         MPI_Win_start(group_target, 0 /*MPI_MODE_NOCHECK? */, x_win);
-            double xi; //x[i]
-            MPI_Get(&xi, 1, MPI_DOUBLE, target_rank, i, 1, MPI_DOUBLE, x_win);
+            double x_line[doubles_per_line];
+            MPI_Get(x_line, doubles_per_line, MPI_DOUBLE, target_rank, i, doubles_per_line, MPI_DOUBLE, x_win);
         MPI_Win_complete(x_win);
 
         for (int k = process_start; k < process_end; k++) {
-            x[k] -= L[k*n + i] * xi;
+            for (j = i; j < doubles_per_line; j++) {
+                x[k] -= L[k*n + j] * x_line[j];
+            }
         }
     }
 
@@ -157,9 +161,10 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
                 x[i] -= L[i*n + j] * x[j];
             }
             x[i] /= L[i*n + i];
-            //give access to other processes
-            MPI_Win_post(group_origin, 0 /* MPI_MODE_NOCHECK? */, x_win);
-            MPI_Win_wait(x_win);
+            if ((i + 1) % doubles_per_line == 0) { //give access to other processes
+                MPI_Win_post(group_origin, 0 /* MPI_MODE_NOCHECK? */, x_win);
+                MPI_Win_wait(x_win);
+            }
         }
     }
     else { //last process doesn't do synchronization
@@ -188,5 +193,6 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
     //     MPI_Send(&x[process_start], process_size, MPI_DOUBLE, 0, world_rank, MPI_COMM_WORLD);
     // }
 
+    MPI_Barrier(MPI_COMM_WORLD);
     MPI_Win_free(&x_win);
 }

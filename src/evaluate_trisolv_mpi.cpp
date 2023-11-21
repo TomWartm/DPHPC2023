@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 5;
-    for (int n = 4000; n <= 16000; n += 4000)
+    for (int n = 4096; n <= 20000; n += 4096)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
 
-            measure_trisolv_mpi((std::string) "trisolv_mpi", &kernel_trisolv_mpi, n, outputFile);
+            //measure_trisolv_mpi((std::string) "trisolv_mpi", &kernel_trisolv_mpi, n, outputFile);
 
             ///////////method 2
 
