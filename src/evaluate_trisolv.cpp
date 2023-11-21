@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 20;
-    for (int n = 4000; n <= 8000; n *= 2)
+    for (int n = 4000; n <= 16000; n += 4000)
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
