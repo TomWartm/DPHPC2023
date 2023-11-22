@@ -107,7 +107,6 @@ void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
 void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
 {
     const int doubles_per_line = 8; //per cache line: 8 x 8 bytes = 64 bytes
-    assert(n % doubles_per_line == 0);
 
     int i, j;
 
@@ -160,9 +159,19 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
         MPI_Win_complete(x_win);
 
         for (int k = process_start; k < process_end; k++) {
-            for (j = i; j < doubles_per_line; j++) {
-                x[k] -= L[k*n + j] * x_line[j];
-            }
+            j = i;
+            // for (int line_idx = 0, j = i; line_idx < doubles_per_line; line_idx++, j++) {
+            //     x[k] -= L[k*n + j] * x_line[line_idx];
+            // }
+            //UNROLLED LOOP:
+            x[k] -= L[k*n + j] * x_line[0];
+            x[k] -= L[k*n + j+1] * x_line[1];
+            x[k] -= L[k*n + j+2] * x_line[2];
+            x[k] -= L[k*n + j+3] * x_line[3];
+            x[k] -= L[k*n + j+4] * x_line[4];
+            x[k] -= L[k*n + j+5] * x_line[5];
+            x[k] -= L[k*n + j+6] * x_line[6];
+            x[k] -= L[k*n + j+7] * x_line[7];
         }
     }
 
