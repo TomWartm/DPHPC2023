@@ -1,7 +1,7 @@
 #ifndef TRISOLV_MPI_H
 #define TRISOLV_MPI_H
 
-void kernel_trisolv_mpi(int n, double* L, double* x, double* b);
+void trisolv_mpi_v0(int n, double* L, double* x, double* b);
 
 void kernel_trisolv_mpi(int n, double* L, double* x, double* b);
 

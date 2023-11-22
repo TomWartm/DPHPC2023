@@ -195,16 +195,6 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
         MPI_Put(&x[process_start], process_size, MPI_DOUBLE, 0, process_start, process_size, MPI_DOUBLE, x_win);
         MPI_Win_unlock(0, x_win);
     }
-    //SEND BACK TO PROCESS 0
-    // if (world_rank == 0) {
-    //     //receive them in order and keep creating comms
-    //     for (int p = 1; p < world_size; p++) {
-    //         MPI_Recv(&x[p * process_size], process_size, MPI_DOUBLE, p, p, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    //     }
-    // }
-    // else {
-    //     MPI_Send(&x[process_start], process_size, MPI_DOUBLE, 0, world_rank, MPI_COMM_WORLD);
-    // }
 
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Win_free(&x_win);
