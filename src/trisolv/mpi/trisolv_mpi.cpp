@@ -3,6 +3,19 @@
 #include <cassert>
 #include "trisolv_mpi.h"
 
+void trisolv_mpi_v0(int n, double* L, double* x, double* b){
+    for (int i = 0; i < n; i++)
+    {
+        x[i] = b[i];
+        for (int j = 0; j <i; j++)
+        {
+            double tmp = -L[i * n + j] * x[j];
+            x[i] = x[i] +tmp;
+        }
+        x[i] = x[i] / L[i * n + i];
+    }
+}
+
 /*
 * Process 0 computes its part. Once a value of x is computed, it sends it to all processes with higher rank.
 *   processes that receive a value start using it (in the "subtruction" part). Once process 0 has finished,

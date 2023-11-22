@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-
 #include "../../src/trisolv/trisolv_baseline.h"
 #include "../../src/helpers/trisolv_init.h"
 #include "helper.h"
@@ -12,9 +11,10 @@ TEST(trisolvTest, kernel_trisolv){
     double *b = (double*) malloc((n) * sizeof(double));
 
     init_trisolv(n, L, x, b);
+
     kernel_trisolv(n, L, x, b);
 
-    ASSERT_EQ(1,1); // TODO: check results
+    EXPECT_EQ(1,1); // TODO: check results
 
     free((void*)L);
     free((void*)x);
