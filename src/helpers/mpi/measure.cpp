@@ -28,26 +28,28 @@ void measure_gemver_mpi(std::string functionName, void (*func)(int, double, doub
 
     double *A_result, *x_result, *w_result;
 
-    // allocate memory on each process
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u1);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u2);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v2);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &z);
 
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_result);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
     //////////////measure/////////////
     struct timespec start, end;
     double elapsed_time;
 
     // initialize data on process 0
     if (rank == 0) {
+        // allocate memory
+        MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u1);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u2);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v2);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &z);
+
+        MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_result);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
+        
         init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
     }
    
@@ -66,7 +68,7 @@ void measure_gemver_mpi(std::string functionName, void (*func)(int, double, doub
         outputFile << n << ";" << elapsed_time << ";" << functionName << "\n";
     }
 
-
+    if (rank == 0){
     // free memory
     free((void *)A);
     free((void *)u1);
@@ -81,7 +83,7 @@ void measure_gemver_mpi(std::string functionName, void (*func)(int, double, doub
     free((void *)A_result);
     free((void *)x_result);
     free((void *)w_result);
-
+    }
 }
 
 
