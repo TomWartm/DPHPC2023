@@ -18,12 +18,33 @@ void kernel_gemver(int n, double alpha, double beta, double *A, double *u1, doub
         for (int j = 0; j < n; j++)
             w[i] = w[i] + alpha * A[i * n + j] * x[j];
 }
+
+void kernel_gemver(int n, int m, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
+{
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            A[i * m + j] = A[i * m + j] + u1[i] * v1[j] + u2[i] * v2[j];
+
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++)
+            x[i] = x[i] + beta * A[j * m + i] * y[j];
+
+    for (int i = 0; i < m; i++)
+        x[i] = x[i] + z[i];
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            w[i] = w[i] + alpha * A[i * m + j] * x[j];
+}
 /*
     Blocked versions 
 */
 
 void part_1(int n, int m, double *A, double *u1, double *u2, double *v1, double *v2){
-    /* 
+    /*
+    Part1:
+    A += u1*v1 + u2*v2
     n: rows
     m: columns
     */
@@ -63,25 +84,25 @@ void part_1(int n, int m, double *A, double *u1, double *u2, double *v1, double 
             v2_2 = v2[(j + 2)];
             v2_3 = v2[(j + 3)];
 
-            A[(i + 0)*n +(j + 0)] += u1_0 * v1_0 + u2_0 * v2_0;
-            A[(i + 0)*n +(j + 1)] += u1_0 * v1_1 + u2_0 * v2_1;
-            A[(i + 0)*n +(j + 2)] += u1_0 * v1_2 + u2_0 * v2_2;
-            A[(i + 0)*n +(j + 3)] += u1_0 * v1_3 + u2_0 * v2_3;
+            A[(i + 0)*m +(j + 0)] += u1_0 * v1_0 + u2_0 * v2_0;
+            A[(i + 0)*m +(j + 1)] += u1_0 * v1_1 + u2_0 * v2_1;
+            A[(i + 0)*m +(j + 2)] += u1_0 * v1_2 + u2_0 * v2_2;
+            A[(i + 0)*m +(j + 3)] += u1_0 * v1_3 + u2_0 * v2_3;
 
-            A[(i + 1)*n +(j + 0)] += u1_1 * v1_0 + u2_1 * v2_0;
-            A[(i + 1)*n +(j + 1)] += u1_1 * v1_1 + u2_1 * v2_1;
-            A[(i + 1)*n +(j + 2)] += u1_1 * v1_2 + u2_1 * v2_2;
-            A[(i + 1)*n +(j + 3)] += u1_1 * v1_3 + u2_1 * v2_3;
+            A[(i + 1)*m +(j + 0)] += u1_1 * v1_0 + u2_1 * v2_0;
+            A[(i + 1)*m +(j + 1)] += u1_1 * v1_1 + u2_1 * v2_1;
+            A[(i + 1)*m +(j + 2)] += u1_1 * v1_2 + u2_1 * v2_2;
+            A[(i + 1)*m +(j + 3)] += u1_1 * v1_3 + u2_1 * v2_3;
 
-            A[(i + 2)*n +(j + 0)] += u1_2 * v1_0 + u2_2 * v2_0;
-            A[(i + 2)*n +(j + 1)] += u1_2 * v1_1 + u2_2 * v2_1;
-            A[(i + 2)*n +(j + 2)] += u1_2 * v1_2 + u2_2 * v2_2;
-            A[(i + 2)*n +(j + 3)] += u1_2 * v1_3 + u2_2 * v2_3;
+            A[(i + 2)*m +(j + 0)] += u1_2 * v1_0 + u2_2 * v2_0;
+            A[(i + 2)*m +(j + 1)] += u1_2 * v1_1 + u2_2 * v2_1;
+            A[(i + 2)*m +(j + 2)] += u1_2 * v1_2 + u2_2 * v2_2;
+            A[(i + 2)*m +(j + 3)] += u1_2 * v1_3 + u2_2 * v2_3;
 
-            A[(i + 3)*n +(j + 0)] += u1_3 * v1_0 + u2_3 * v2_0;
-            A[(i + 3)*n +(j + 1)] += u1_3 * v1_1 + u2_3 * v2_1;
-            A[(i + 3)*n +(j + 2)] += u1_3 * v1_2 + u2_3 * v2_2;
-            A[(i + 3)*n +(j + 3)] += u1_3 * v1_3 + u2_3 * v2_3;
+            A[(i + 3)*m +(j + 0)] += u1_3 * v1_0 + u2_3 * v2_0;
+            A[(i + 3)*m +(j + 1)] += u1_3 * v1_1 + u2_3 * v2_1;
+            A[(i + 3)*m +(j + 2)] += u1_3 * v1_2 + u2_3 * v2_2;
+            A[(i + 3)*m +(j + 3)] += u1_3 * v1_3 + u2_3 * v2_3;
 
 
         }
@@ -89,14 +110,14 @@ void part_1(int n, int m, double *A, double *u1, double *u2, double *v1, double 
     // Process remaining elements in rows
     for (i = i_max; i < n; i++) {
         for (j = 0; j < j_max; j++) {
-            A[i * n + j] += u1[i] * v1[j] + u2[i] * v2[j];
+            A[i * m + j] += u1[i] * v1[j] + u2[i] * v2[j];
             
         }
     }
     // Process remaining elements in columns
     for (i = 0; i < n; i++) {
         for (j = j_max; j < m; j++) {
-            A[i * n + j] += u1[i] * v1[j] + u2[i] * v2[j];
+            A[i * m + j] += u1[i] * v1[j] + u2[i] * v2[j];
             
         }
     }
@@ -187,7 +208,7 @@ void part_2(int n, int m, double beta, double *A, double *x, double *y, double *
     }
 }
 
-void part_3(int n,int m, double alpha, double *A, double *x,  double *w ){
+void part_3(int n, int m, double alpha, double *A, double *x,  double *w ){
 
     /*
     Part 3:
@@ -215,10 +236,10 @@ void part_3(int n,int m, double alpha, double *A, double *x,  double *w ){
             x_2 = x[j + 2];
             x_3 = x[j + 3];
             
-            w[i + 0] += alpha * (A[(i + 0) * n + (j + 0)] * x_0 + A[(i + 0) * n + (j + 1)] * x_1 + A[(i + 0) * n + (j + 2)] * x_2 + A[(i + 0) * n + (j + 3)] * x_3);
-            w[i + 1] += alpha * (A[(i + 1) * n + (j + 0)] * x_0 + A[(i + 1) * n + (j + 1)] * x_1 + A[(i + 1) * n + (j + 2)] * x_2 + A[(i + 1) * n + (j + 3)] * x_3);
-            w[i + 2] += alpha * (A[(i + 2) * n + (j + 0)] * x_0 + A[(i + 2) * n + (j + 1)] * x_1 + A[(i + 2) * n + (j + 2)] * x_2 + A[(i + 2) * n + (j + 3)] * x_3);
-            w[i + 3] += alpha * (A[(i + 3) * n + (j + 0)] * x_0 + A[(i + 3) * n + (j + 1)] * x_1 + A[(i + 3) * n + (j + 2)] * x_2 + A[(i + 3) * n + (j + 3)] * x_3);
+            w[i + 0] += alpha * (A[(i + 0) * m + (j + 0)] * x_0 + A[(i + 0) * m + (j + 1)] * x_1 + A[(i + 0) * m + (j + 2)] * x_2 + A[(i + 0) * m + (j + 3)] * x_3);
+            w[i + 1] += alpha * (A[(i + 1) * m + (j + 0)] * x_0 + A[(i + 1) * m + (j + 1)] * x_1 + A[(i + 1) * m + (j + 2)] * x_2 + A[(i + 1) * m + (j + 3)] * x_3);
+            w[i + 2] += alpha * (A[(i + 2) * m + (j + 0)] * x_0 + A[(i + 2) * m + (j + 1)] * x_1 + A[(i + 2) * m + (j + 2)] * x_2 + A[(i + 2) * m + (j + 3)] * x_3);
+            w[i + 3] += alpha * (A[(i + 3) * m + (j + 0)] * x_0 + A[(i + 3) * m + (j + 1)] * x_1 + A[(i + 3) * m + (j + 2)] * x_2 + A[(i + 3) * m + (j + 3)] * x_3);
 
 
         }
@@ -227,14 +248,14 @@ void part_3(int n,int m, double alpha, double *A, double *x,  double *w ){
     // Process remaining elements in rows
     for (i = i_max; i < n; i++) {
         for (j = 0; j < j_max; j++) {
-            w[i] = w[i] + alpha * A[i * n + j] * x[j];
+            w[i] = w[i] + alpha * A[i * m + j] * x[j];
             
         }
     }
     // Process remaining elements in columns
     for (i = 0; i < n; i++) {
         for (j = j_max; j < m; j++) {
-            w[i] = w[i] + alpha * A[i * n + j] * x[j];
+            w[i] = w[i] + alpha * A[i * m + j] * x[j];
             
         }
     }
@@ -289,13 +310,13 @@ void part_2_2(int n, int m, double beta, double *A_transposed, double *x, double
             y_2 = y[(j + 2)];
             y_3 = y[(j + 3)];
 
-            x[(i + 0)] = x[(i + 0)] + beta * (A_transposed[(i + 0) * n + (j + 0)] * y_0 + A_transposed[(i + 0) * n + (j + 1)] * y_1 + A_transposed[(i + 0) * n + (j + 2)] * y_2 + A_transposed[(i + 0) * n + (j + 3)] * y_3);
+            x[(i + 0)] = x[(i + 0)] + beta * (A_transposed[(i + 0) * m + (j + 0)] * y_0 + A_transposed[(i + 0) * m + (j + 1)] * y_1 + A_transposed[(i + 0) * m + (j + 2)] * y_2 + A_transposed[(i + 0) * m + (j + 3)] * y_3);
 
-            x[(i + 1)] = x[(i + 1)] + beta * (A_transposed[(i + 1) * n + (j + 0)] * y_0 + A_transposed[(i + 1) * n + (j + 1)] * y_1 + A_transposed[(i + 1) * n + (j + 2)] * y_2 + A_transposed[(i + 1) * n + (j + 3)] * y_3);
+            x[(i + 1)] = x[(i + 1)] + beta * (A_transposed[(i + 1) * m + (j + 0)] * y_0 + A_transposed[(i + 1) * m + (j + 1)] * y_1 + A_transposed[(i + 1) * m + (j + 2)] * y_2 + A_transposed[(i + 1) * m + (j + 3)] * y_3);
 
-            x[(i + 2)] = x[(i + 2)] + beta * (A_transposed[(i + 2) * n + (j + 0)] * y_0 + A_transposed[(i + 2) * n + (j + 1)] * y_1 + A_transposed[(i + 2) * n + (j + 2)] * y_2 + A_transposed[(i + 2) * n + (j + 3)] * y_3);
+            x[(i + 2)] = x[(i + 2)] + beta * (A_transposed[(i + 2) * m + (j + 0)] * y_0 + A_transposed[(i + 2) * m + (j + 1)] * y_1 + A_transposed[(i + 2) * m + (j + 2)] * y_2 + A_transposed[(i + 2) * m + (j + 3)] * y_3);
 
-            x[(i + 3)] = x[(i + 3)] + beta * (A_transposed[(i + 3) * n + (j + 0)] * y_0 + A_transposed[(i + 3) * n + (j + 1)] * y_1 + A_transposed[(i + 3) * n + (j + 2)] * y_2 + A_transposed[(i + 3) * n + (j + 3)] * y_3);
+            x[(i + 3)] = x[(i + 3)] + beta * (A_transposed[(i + 3) * m + (j + 0)] * y_0 + A_transposed[(i + 3) * m + (j + 1)] * y_1 + A_transposed[(i + 3) * m + (j + 2)] * y_2 + A_transposed[(i + 3) * m + (j + 3)] * y_3);
 
 
         }
@@ -304,14 +325,14 @@ void part_2_2(int n, int m, double beta, double *A_transposed, double *x, double
     // Process remaining elements in rows
     for (i = i_max; i < n; i++) {
         for (j = 0; j < j_max; j++) {
-            x[i] = x[i] + beta * A_transposed[i * n + j] * y[j];
+            x[i] = x[i] + beta * A_transposed[i * m + j] * y[j];
             
         }
     }
     // Process remaining elements in columns
     for (i = 0; i < n; i++) {
-        for (j = j_max; j < m; j++) {
-            x[i] = x[i] + beta * A_transposed[i * n + j] * y[j];
+        for (j = j_max; j < n; j++) {
+            x[i] = x[i] + beta * A_transposed[i * m + j] * y[j];
             
         }
     }
@@ -356,6 +377,26 @@ void gemver_baseline_blocked_2(int n, double alpha, double beta, double *A, doub
     
     part_2_2(n, n, beta, A_transposed, x, y, z);
     part_3(n, n, alpha, A, x, w);
+
+
+    free(A_transposed);
+}
+
+void gemver_baseline_blocked_2(int n, int m,  double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
+{
+
+    part_1(n, m, A, u1, u2, v1, v2);
+
+    double *A_transposed = (double *)malloc((m * n) * sizeof(double)); 
+
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < m; j++){
+            A_transposed[j * n + i] = A[i * m + j];
+        }
+    }
+    
+    part_2_2(m, n, beta, A_transposed, x, y, z);
+    part_3(n, m, alpha, A, x, w);
 
 
     free(A_transposed);

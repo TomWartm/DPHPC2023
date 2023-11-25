@@ -8,6 +8,7 @@
 TEST(gemverTest, kernel_gemver){
 
     int n = 10;
+    int m = 10;
     double alpha;
     double beta;
     double *A = (double *)malloc((n * n) * sizeof(double));
@@ -29,10 +30,10 @@ TEST(gemverTest, kernel_gemver){
     double *z = (double *)malloc((n) * sizeof(double));
     double *z_baseline= (double *)malloc((n) * sizeof(double));
 
-    init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
+    init_gemver(n,m, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
     init_gemver(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
 
-    kernel_gemver(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
+    kernel_gemver(n,m, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
     kernel_gemver(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
 
     for (int i = 0; i < n * n; i++) {
@@ -130,41 +131,48 @@ TEST(gemverTest, gemver_baseline_blocked_1){
 
 TEST(gemverTest, gemver_baseline_blocked_2){
 
-    int n = 10;
+    int n = 12;
+    int m = 10;
     double alpha;
     double beta;
-    double *A = (double *)malloc((n * n) * sizeof(double));
-    double *A_baseline = (double *)malloc((n * n) * sizeof(double));
+    double *A = (double *)malloc((n * m) * sizeof(double));
+    double *A_baseline = (double *)malloc((n * m) * sizeof(double));
+    
     double *u1 = (double *)malloc((n) * sizeof(double));
     double *u1_baseline = (double *)malloc((n) * sizeof(double));
-    double *v1 = (double *)malloc((n) * sizeof(double));
-    double *v1_baseline = (double *)malloc((n) * sizeof(double));
     double *u2 = (double *)malloc((n) * sizeof(double));
     double *u2_baseline = (double *)malloc((n) * sizeof(double));
-    double *v2 = (double *)malloc((n) * sizeof(double));
-    double *v2_baseline = (double *)malloc((n) * sizeof(double));
+
+    double *v1 = (double *)malloc((m) * sizeof(double));
+    double *v1_baseline = (double *)malloc((m) * sizeof(double));
+    double *v2 = (double *)malloc((m) * sizeof(double));
+    double *v2_baseline = (double *)malloc((m) * sizeof(double));
+
     double *w = (double *)malloc((n) * sizeof(double));
     double *w_baseline= (double *)malloc((n) * sizeof(double));
-    double *x = (double *)malloc((n) * sizeof(double));
-    double *x_baseline= (double *)malloc((n) * sizeof(double));
+
+    double *x = (double *)malloc((m) * sizeof(double));
+    double *x_baseline= (double *)malloc((m) * sizeof(double));
+
     double *y = (double *)malloc((n) * sizeof(double));
     double *y_baseline= (double *)malloc((n) * sizeof(double));
-    double *z = (double *)malloc((n) * sizeof(double));
-    double *z_baseline= (double *)malloc((n) * sizeof(double));
 
-    init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
-    init_gemver(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
+    double *z = (double *)malloc((m) * sizeof(double));
+    double *z_baseline= (double *)malloc((m) * sizeof(double));
 
-    gemver_baseline_blocked_2(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
-    kernel_gemver(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
+    init_gemver(n, m, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
+    init_gemver(n, m, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
 
-    for (int i = 0; i < n * n; i++) {
+    gemver_baseline_blocked_2(n, m, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
+    kernel_gemver(n, m, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
+
+    for (int i = 0; i < n * m; i++) {
         EXPECT_DOUBLE_EQ(A[i], A_baseline[i]);
     }
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < m; i++) {
         EXPECT_DOUBLE_EQ(x[i], x_baseline[i]);
     }
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < m; i++) {
         EXPECT_DOUBLE_EQ(w[i], w_baseline[i]);
     }
 
