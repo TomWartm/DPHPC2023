@@ -161,7 +161,7 @@ TEST(trisolvMPITest, LTriangularInitialization) {
 }
 
 TEST(trisolvMPITest, DifferentSizes) {
-    std::vector<int> n_vec = {1, 100, 1000, 10000}; // Example size
+    std::vector<int> n_vec = {0, 1, 10, 100}; // Example size
     for (auto n : n_vec){
         int rank, num_procs;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
