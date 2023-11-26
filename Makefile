@@ -1,5 +1,5 @@
 # Compiler flags
-CXXFLAGS = -std=c++1y -Wall
+CXXFLAGS = -std=c++1y -Wall -O3 -ffast-math
 
 # MPI flags
 MPIFLAGS = -I/path/to/mpi/include -L/path/to/mpi/lib -lmpi
@@ -79,7 +79,7 @@ $(TEST_GEMVER_MPI_EXECUTABLE): $(wildcard $(TEST_GEMVER_MPI_DIR)/*.cpp) $(wildca
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_gemver_mpi: $(TEST_GEMVER_MPI_EXECUTABLE)
-	mpirun -np 3 ./$(TEST_GEMVER_MPI_EXECUTABLE)
+	mpirun -np 4 ./$(TEST_GEMVER_MPI_EXECUTABLE)
 
 
 # Compile and run test_trisolv.cpp
