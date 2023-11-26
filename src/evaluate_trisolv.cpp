@@ -1,7 +1,7 @@
 #include "helpers/measure.h"
 #include <iostream>
-#include <fstream>
 #include "trisolv/trisolv_baseline.h"
+#include "trisolv/openmp/trisolv_openmp.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 20;
-    for (int n = 4000; n <= 8000; n *= 2)
+    for (int n = 4000; n <= 16000; n += 4000)
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
@@ -26,7 +26,8 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
 
-            measure_trisolv((std::string) "baseline", &kernel_trisolv, n, outputFile);
+            measure_trisolv((std::string) "baseline", &trisolv_baseline, n, outputFile);
+            measure_trisolv((std::string) "openmp", &trisolv_openmp, n, outputFile);
         }
     }
     outputFile.close();

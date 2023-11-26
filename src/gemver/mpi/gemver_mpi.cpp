@@ -33,11 +33,9 @@ void gemver_mpi_1(int n, double alpha, double beta, double *A, double *u1, doubl
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-
-    
     // allocate memory also on all other processes
-    if (rank!=0){
+    if (rank != 0)
+    {
         MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A);
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u1);
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
@@ -52,7 +50,6 @@ void gemver_mpi_1(int n, double alpha, double beta, double *A, double *u1, doubl
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
     }
-
 
     // Broadcast the data to all other processes
     MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -94,7 +91,6 @@ void gemver_mpi_1(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Reduce(w, w_result, n, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 }
 
-
 void gemver_mpi_2(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z, double *A_result, double *x_result, double *w_result)
 {
     /*
@@ -106,9 +102,9 @@ void gemver_mpi_2(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-
     // assign memory to variables that are used on all processes
-    if (rank!=0){
+    if (rank != 0)
+    {
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v2);
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y);
@@ -290,7 +286,8 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     // assign memory to variables that are used on all processes
-    if (rank!=0){
+    if (rank != 0)
+    {
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v2);
         MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y);
@@ -356,9 +353,6 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Bcast(v1, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Bcast(v2, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-
-
-
     // Wait for the non-blocking communication to complete
     MPI_Wait(&send_req_u1, MPI_STATUS_IGNORE);
     MPI_Wait(&send_req_u2, MPI_STATUS_IGNORE);
@@ -373,10 +367,9 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
         }
     }
 
-
     // get local results back to process 0
     MPI_Igatherv(local_A, localSize * n, MPI_DOUBLE, A_result, scountsMatrix, displsMatrix, MPI_DOUBLE, 0, MPI_COMM_WORLD, &recv_req_A_result);
-    
+
     /*
     Part 2: x_result = x + beta * (A_result)T * y + z
     */
@@ -428,8 +421,6 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Bcast(y, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Bcast(&beta, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-
-
     // Wait for the non-blocking communication to complete
     MPI_Wait(&send_req_A_result_transpose, MPI_STATUS_IGNORE);
     MPI_Wait(&send_req_z, MPI_STATUS_IGNORE);
@@ -448,7 +439,7 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Request recv_req_x_result;
     // recieve x_result
     MPI_Igatherv(local_x, localSize, MPI_DOUBLE, x_result, scountsVector, displsVector, MPI_DOUBLE, 0, MPI_COMM_WORLD, &recv_req_x_result);
-    
+
     /*
     Part 3: w_result = alpha * A_result * x_result
     */
@@ -470,7 +461,7 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
     // Wait for the non-blocking communication to complete
     MPI_Wait(&send_req_A_result, MPI_STATUS_IGNORE);
     MPI_Wait(&send_req_x_result, MPI_STATUS_IGNORE);
-    
+
     MPI_Wait(&send_req_w, MPI_STATUS_IGNORE);
     // compute w = alpha * A_result * x_result
     for (int i = 0; i < localSize; i++)
@@ -494,4 +485,3 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Free_mem(local_x);
     MPI_Free_mem(local_w);
 }
-
