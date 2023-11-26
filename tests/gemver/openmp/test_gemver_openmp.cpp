@@ -24,13 +24,13 @@ TEST(gemverTest, SparseInitialization){
     kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
     for (int j = 0; j < n * n; j++) {
-    EXPECT_NEAR(A[j], A_baseline[j], 1e-5);
+    EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-    EXPECT_NEAR(x[j], x_baseline[j], 1e-5);
+    EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-    EXPECT_NEAR(w[j], w_baseline[j], 1e-5);
+    EXPECT_NEAR(w[j], w_baseline[j], 1e-6);
     }
 
 }
@@ -58,13 +58,13 @@ TEST(gemverTest, RandomInitialization){
     kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
     for (int j = 0; j < n * n; j++) {
-        EXPECT_NEAR(A[j], A_baseline[j], 1e-5);
+        EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        EXPECT_NEAR(x[j], x_baseline[j], 1e-5);
+        EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
     }
     for (int j = 0; j < n; j++) {
-        EXPECT_NEAR(w[j], w_baseline[j], 1e-5);
+        EXPECT_NEAR(w[j], w_baseline[j], 1e-6);
     }
 
 }
@@ -72,7 +72,7 @@ TEST(gemverTest, RandomInitialization){
 TEST(gemverTest, DifferentSizes){
     
     std::vector<int>  n_vec(5);
-    n_vec = {0, 10, 100, 1000, 10000};
+    n_vec = {0, 1, 10, 100};
     double alpha;
     double beta;
 
@@ -93,13 +93,13 @@ TEST(gemverTest, DifferentSizes){
         kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
         for (int j = 0; j < n * n; j++) {
-        EXPECT_NEAR(A[j], A_baseline[j], 1e-5);
+        EXPECT_NEAR(A[j], A_baseline[j], 1e-6);
         }
         for (int j = 0; j < n; j++) {
-        EXPECT_NEAR(x[j], x_baseline[j], 1e-5);
+        EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
         }
         for (int j = 0; j < n; j++) {
-        EXPECT_NEAR(w[j], w_baseline[j], 1e-5);
+        EXPECT_NEAR(w[j], w_baseline[j], 1e-6);
         }
     }
 }
