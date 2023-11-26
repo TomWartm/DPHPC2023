@@ -20,7 +20,7 @@ TEST(gemverTest, SparseInitialization){
     sparse_init_gemver(n, &alpha, &beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
     sparse_init_gemver(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-    gemver_openmp_v0(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+    gemver_openmp_v1(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
     kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
     for (int j = 0; j < n * n; j++) {
@@ -54,7 +54,7 @@ TEST(gemverTest, RandomInitialization){
     rand_init_gemver(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
     //kernel_gemver represents the baseline
-    gemver_openmp_v0(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+    gemver_openmp_v1(n, alpha, beta,A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
     kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
     for (int j = 0; j < n * n; j++) {
@@ -89,7 +89,7 @@ TEST(gemverTest, DifferentSizes){
         init_gemver(n, &alpha, &beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
         init_gemver(n, &alpha, &beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
-        gemver_openmp_v0(n, alpha, beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
+        gemver_openmp_v1(n, alpha, beta, A.data(), u1.data(), v1.data(), u2.data(), v2.data(), w.data(), x.data(), y.data(), z.data());
         kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
         for (int j = 0; j < n * n; j++) {
