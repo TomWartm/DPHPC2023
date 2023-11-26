@@ -35,8 +35,8 @@ GEMVER_MPI_EXECUTABLE_SRC = src/evaluate_gemver_mpi.cpp
 $(GEMVER_MPI_EXECUTABLE): $(GEMVER_MPI_EXECUTABLE_SRC) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS)
 
-gemver_mpi: $(GEMVER_MPI_EXECUTALE)
-	mpirun -np 3 ./$(GEMVER_MPI_EXECUTALE)
+gemver_mpi: $(GEMVER_MPI_EXECUTABLE)
+	mpirun -np 3 ./$(GEMVER_MPI_EXECUTABLE)
 
 
 # Compile and run evaluate_trisolv_openmp.cpp
