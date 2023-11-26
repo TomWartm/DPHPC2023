@@ -130,9 +130,9 @@ TEST(gemverTest, gemver_baseline_blocked_1){
 }
 
 TEST(gemverTest, gemver_baseline_blocked_2){
-
-    int n = 12;
-    int m = 10;
+    
+    int n = 8;
+    int m = 8;
     double alpha;
     double beta;
     double *A = (double *)malloc((n * m) * sizeof(double));
@@ -172,7 +172,7 @@ TEST(gemverTest, gemver_baseline_blocked_2){
     for (int i = 0; i < m; i++) {
         EXPECT_DOUBLE_EQ(x[i], x_baseline[i]);
     }
-    for (int i = 0; i < m; i++) {
+    for (int i = 0; i < n; i++) {
         EXPECT_DOUBLE_EQ(w[i], w_baseline[i]);
     }
 

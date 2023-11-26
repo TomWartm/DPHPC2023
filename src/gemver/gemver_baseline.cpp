@@ -229,7 +229,6 @@ void part_3(int n, int m, double alpha, double *A, double *x,  double *w ){
     // Process main blocks
     for (i = 0; i < i_max; i += blockSize) {
         for (j = 0; j < j_max ; j += blockSize) {
-          
             
             x_0 = x[j + 0];
             x_1 = x[j + 1];
@@ -249,14 +248,14 @@ void part_3(int n, int m, double alpha, double *A, double *x,  double *w ){
     for (i = i_max; i < n; i++) {
         for (j = 0; j < j_max; j++) {
             w[i] = w[i] + alpha * A[i * m + j] * x[j];
-            
+            //std::cout << "stop1" <<std::endl;
         }
     }
     // Process remaining elements in columns
     for (i = 0; i < n; i++) {
         for (j = j_max; j < m; j++) {
             w[i] = w[i] + alpha * A[i * m + j] * x[j];
-            
+            //std::cout << "stop2" <<std::endl;
         }
     }
 
@@ -292,7 +291,7 @@ void part_2_2(int n, int m, double beta, double *A_transposed, double *x, double
     int i_max = floor(n/blockSize)* blockSize;
     int j_max = floor(m/blockSize)* blockSize;
     int i, j;
-
+    
 
     /*
     Part 1.1
@@ -318,7 +317,7 @@ void part_2_2(int n, int m, double beta, double *A_transposed, double *x, double
 
             x[(i + 3)] = x[(i + 3)] + beta * (A_transposed[(i + 3) * m + (j + 0)] * y_0 + A_transposed[(i + 3) * m + (j + 1)] * y_1 + A_transposed[(i + 3) * m + (j + 2)] * y_2 + A_transposed[(i + 3) * m + (j + 3)] * y_3);
 
-
+            
         }
     }
 
@@ -326,12 +325,11 @@ void part_2_2(int n, int m, double beta, double *A_transposed, double *x, double
     for (i = i_max; i < n; i++) {
         for (j = 0; j < j_max; j++) {
             x[i] = x[i] + beta * A_transposed[i * m + j] * y[j];
-            
         }
     }
     // Process remaining elements in columns
     for (i = 0; i < n; i++) {
-        for (j = j_max; j < n; j++) {
+        for (j = j_max; j < m; j++) {
             x[i] = x[i] + beta * A_transposed[i * m + j] * y[j];
             
         }
@@ -363,7 +361,10 @@ void part_2_2(int n, int m, double beta, double *A_transposed, double *x, double
 
 
 void gemver_baseline_blocked_2(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
-{
+{   
+    /*
+    square
+    */
 
     part_1(n, n, A, u1, u2, v1, v2);
 
@@ -384,6 +385,9 @@ void gemver_baseline_blocked_2(int n, double alpha, double beta, double *A, doub
 
 void gemver_baseline_blocked_2(int n, int m,  double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
+    /*
+    non-square
+    */
 
     part_1(n, m, A, u1, u2, v1, v2);
 

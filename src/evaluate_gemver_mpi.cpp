@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "gemver/mpi/gemver_mpi.h"
+#include "gemver/mpi/gemver_mpi_blocking.h"
 #include <mpi.h>
 
 int main(int argc, char *argv[])
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 4;
-    for (int n = 10; n <= 7000; n +=1000)
+    for (int n = 1000; n <= 5000; n +=1000)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)
@@ -36,6 +37,9 @@ int main(int argc, char *argv[])
             measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
             MPI_Barrier(MPI_COMM_WORLD);
             measure_gemver_mpi((std::string) "gemver_mpi_3", &gemver_mpi_3, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
+            measure_gemver_mpi((std::string) "gemver_mpi_4", &gemver_mpi_4, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
         }
     }
 
