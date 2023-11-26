@@ -58,13 +58,13 @@ TEST(gemverTest, RandomInitialization){
     kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
     for (int j = 0; j < n * n; j++) {
-        EXPECT_DOUBLE_EQ(A[j], A_basel);
+        EXPECT_DOUBLE_EQ(A[j], A_baseline[j]);
     }
     for (int j = 0; j < n; j++) {
-        EXPECT_DOUBLE_EQ(x[j], x_basel);
+        EXPECT_DOUBLE_EQ(x[j], x_baseline[j]);
     }
     for (int j = 0; j < n; j++) {
-        EXPECT_DOUBLE_EQ(w[j], w_basel);
+        EXPECT_DOUBLE_EQ(w[j], w_baseline[j]);
     }
 
 }
@@ -93,13 +93,13 @@ TEST(gemverTest, DifferentSizes){
         kernel_gemver(n, alpha, beta, A_baseline.data(), u1_baseline.data(), v1_baseline.data(), u2_baseline.data(), v2_baseline.data(), w_baseline.data(), x_baseline.data(), y_baseline.data(), z_baseline.data());
 
         for (int j = 0; j < n * n; j++) {
-        EXPECT_DOUBLE_EQ(A[j], A);
+        EXPECT_DOUBLE_EQ(A[j], A_baseline[j]);
         }
         for (int j = 0; j < n; j++) {
-        EXPECT_DOUBLE_EQ(x[j], x);
+        EXPECT_DOUBLE_EQ(x[j], A_baseline[j]);
         }
         for (int j = 0; j < n; j++) {
-        EXPECT_DOUBLE_EQ(w[j], w);
+        EXPECT_DOUBLE_EQ(w[j], A_baseline[j]);
         }
     }
 }
