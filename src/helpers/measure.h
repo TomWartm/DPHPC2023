@@ -6,4 +6,6 @@
 
 void measure_gemver(std::string functionName,void (*func)(int, double, double, double*, double*, double*, double*, double*, double*, double*, double*, double*), int n, std::ofstream &outputFile);
 
+void measure_trisolv(std::string functionName,void (*func)(int , double*, double*, double*), int n, std::ofstream &outputFile);
+
 #endif
