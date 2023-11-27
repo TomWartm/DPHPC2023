@@ -5,6 +5,7 @@
 #include <omp.h>
 #include <chrono>
 #include <iomanip>
+#include <numeric>
 
 void init(int N, double* A, double* x, double* b) {
 	for (int j = 0; j < N; ++j) {
@@ -29,9 +30,16 @@ int main(int argc, char** argv) {
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	
 	int std_rows = std::ceil(1.0 * NDEF / size);
-	int rows = std_rows;
-	if (rank == size - 1 && NDEF % rows != 0) rows = NDEF % std_rows;
-	if (rank == 0) {
+    if (NDEF % size != 0) {
+        if (rank == 0) std::cout << "SIZE OF MATRIX IS NOT DIVISIBLE BY NUMBER OF CPUS\n";
+        MPI_Finalize();
+        return 1;
+    }
+	/*int rows = std_rows;
+	if (rank == size - 1 && NDEF % rows != 0) rows = NDEF % std_rows;*/
+
+    /****************INITIALIZATION******************/
+    if (rank == 0) {
 		A = (double*)malloc(NDEF * NDEF * sizeof(double));
 		x = (double*)malloc(NDEF * sizeof(double));
 		b = (double*)malloc(NDEF * sizeof(double));
@@ -40,7 +48,7 @@ int main(int argc, char** argv) {
 			for (int j = 0; j < NDEF; ++j) {
 				MPI_Send(A + n * std_rows + j * NDEF, std_rows, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
 			}
-			std::cout << rank << " sending " << rows * NDEF << " elements to " << n << "\n";
+			std::cout << rank << " sending " << std_rows * NDEF << " elements to " << n << "\n";
 			MPI_Send(x, NDEF, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
 			MPI_Send(b, NDEF, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
 		}		
@@ -52,24 +60,38 @@ int main(int argc, char** argv) {
 		for (int j = 0; j < NDEF; ++j) {
 			MPI_Recv(A + j * std_rows, std_rows, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		}
-		std::cout << rank << " received " << rows * NDEF << " elements\n";
+		std::cout << rank << " received " << std_rows * NDEF << " elements\n";
 		MPI_Recv(x, NDEF, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		MPI_Recv(b, NDEF, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	}
+    /************************************************/
+
 	MPI_Barrier(MPI_COMM_WORLD);
+
+    /****************START TIMER******************/
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	if (rank == 0) {
 		start = std::chrono::high_resolution_clock::now();
 	}
+    /*********************************************/
+
 	MPI_Barrier(MPI_COMM_WORLD);
+
+    /****************COMPUTATION******************/
 	for (int j = 0; j < NDEF; ++j) {
-		if (rank == j / std_rows) x[j] = b[j] / A[(j - rank * std_rows) * std_rows + j];
+        int rank_x_std_rows = rank * std_rows;
+        int j_x_std_rows = j * std_rows;
+        x[j] = b[j] / A[(j - rank_x_std_rows) * std_rows + j];
 		MPI_Bcast(x + j, 1, MPI_DOUBLE, j / std_rows, MPI_COMM_WORLD);
 		for (int i = 0; i < std_rows; ++i) {
-			b[rank * std_rows + i] -= A[j * std_rows + i] * x[j];
+			b[rank_x_std_rows + i] -= A[j_x_std_rows + i] * x[j];
 		}
 	}
+    /*********************************************/
+
 	MPI_Barrier(MPI_COMM_WORLD);
+
+    /****************END TIMER******************/
 	if (rank == 0) {
 		end = std::chrono::high_resolution_clock::now();
 #ifdef PRINTX
@@ -81,6 +103,7 @@ int main(int argc, char** argv) {
 		std::cout << std::fixed << std::setprecision(9) << std::left;
         std::cout << "Time: " << diff.count() << '\n';
 	}
+    /*******************************************/
 		
 	free(A);
 	free(x);
