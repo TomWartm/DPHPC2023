@@ -21,7 +21,7 @@ void init(int N, double* A, double* x, double* b) {
 	}
 }
 
-double run (int size, int rank, int N) {
+double run_mpi (int size, int rank, int N) {
     //std::cout << rank << "|" << N << "\n";
     double time = 0;
     double *A, *x, *b;
@@ -102,12 +102,46 @@ double run (int size, int rank, int N) {
     return time;
 }
 
-void benchmark(int size, int rank) {
+double run_baseline (int size, int rank, int N) {
+    //std::cout << rank << "|" << N << "\n";
+    double time = 0;
+    double *A, *x, *b;
+    int NDEF = N;
+    if (rank == 0) {
+        A = (double*)malloc(NDEF * NDEF * sizeof(double));
+        x = (double*)malloc(NDEF * sizeof(double));
+        b = (double*)malloc(NDEF * sizeof(double));
+        init(NDEF, A, x, b);
+        std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+        start = std::chrono::high_resolution_clock::now();
+
+#pragma scop
+        for (int i = 0; i < NDEF; i++)
+        {
+            x[i] = b[i];
+            for (int j = 0; j < i; j++)
+                x[i] -= A[i * NDEF + j] * x[j];
+            x[i] = x[i] / A[i * NDEF + i];
+        }
+#pragma endscop
+
+        end = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<double> diff = end - start;
+        time = diff.count();
+        free(A);
+        free(x);
+        free(b);
+    }
+    return time;
+}
+
+template <class F>
+void benchmark(int size, int rank, F func) {
 	for (int i = 6; i <= POW; ++i) {
         int N = std::pow(2, i);
         std::vector<double> time;
         for (int j = 0; j < REPEAT; ++j) {
-            double tmp = run(size, rank, N);
+            double tmp = func(size, rank, N);
             if (rank == 0)
                 time.push_back(tmp);
         }
@@ -126,7 +160,10 @@ int main(int argc, char** argv) {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    benchmark(size, rank);
+    if (rank == 0) std::cout << "=====MPI=====\n";
+    benchmark(size, rank, run_mpi);
+    if (rank == 0) std::cout << "\n==BASELINE===\n";
+    benchmark(size, rank, run_baseline);
 	
 	MPI_Finalize();
 	return 0;
