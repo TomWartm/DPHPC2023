@@ -1,8 +1,6 @@
 #include <mpi.h>
 #include <iostream>
 #include <cmath>
-#include <stdlib.h>
-#include <omp.h>
 #include <chrono>
 #include <iomanip>
 #include <algorithm>
@@ -21,20 +19,19 @@ void init(int N, double* A, double* x, double* b) {
 	}
 }
 
-double run_mpi (int size, int rank, int N) {
+double run_mpi (int size, int rank, int NDEF) {
     //std::cout << rank << "|" << N << "\n";
     double time = 0;
     double *A, *x, *b;
-    int NDEF = N;
     int std_rows = std::ceil(1.0 * NDEF / size);
     int rows;
     if (rank == 0) rows = NDEF;
     else rows = std_rows;
     /****************INITIALIZATION******************/
     if (rank == 0) {
-        A = (double*)malloc(NDEF * NDEF * sizeof(double));
-        x = (double*)malloc(NDEF * sizeof(double));
-        b = (double*)malloc(NDEF * sizeof(double));
+        A = new double[NDEF * NDEF];
+        x = new double[NDEF * sizeof(double)];
+        b = new double[NDEF * sizeof(double)];
         init(NDEF, A, x, b);
         for (int n = 1; n < size; ++n) {
             for (int j = 0; j < NDEF; ++j) {
@@ -45,9 +42,9 @@ double run_mpi (int size, int rank, int N) {
         }
     }
     else {
-        A = (double*)malloc(std_rows * NDEF * sizeof(double));
-        x = (double*)malloc(NDEF * sizeof(double));
-        b = (double*)malloc(NDEF * sizeof(double));
+        A = new double[std_rows * NDEF];
+        x = new double[NDEF * sizeof(double)];
+        b = new double[NDEF * sizeof(double)];
         for (int j = 0; j < NDEF; ++j) {
             MPI_Recv(A + j * std_rows, std_rows, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
@@ -96,21 +93,20 @@ double run_mpi (int size, int rank, int N) {
     }
     /*******************************************/
 
-    free(A);
-    free(x);
-    free(b);
+    delete A;
+    delete x;
+    delete b;
     return time;
 }
 
-double run_baseline (int size, int rank, int N) {
+double run_baseline (int size, int rank, int NDEF) {
     //std::cout << rank << "|" << N << "\n";
     double time = 0;
     double *A, *x, *b;
-    int NDEF = N;
     if (rank == 0) {
-        A = (double*)malloc(NDEF * NDEF * sizeof(double));
-        x = (double*)malloc(NDEF * sizeof(double));
-        b = (double*)malloc(NDEF * sizeof(double));
+        A = new double[NDEF * NDEF];
+        x = new double[NDEF * sizeof(double)];
+        b = new double[NDEF * sizeof(double)];
         init(NDEF, A, x, b);
         std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
         start = std::chrono::high_resolution_clock::now();
@@ -128,9 +124,9 @@ double run_baseline (int size, int rank, int N) {
         end = std::chrono::high_resolution_clock::now();
         const std::chrono::duration<double> diff = end - start;
         time = diff.count();
-        free(A);
-        free(x);
-        free(b);
+        delete A;
+        delete x;
+        delete b;
     }
     return time;
 }
