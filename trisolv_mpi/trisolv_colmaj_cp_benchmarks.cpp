@@ -22,6 +22,7 @@ void init(int N, double* A, double* x, double* b) {
 }
 
 double run (int size, int rank, int N) {
+    //std::cout << rank << "|" << N << "\n";
     double time = 0;
     double *A, *x, *b;
     int NDEF = N;
@@ -70,7 +71,7 @@ double run (int size, int rank, int N) {
     for (int j = 0; j < NDEF; ++j) {
         int rank_x_std_rows = rank * std_rows;
         int j_x_rows = j * rows;
-        x[j] = b[j] / A[(j - rank_x_std_rows) * rows + j];
+        if (rank == j / std_rows) x[j] = b[j] / A[(j - rank_x_std_rows) * rows + j];
         MPI_Bcast(x + j, 1, MPI_DOUBLE, j / std_rows, MPI_COMM_WORLD);
         for (int i = 0; i < std_rows; ++i) {
             b[rank_x_std_rows + i] -= A[j_x_rows + i] * x[j];
@@ -102,7 +103,6 @@ double run (int size, int rank, int N) {
 }
 
 void benchmark(int size, int rank) {
-	double *A, *x, *b;
 	for (int i = 6; i <= POW; ++i) {
         int N = std::pow(2, i);
         std::vector<double> time;
