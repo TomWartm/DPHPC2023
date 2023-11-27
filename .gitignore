@@ -11,6 +11,7 @@ evaluate_trisolv
 evaluate_trisolv_mpi
 build_test_gemver_openmp
 build_test_gemver_mpi
+build_test_gemver
 build_test_trisolv_openmp
 build_test_trisolv_mpi
 

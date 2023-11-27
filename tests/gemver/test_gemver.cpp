@@ -31,7 +31,7 @@ TEST(gemverTest, kernel_gemver)
     double *z_baseline = (double *)malloc((n) * sizeof(double));
 
     init_gemver(n, m, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
-    init_gemver(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
+    init_gemver(n, m, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
 
     kernel_gemver(n, m, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
     kernel_gemver(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
@@ -140,7 +140,7 @@ TEST(gemverTest, gemver_baseline_blocked_2)
 {
 
     int n = 8;
-    int m = 8;
+    int m = 12;
     double alpha;
     double beta;
     double *A = (double *)malloc((n * m) * sizeof(double));

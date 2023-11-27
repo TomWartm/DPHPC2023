@@ -72,6 +72,15 @@ $(TEST_GEMVER_OPENMP_EXECUTABLE): $(wildcard $(TEST_GEMVER_OPENMP_DIR)/*.cpp) $(
 test_gemver_openmp: $(TEST_GEMVER_OPENMP_EXECUTABLE)
 	./$(TEST_GEMVER_OPENMP_EXECUTABLE)
 
+# Compile and run test_gemver.cpp
+TEST_GEMVER_EXECUTABLE = build_test_gemver
+TEST_GEMVER_DIR = tests/gemver
+
+$(TEST_GEMVER_EXECUTABLE): $(wildcard $(TEST_GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) 
+	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main
+
+test_gemver: $(TEST_GEMVER_EXECUTABLE)
+	./$(TEST_GEMVER_EXECUTABLE)
 
 # Compile and run test_gemver_mpi.cpp
 TEST_GEMVER_MPI_EXECUTABLE = build_test_gemver_mpi
