@@ -107,7 +107,9 @@ void benchmark(int size, int rank) {
         int N = std::pow(2, i);
         std::vector<double> time;
         for (int j = 0; j < REPEAT; ++j) {
-            time.push_back(run(size, rank, N));
+            double tmp = run(size, rank, N);
+            if (rank == 0)
+                time.push_back(tmp);
         }
         if (rank == 0) {
             std::sort(time.begin(), time.end());
