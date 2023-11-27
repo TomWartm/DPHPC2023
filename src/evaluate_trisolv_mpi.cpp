@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 5;
-    for (int n = 4000; n <= 8000; n *= 2)
+    int num_runs = 1;
+    for (int n = 10; n <= 10; n *= 2)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)

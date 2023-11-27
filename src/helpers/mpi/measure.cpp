@@ -126,14 +126,14 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
 void measure_trisolv_mpi(int n, std::ofstream &outputFile)
 {
     int size, rank;
-    double *A, *x, *b;
-    MPI_Init(&argc, &argv);
+    double *A = nullptr, *x = nullptr, *b = nullptr;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    outputFile << n << ";" << trisolv_mpi_gao(size, rank, n, A, x, b, init_trisolv) << ";" << "trisolv_mpi_gao" << std::endl;
+    double time = trisolv_mpi_gao(size, rank, n, A, x, b, identity_trisolv);
+    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao" << std::endl;
 
-    delete A;
-    delete x;
-    delete b;
+    if (A) delete[] A;
+    if (x) delete[] x;
+    if (b) delete[] b;
 }

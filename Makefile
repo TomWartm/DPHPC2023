@@ -81,7 +81,7 @@ $(TEST_GEMVER_MPI_EXECUTABLE): $(wildcard $(TEST_GEMVER_MPI_DIR)/*.cpp) $(wildca
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_gemver_mpi: $(TEST_GEMVER_MPI_EXECUTABLE)
-	mpirun -np 2 ./$(TEST_GEMVER_MPI_EXECUTABLE)
+	mpirun -np 3 ./$(TEST_GEMVER_MPI_EXECUTABLE)
 
 
 # Compile and run test_trisolv_openmp.cpp
@@ -103,7 +103,7 @@ $(TEST_TRISOLV_MPI_EXECUTABLE): $(wildcard $(TEST_TRISOLV_MPI_DIR)/*.cpp) $(wild
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_trisolv_mpi: $(TEST_TRISOLV_MPI_EXECUTABLE)
-	mpirun -np 2 ./$(TEST_TRISOLV_MPI_EXECUTABLE)
+	mpirun -np 3 ./$(TEST_TRISOLV_MPI_EXECUTABLE)
 
 # remove all .o and executable files
 clean:

@@ -12,7 +12,6 @@
 #include <iomanip>
 #include <numeric>
 
-template <class Init>
-double trisolv_mpi_gap(int size, int rank, int NDEF, double* A, double* x, double* b, Init init);
+double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, double*& b, void (*)(int, double*, double*, double*));
 
 #endif //DPHPC2023_TIRSOLV_MPI_GAO_H

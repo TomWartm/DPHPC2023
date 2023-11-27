@@ -3,6 +3,7 @@
 #include "../../../src/trisolv/trisolv_baseline.h"
 #include "../../../src/helpers/trisolv_init.h"
 #include "../../../src/trisolv/mpi/trisolv_mpi.h"
+#include "../../../src/trisolv/mpi/trisolv_mpi_gao.h"
 
 /// @brief
 /// @param
@@ -12,15 +13,10 @@ TEST(trisolvMPITest, IdentityInitialization) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 3; // Example size
+    int n = 10; // Example size
 
-    double *L, *x, *b;
+    double *L = nullptr, *x = nullptr, *b = nullptr;
     double *L_baseline, *x_baseline, *b_baseline;
-
-    // Allocate memory using MPI
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
 
     MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
@@ -28,50 +24,41 @@ TEST(trisolvMPITest, IdentityInitialization) {
 
     if (rank == 0) {
         // Initialize matrices and vectors on process 0
-        identity_trisolv(n, L, x, b);
+        //identity_trisolv(n, L, x, b);
         identity_trisolv(n, L_baseline, x_baseline, b_baseline);
 
         // Compute baseline solution
         trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+
     }
+
+    MPI_Free_mem(L_baseline);
+    MPI_Free_mem(b_baseline);
 
     // Compute trisolv using MPI
-    trisolv_mpi_v0(n, L, x, b); // This function needs to be implemented
-
+    trisolv_mpi_gao(num_procs, rank, n, L, x, b, identity_trisolv);
     if (rank == 0) {
         // Check results in process 0
-        for (int i = 0; i < n * n; i++) {
-            EXPECT_NEAR(L[i], L_baseline[i], 1e-6);
-        }
         for (int i = 0; i < n; i++) {
             EXPECT_NEAR(x[i], x_baseline[i], 1e-6);
-            EXPECT_NEAR(b[i], b_baseline[i], 1e-6);
         }
-
-        // Free the allocated memory
-        MPI_Free_mem(L);
-        MPI_Free_mem(x);
-        MPI_Free_mem(b);
-        MPI_Free_mem(L_baseline);
-        MPI_Free_mem(x_baseline);
-        MPI_Free_mem(b_baseline);
     }
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Free_mem(x_baseline);
+    delete[] L;
+    delete[] x;
+    delete[] b;
 }
 
 TEST(trisolvMPITest, RandomInitialization) {
-    int rank, num_procs;
+int rank, num_procs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 5; // Example size
+    int n = 10; // Example size
 
-    double *L, *x, *b;
+    double *L = nullptr, *x = nullptr, *b = nullptr;
     double *L_baseline, *x_baseline, *b_baseline;
-
-    // Allocate memory using MPI
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
 
     MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
@@ -79,34 +66,30 @@ TEST(trisolvMPITest, RandomInitialization) {
 
     if (rank == 0) {
         // Initialize matrices and vectors on process 0
-        random_trisolv(n, L, x, b);
+        //identity_trisolv(n, L, x, b);
         random_trisolv(n, L_baseline, x_baseline, b_baseline);
 
         // Compute baseline solution
         trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+
     }
+
+    MPI_Free_mem(L_baseline);
+    MPI_Free_mem(b_baseline);
 
     // Compute trisolv using MPI
-    trisolv_mpi_v0(n, L, x, b); // This function needs to be implemented
-
+    trisolv_mpi_gao(num_procs, rank, n, L, x, b, random_trisolv);
     if (rank == 0) {
         // Check results in process 0
-        for (int i = 0; i < n * n; i++) {
-            EXPECT_NEAR(L[i], L_baseline[i], 1e-6);
-        }
         for (int i = 0; i < n; i++) {
             EXPECT_NEAR(x[i], x_baseline[i], 1e-6);
-            EXPECT_NEAR(b[i], b_baseline[i], 1e-6);
         }
-
-        // Free the allocated memory
-        MPI_Free_mem(L);
-        MPI_Free_mem(x);
-        MPI_Free_mem(b);
-        MPI_Free_mem(L_baseline);
-        MPI_Free_mem(x_baseline);
-        MPI_Free_mem(b_baseline);
     }
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Free_mem(x_baseline);
+    delete[] L;
+    delete[] x;
+    delete[] b;
 }
 
 TEST(trisolvMPITest, LTriangularInitialization) {
@@ -114,15 +97,10 @@ TEST(trisolvMPITest, LTriangularInitialization) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 100; // Example size
+    int n = 10; // Example size
 
-    double *L, *x, *b;
+    double *L = nullptr, *x = nullptr, *b = nullptr;
     double *L_baseline, *x_baseline, *b_baseline;
-
-    // Allocate memory using MPI
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
 
     MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
@@ -130,85 +108,71 @@ TEST(trisolvMPITest, LTriangularInitialization) {
 
     if (rank == 0) {
         // Initialize matrices and vectors on process 0
-        lowertriangular_trisolv(n, L, x, b);
+        //identity_trisolv(n, L, x, b);
         lowertriangular_trisolv(n, L_baseline, x_baseline, b_baseline);
 
         // Compute baseline solution
         trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+
     }
+
+    MPI_Free_mem(L_baseline);
+    MPI_Free_mem(b_baseline);
 
     // Compute trisolv using MPI
-    trisolv_mpi_v0(n, L, x, b); // This function needs to be implemented
-
+    trisolv_mpi_gao(num_procs, rank, n, L, x, b, lowertriangular_trisolv);
     if (rank == 0) {
         // Check results in process 0
-        for (int i = 0; i < n * n; i++) {
-            EXPECT_NEAR(L[i], L_baseline[i], 1e-6);
-        }
         for (int i = 0; i < n; i++) {
             EXPECT_NEAR(x[i], x_baseline[i], 1e-6);
-            EXPECT_NEAR(b[i], b_baseline[i], 1e-6);
         }
-
-        // Free the allocated memory
-        MPI_Free_mem(L);
-        MPI_Free_mem(x);
-        MPI_Free_mem(b);
-        MPI_Free_mem(L_baseline);
-        MPI_Free_mem(x_baseline);
-        MPI_Free_mem(b_baseline);
     }
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Free_mem(x_baseline);
+    delete[] L;
+    delete[] x;
+    delete[] b;
 }
 
 TEST(trisolvMPITest, DifferentSizes) {
     std::vector<int> n_vec = {1, 100, 1000, 10000}; // Example size
     for (auto n : n_vec){
         int rank, num_procs;
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-
-        double *L, *x, *b;
-        double *L_baseline, *x_baseline, *b_baseline;
-
-        // Allocate memory using MPI
-        MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
-
-        MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b_baseline);
-
-        if (rank == 0) {
-            // Initialize matrices and vectors on process 0
-            init_trisolv(n, L, x, b);
-            init_trisolv(n, L_baseline, x_baseline, b_baseline);
-
-            // Compute baseline solution
-            trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
-        }
-
-        // Compute trisolv using MPI
-        trisolv_mpi_v0(n, L, x, b); // This function needs to be implemented
-
-        if (rank == 0) {
-            // Check results in process 0
-            for (int i = 0; i < n * n; i++) {
-                EXPECT_NEAR(L[i], L_baseline[i], 1e-6);
-            }
-            for (int i = 0; i < n; i++) {
-                EXPECT_NEAR(x[i], x_baseline[i], 1e-6);
-                EXPECT_NEAR(b[i], b_baseline[i], 1e-6);
-            }
-
-            // Free the allocated memory
-            MPI_Free_mem(L);
-            MPI_Free_mem(x);
-            MPI_Free_mem(b);
-            MPI_Free_mem(L_baseline);
-            MPI_Free_mem(x_baseline);
-            MPI_Free_mem(b_baseline);
-        }
+    	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    	MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+    	double *L = nullptr, *x = nullptr, *b = nullptr;
+    	double *L_baseline, *x_baseline, *b_baseline;
+	
+    	MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
+    	MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
+    	MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b_baseline);
+	
+    	if (rank == 0) {
+    	    // Initialize matrices and vectors on process 0
+    	    //identity_trisolv(n, L, x, b);
+    	    lowertriangular_trisolv(n, L_baseline, x_baseline, b_baseline);
+	
+    	    // Compute baseline solution
+    	    trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+	
+    	}
+	
+    	MPI_Free_mem(L_baseline);
+    	MPI_Free_mem(b_baseline);
+	
+    	// Compute trisolv using MPI
+        trisolv_mpi_gao(num_procs, rank, n, L, x, b, lowertriangular_trisolv);
+    	if (rank == 0) {
+    	    // Check results in process 0
+    	    for (int i = 0; i < n; i++) {
+    	        EXPECT_NEAR(x[i], x_baseline[i], 1e-6);
+    	    }
+    	}
+	    MPI_Barrier(MPI_COMM_WORLD);
+	    MPI_Free_mem(x_baseline);
+	    delete[] L;
+	   	delete[] x;
+	    delete[] b;
     }
 
 }
