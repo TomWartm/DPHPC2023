@@ -99,9 +99,10 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     struct timespec start, end;
     double elapsed_time;
 
-    // initialize data on all processes
-    init_trisolv(n, L, x, b);
-
+    if (rank == 0) {
+        init_trisolv(n, L, x, b);
+    }
+    
     MPI_Barrier(MPI_COMM_WORLD);
     clock_gettime(CLOCK_MONOTONIC, &start);
     func(n, L, x, b);
