@@ -37,6 +37,10 @@ int main(int argc, char** argv) {
     }
 	/*int rows = std_rows;
 	if (rank == size - 1 && NDEF % rows != 0) rows = NDEF % std_rows;*/
+    int rows;
+    if (rank == 0) rows = NDEF;
+    else rows = std_rows;
+
 
     /****************INITIALIZATION******************/
     if (rank == 0) {
@@ -80,11 +84,11 @@ int main(int argc, char** argv) {
     /****************COMPUTATION******************/
 	for (int j = 0; j < NDEF; ++j) {
         int rank_x_std_rows = rank * std_rows;
-        int j_x_std_rows = j * std_rows;
-        x[j] = b[j] / A[(j - rank_x_std_rows) * std_rows + j];
+        int j_x_rows = j * rows;
+        x[j] = b[j] / A[(j - rank_x_std_rows) * rows + j];
 		MPI_Bcast(x + j, 1, MPI_DOUBLE, j / std_rows, MPI_COMM_WORLD);
 		for (int i = 0; i < std_rows; ++i) {
-			b[rank_x_std_rows + i] -= A[j_x_std_rows + i] * x[j];
+			b[rank_x_std_rows + i] -= A[j_x_rows + i] * x[j];
 		}
 	}
     /*********************************************/
