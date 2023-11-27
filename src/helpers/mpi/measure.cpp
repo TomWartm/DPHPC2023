@@ -5,6 +5,7 @@
 #include <mpi.h>
 #include "../gemver_init.h"
 #include "../trisolv_init.h"
+#include "../../trisolv/mpi/trisolv_mpi_gao.h"
 
 void measure_gemver_mpi(std::string functionName, void (*func)(int, double, double, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *), int n, std::ofstream &outputFile)
 {   
@@ -120,4 +121,19 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     free((void*)L);
     free((void*)x);
     free((void*)b);
+}
+
+void measure_trisolv_mpi(int n, std::ofstream &outputFile)
+{
+    int size, rank;
+    double *A, *x, *b;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    outputFile << n << ";" << trisolv_mpi_gao(size, rank, n, A, x, b, init_trisolv) << ";" << "trisolv_mpi_gao" << std::endl;
+
+    delete A;
+    delete x;
+    delete b;
 }

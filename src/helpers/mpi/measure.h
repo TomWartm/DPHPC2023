@@ -8,4 +8,6 @@ void measure_gemver_mpi(std::string functionName,void (*func)(int, double, doubl
 
 void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, double*, double*), int n, std::ofstream &outputFile);
 
+void measure_trisolv_mpi(int n, std::ofstream &outputFile);
+
 #endif
