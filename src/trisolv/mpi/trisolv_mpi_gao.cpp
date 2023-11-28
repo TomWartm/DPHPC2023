@@ -1,6 +1,13 @@
 //
 // Created by gao on 27.11.23.
 //
+#include <mpi.h>
+#include <iostream>
+#include <cmath>
+#include <chrono>
+#include <iomanip>
+#include <numeric>
+#include <thread>
 #include "trisolv_mpi_gao.h"
 
 void print(double* A, int M, int N) {
@@ -26,6 +33,7 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
     int rows, A_size;
 
     if (rank == 0) {
+    	std::cout << "THREADS: " << std::thread::hardware_concurrency();
         A_size = NDEF;
         rows = std_rows;
     }
