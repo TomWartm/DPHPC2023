@@ -2,12 +2,13 @@
 // Created by gao on 27.11.23.
 //
 #include <mpi.h>
+#include <omp.h>
 #include <iostream>
 #include <cmath>
 #include <chrono>
 #include <iomanip>
 #include <numeric>
-#include <thread>
+//#include <thread>
 #include "trisolv_mpi_gao.h"
 
 void print(double* A, int M, int N) {
@@ -33,7 +34,7 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
     int rows, A_size;
 
     if (rank == 0) {
-    	std::cout << "THREADS: " << std::thread::hardware_concurrency();
+//    	std::cout << "THREADS: " << std::thread::hardware_concurrency() << "\n";
         A_size = NDEF;
         rows = std_rows;
     }
@@ -124,6 +125,7 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
         	bcast_time += bcast_dur.count();
         }
 #endif
+#pragma omp parallel for
         for (int i = 0; i < rows; ++i) {
             b[rank_x_std_rows + i] -= A[j_x_A_size + i] * x[j];
         }
