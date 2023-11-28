@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <mpi.h>
+#include <cmath>
 #include "trisolv/mpi/trisolv_mpi.h"
 
 int main(int argc, char *argv[])
@@ -20,7 +21,8 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 10;
-    for (int n = 128; n <= 4096; n *= 2)
+    int n_max = std::pow(2, POW);
+    for (int n = 128; n <= n_max; n *= 2)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)
