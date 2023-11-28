@@ -2,10 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
-#include "../trisolve/trisolve_init.h"
-#include "../gemver/gemver_init.h"
+#include "trisolv_init.h"
+#include "gemver_init.h"
 
-void measure_gemver(std::string functionName,void (*func)(int, double, double, double*, double*, double*, double*, double*, double*, double*, double*, double*), int n, std::ofstream &outputFile)
+void measure_gemver(std::string functionName, void (*func)(int, double, double, double *, double *, double *, double *, double *, double *, double *, double *, double *), int n, std::ofstream &outputFile)
 {
 
     // initialization
@@ -33,7 +33,8 @@ void measure_gemver(std::string functionName,void (*func)(int, double, double, d
     elapsed_time = (end.tv_sec - start.tv_sec) + (double)(end.tv_nsec - start.tv_nsec) / 1e9;
 
     // write to output file
-    outputFile << n << ";" << elapsed_time << ";" << functionName << std::endl;
+    outputFile << n << ";" << elapsed_time << ";" << functionName << "\n";
+
 
     // free memory
     free((void *)A);
@@ -47,7 +48,7 @@ void measure_gemver(std::string functionName,void (*func)(int, double, double, d
     free((void *)z);
 }
 
-void measure_trisolve(std::string functionName,void (*func)(int , double*, double*, double*), int n, std::ofstream &outputFile)
+void measure_trisolv(std::string functionName,void (*func)(int , double*, double*, double*), int n, std::ofstream &outputFile)
 {
     double *L = (double *)malloc((n * n) * sizeof(double));
     double *x = (double *)malloc((n) * sizeof(double));
@@ -56,7 +57,7 @@ void measure_trisolve(std::string functionName,void (*func)(int , double*, doubl
     //////////////measure/////////////
     struct timespec start, end;
     double elapsed_time;
-    init_trisolve(n, L, x, b);
+    init_trisolv(n, L, x, b);
     clock_gettime(CLOCK_MONOTONIC, &start);
     func(n, L, x, b);
     clock_gettime(CLOCK_MONOTONIC, &end);

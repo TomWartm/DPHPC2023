@@ -1,12 +1,27 @@
 # Generate plots
-1. Compile the project by running `make` in the root directory.
-2. Execute the Binary `dphpc` in the root directory.
-3. Run `python plot/plot.py` from the root directory.
 
+Create the plot data:
+```
+make trisolv
+make trisolv_mpi
+
+make gemver
+make gemver_mpi
+```
+
+Generate the plot:
+```
+python plot/plot.py
+```
 
 # Run Tests
 
-- Run `make test`
+- Trisolv:  `make test_trisolv_openmp`
+- Gemver:  `make test_gemver_openmp`
+
+
+- Trisolv MPI:  `make test_trisolv_mpi`
+- Gemver MPI:  `make test_gemver_mpi`
 
 # How to run jobs on Euler
 
