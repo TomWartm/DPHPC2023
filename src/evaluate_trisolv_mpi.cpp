@@ -19,15 +19,15 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 1;
-    for (int n = 10; n <= 10; n *= 2)
+    int num_runs = 10;
+    for (int n = 128; n <= 4096; n *= 2)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
 
             // give user feedback
-            std::cout << "N = " << n << std::endl;
+            //std::cout << "N = " << n << std::endl;
 
             /////////////////////////// method 1 /////////////////////////////////////
 
