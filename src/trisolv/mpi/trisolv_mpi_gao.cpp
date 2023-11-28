@@ -87,9 +87,12 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
     MPI_Barrier(MPI_COMM_WORLD);
 
     /****************START TIMER******************/
-    std::chrono::time_point<std::chrono::high_resolution_clock> start, end, b_start, b_end;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+#ifdef TIME_BCAST
+	std::chrono::time_point<std::chrono::high_resolution_clock> b_start, b_end;
     std::chrono::duration<double> bcast_dur;
     double bcast_time = 0;
+#endif
     if (rank == 0) {
         start = std::chrono::high_resolution_clock::now();
     }
@@ -102,13 +105,17 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
         int rank_x_std_rows = rank * std_rows;
         int j_x_A_size = j * A_size;
         if (rank == j / std_rows) x[j] = b[j] / A[(j - rank_x_std_rows) + j * A_size];
-        if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
+#ifdef TIME_BCAST
+		if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
+#endif
         MPI_Bcast(x + j, 1, MPI_DOUBLE, j / std_rows, MPI_COMM_WORLD);
+#ifdef TIME_BCAST
         if (rank == 0) {
         	b_end = std::chrono::high_resolution_clock::now();
         	bcast_dur = b_end - b_start;
         	bcast_time += bcast_dur.count();
         }
+#endif
         for (int i = 0; i < rows; ++i) {
             b[rank_x_std_rows + i] -= A[j_x_A_size + i] * x[j];
         }
@@ -126,10 +133,12 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
 		std::cout << "]\n";
 #endif
         const std::chrono::duration<double> diff = end - start;
-//#ifdef PRINT_TIME
         std::cout << std::fixed << std::setprecision(9) << std::left;
-        std::cout << NDEF << "\t" << diff.count() << "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%\n";
-//#endif
+        std::cout << NDEF << "\t" << diff.count()
+#ifdef TIME_BCAST
+        	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
+#endif
+        	<< "\n";
         return diff.count();
     }
     /*******************************************/
