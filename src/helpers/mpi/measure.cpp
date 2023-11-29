@@ -166,7 +166,7 @@ void measure_trisolv_mpi(int n, std::ofstream &outputFile)
     if (b) delete[] b;
 }
 
-/*
+
 void measure_trisolv_naive(int n, std::ofstream &outputFile)
 {
     int size, rank;
@@ -211,5 +211,4 @@ void measure_trisolv_mpi_double(int n, std::ofstream &outputFile)
     if (x) delete[] x;
     if (b) delete[] b;
 }
-*/
 

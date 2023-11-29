@@ -10,10 +10,10 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
 void measure_trisolv_baseline(int n, std::ofstream &outputFile);
 void measure_trisolv_mpi(int n, std::ofstream &outputFile);
 
-/*
+
 void measure_trisolv_naive(int n, std::ofstream &outputFile);
 void measure_trisolv_mpi_single(int n, std::ofstream &outputFile);
 void measure_trisolv_mpi_double(int n, std::ofstream &outputFile);
-*/
+
 
 #endif
