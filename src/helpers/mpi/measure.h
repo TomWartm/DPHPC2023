@@ -10,4 +10,6 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
 
 void measure_trisolv_mpi(int n, std::ofstream &outputFile);
 
+void measure_trisolv_mpi_2(int n, std::ofstream &outputFile);
+
 #endif
