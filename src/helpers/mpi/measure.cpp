@@ -130,7 +130,7 @@ void measure_trisolv_mpi(int n, std::ofstream &outputFile)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    double time = trisolv_mpi_gao(size, rank, n, A, x, b, identity_trisolv);
+    double time = trisolv_mpi_gao(size, rank, n, A, x, b, lowertriangular_trisolv);
     if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao" << std::endl;
 
     if (A) delete[] A;
