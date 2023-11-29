@@ -36,9 +36,10 @@ int main(int argc, char *argv[])
             //measure_trisolv_mpi((std::string) "trisolv_mpi", &kernel_trisolv_mpi, n, outputFile);
 
             /////////////////////////// method gao ///////////////////////////////////
-
-            measure_trisolv_mpi(n, outputFile);
-            measure_trisolv_mpi_2(n, outputFile);
+            measure_trisolv_naive(n, outputFile);			
+            measure_trisolv_mpi_single(n, outputFile);
+            measure_trisolv_mpi_double(n, outputFile);
+//            measure_trisolv_mpi_combined(n, outputFile);
         }
     }
 

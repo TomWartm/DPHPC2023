@@ -27,18 +27,49 @@ void rowMaj_to_colMaj(int N, double* source, double* target) {
     //print(target, N, N);
 }
 
-double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
-    int std_rows = std::ceil(1.0 * NDEF / size);
+double trisolv_mpi_gao(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
+	if (N <= 128) return trisolv_naive(size, rank, N, A, x, b, init);
+	else if (N <= 8192 && (N / size) % 2 == 0) return trisolv_mpi_gao_double(size, rank, N, A, x, b, init);
+	else return trisolv_mpi_gao_single(size, rank, N, A, x, b, init);
+}
+
+double trisolv_naive(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
+	if (rank == 0) {
+        A = new double[N * N];
+        x = new double[N * sizeof(double)];
+        b = new double[N * sizeof(double)];
+        init(N, A, x, b);
+		std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+        start = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < N; i++) {
+			x[i] = b[i];
+			int i_x_N = i * N;
+			for (int j = 0; j < i; j++) {
+				x[i] -= A[i_x_N + j] * x[j];
+			}
+			x[i] /= A[i_x_N + i];
+		}
+        end = std::chrono::high_resolution_clock::now();
+		const std::chrono::duration<double> diff = end - start;
+		std::cout << std::fixed << std::setprecision(9) << std::left;
+		std::cout << "naive" << "\t" << N << "\t" << diff.count() << "\n";
+		return diff.count();
+	}
+	else return 0;
+}
+
+double trisolv_mpi_gao_single(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
+    int std_rows = std::ceil(1.0 * N / size);
     int rows, A_size;
 
     if (rank == 0) {
 //    	std::cout << "THREADS: " << std::thread::hardware_concurrency() << "\n";
-        A_size = NDEF;
+        A_size = N;
         rows = std_rows;
     }
-    else if (rank == size - 1 && NDEF % std_rows != 0) {
-        A_size = NDEF % std_rows;
-        rows = NDEF % std_rows;
+    else if (rank == size - 1 && N % std_rows != 0) {
+        A_size = N % std_rows;
+        rows = N % std_rows;
     }
     else {
         A_size = std_rows;
@@ -48,46 +79,46 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
 
     /****************INITIALIZATION******************/
     if (rank == 0) {
-        double* tmp = new double[NDEF * NDEF];
-        A = new double[NDEF * NDEF];
-        x = new double[NDEF * sizeof(double)];
-        b = new double[NDEF * sizeof(double)];
-        init(NDEF, tmp, x, b);
-        rowMaj_to_colMaj(NDEF, tmp, A);
+        double* tmp = new double[N * N];
+        A = new double[N * N];
+        x = new double[N * sizeof(double)];
+        b = new double[N * sizeof(double)];
+        init(N, tmp, x, b);
+        rowMaj_to_colMaj(N, tmp, A);
         delete[] tmp;
 
-        //print(A, NDEF, NDEF);
+        //print(A, N, N);
 
         for (int n = 1; n < size - 1; ++n) {
-            for (int j = 0; j < NDEF; ++j) {
-                MPI_Send(A + n * std_rows + j * NDEF, std_rows, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
+            for (int j = 0; j < N; ++j) {
+                MPI_Send(A + n * std_rows + j * N, std_rows, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
             }
-            MPI_Send(x, NDEF, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
-            MPI_Send(b, NDEF, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
+            MPI_Send(x, N, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
+            MPI_Send(b, N, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
         }
         if (size > 1) {   //special treatment of the last rank
             int tmp_rows = std_rows;
-            if (NDEF % std_rows != 0) tmp_rows = NDEF % std_rows;
-            for (int j = 0; j < NDEF; ++j) {
-                //for (int k = 0; k < tmp_rows; ++k) std::cout << "!" << A[(size - 1) * std_rows + j * NDEF + k] << " ";
+            if (N % std_rows != 0) tmp_rows = N % std_rows;
+            for (int j = 0; j < N; ++j) {
+                //for (int k = 0; k < tmp_rows; ++k) std::cout << "!" << A[(size - 1) * std_rows + j * N + k] << " ";
                 //std::cout << "\n";
-                MPI_Send(A + (size - 1) * std_rows + j * NDEF, tmp_rows, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
+                MPI_Send(A + (size - 1) * std_rows + j * N, tmp_rows, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
             }
-            MPI_Send(x, NDEF, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
-            MPI_Send(b, NDEF, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
+            MPI_Send(x, N, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
+            MPI_Send(b, N, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
         }
     }
     else {
-        A = new double[rows * NDEF];
-        x = new double[NDEF * sizeof(double)];
-        b = new double[NDEF * sizeof(double)];
-        for (int j = 0; j < NDEF; ++j) {
+        A = new double[rows * N];
+        x = new double[N * sizeof(double)];
+        b = new double[N * sizeof(double)];
+        for (int j = 0; j < N; ++j) {
             MPI_Recv(A + j * rows, rows, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
-        MPI_Recv(x, NDEF, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(b, NDEF, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(x, N, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(b, N, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        /*if (rank == size - 1)*/ //print(A, rows, NDEF);
+        /*if (rank == size - 1)*/ //print(A, rows, N);
     }
     /************************************************/
 
@@ -108,7 +139,7 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
     MPI_Barrier(MPI_COMM_WORLD);
 
     /****************COMPUTATION******************/
-    for (int j = 0; j < NDEF; ++j) {
+    for (int j = 0; j < N; ++j) {
         int rank_x_std_rows = rank * std_rows;
         int j_x_A_size = j * A_size;
         if (rank == j / std_rows) x[j] = b[j] / A[(j - rank_x_std_rows) + j * A_size];
@@ -136,12 +167,12 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
         end = std::chrono::high_resolution_clock::now();
 #ifdef PRINT_X
         std::cout << "x = [";
-		for (int i = 0; i < NDEF; ++i) std::cout << x[i] << " ";
+		for (int i = 0; i < N; ++i) std::cout << x[i] << " ";
 		std::cout << "]\n";
 #endif
         const std::chrono::duration<double> diff = end - start;
         std::cout << std::fixed << std::setprecision(9) << std::left;
-        std::cout << NDEF << "\t" << diff.count()
+        std::cout << "single" << "\t" << N << "\t" << diff.count()
 #ifdef TIME_BCAST
         	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
 #endif
@@ -152,18 +183,18 @@ double trisolv_mpi_gao(int size, int rank, int NDEF, double*& A, double*& x, dou
     return 0.0;
 }
 
-double trisolv_mpi_gao_2(int size, int rank, int NDEF, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
-    int std_rows = std::ceil(1.0 * NDEF / size);
+double trisolv_mpi_gao_double(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
+    int std_rows = std::ceil(1.0 * N / size);
     int rows, A_size;
 
     if (rank == 0) {
 //    	std::cout << "THREADS: " << std::thread::hardware_concurrency() << "\n";
-        A_size = NDEF;
+        A_size = N;
         rows = std_rows;
     }
-    else if (rank == size - 1 && NDEF % std_rows != 0) {
-        A_size = NDEF % std_rows;
-        rows = NDEF % std_rows;
+    else if (rank == size - 1 && N % std_rows != 0) {
+        A_size = N % std_rows;
+        rows = N % std_rows;
     }
     else {
         A_size = std_rows;
@@ -173,46 +204,46 @@ double trisolv_mpi_gao_2(int size, int rank, int NDEF, double*& A, double*& x, d
 
     /****************INITIALIZATION******************/
     if (rank == 0) {
-        double* tmp = new double[NDEF * NDEF];
-        A = new double[NDEF * NDEF];
-        x = new double[NDEF * sizeof(double)];
-        b = new double[NDEF * sizeof(double)];
-        init(NDEF, tmp, x, b);
-        rowMaj_to_colMaj(NDEF, tmp, A);
+        double* tmp = new double[N * N];
+        A = new double[N * N];
+        x = new double[N * sizeof(double)];
+        b = new double[N * sizeof(double)];
+        init(N, tmp, x, b);
+        rowMaj_to_colMaj(N, tmp, A);
         delete[] tmp;
 
-        //print(A, NDEF, NDEF);
+        //print(A, N, N);
 
         for (int n = 1; n < size - 1; ++n) {
-            for (int j = 0; j < NDEF; ++j) {
-                MPI_Send(A + n * std_rows + j * NDEF, std_rows, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
+            for (int j = 0; j < N; ++j) {
+                MPI_Send(A + n * std_rows + j * N, std_rows, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
             }
-            MPI_Send(x, NDEF, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
-            MPI_Send(b, NDEF, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
+            MPI_Send(x, N, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
+            MPI_Send(b, N, MPI_DOUBLE, n, 1, MPI_COMM_WORLD);
         }
         if (size > 1) {   //special treatment of the last rank
             int tmp_rows = std_rows;
-            if (NDEF % std_rows != 0) tmp_rows = NDEF % std_rows;
-            for (int j = 0; j < NDEF; ++j) {
-                //for (int k = 0; k < tmp_rows; ++k) std::cout << "!" << A[(size - 1) * std_rows + j * NDEF + k] << " ";
+            if (N % std_rows != 0) tmp_rows = N % std_rows;
+            for (int j = 0; j < N; ++j) {
+                //for (int k = 0; k < tmp_rows; ++k) std::cout << "!" << A[(size - 1) * std_rows + j * N + k] << " ";
                 //std::cout << "\n";
-                MPI_Send(A + (size - 1) * std_rows + j * NDEF, tmp_rows, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
+                MPI_Send(A + (size - 1) * std_rows + j * N, tmp_rows, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
             }
-            MPI_Send(x, NDEF, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
-            MPI_Send(b, NDEF, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
+            MPI_Send(x, N, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
+            MPI_Send(b, N, MPI_DOUBLE, size - 1, 1, MPI_COMM_WORLD);
         }
     }
     else {
-        A = new double[rows * NDEF];
-        x = new double[NDEF * sizeof(double)];
-        b = new double[NDEF * sizeof(double)];
-        for (int j = 0; j < NDEF; ++j) {
+        A = new double[rows * N];
+        x = new double[N * sizeof(double)];
+        b = new double[N * sizeof(double)];
+        for (int j = 0; j < N; ++j) {
             MPI_Recv(A + j * rows, rows, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
-        MPI_Recv(x, NDEF, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(b, NDEF, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(x, N, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(b, N, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        /*if (rank == size - 1)*/ //print(A, rows, NDEF);
+        /*if (rank == size - 1)*/ //print(A, rows, N);
     }
     /************************************************/
 
@@ -233,7 +264,7 @@ double trisolv_mpi_gao_2(int size, int rank, int NDEF, double*& A, double*& x, d
     MPI_Barrier(MPI_COMM_WORLD);
 
     /****************COMPUTATION******************/
-    for (int j = 0; j < NDEF; j += 2) {
+    for (int j = 0; j < N; j += 2) {
         int rank_x_std_rows = rank * std_rows;
         if (rank == j / std_rows) {
         	x[j] = b[j] / A[(j - rank_x_std_rows) + j * A_size];
@@ -266,12 +297,12 @@ double trisolv_mpi_gao_2(int size, int rank, int NDEF, double*& A, double*& x, d
         end = std::chrono::high_resolution_clock::now();
 #ifdef PRINT_X
         std::cout << "x = [";
-		for (int i = 0; i < NDEF; ++i) std::cout << x[i] << " ";
+		for (int i = 0; i < N; ++i) std::cout << x[i] << " ";
 		std::cout << "]\n";
 #endif
         const std::chrono::duration<double> diff = end - start;
         std::cout << std::fixed << std::setprecision(9) << std::left;
-        std::cout << NDEF << "\t" << diff.count()
+        std::cout << "double" << "\t" << N << "\t" << diff.count()
 #ifdef TIME_BCAST
         	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
 #endif

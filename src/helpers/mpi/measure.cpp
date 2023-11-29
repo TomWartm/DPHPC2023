@@ -123,7 +123,52 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     free((void*)b);
 }
 
-void measure_trisolv_mpi(int n, std::ofstream &outputFile)
+void measure_trisolv_naive(int n, std::ofstream &outputFile)
+{
+    int size, rank;
+    double *A = nullptr, *x = nullptr, *b = nullptr;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    double time = trisolv_naive(size, rank, n, A, x, b, lowertriangular_trisolv);
+    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_naive" << std::endl;
+
+    if (A) delete[] A;
+    if (x) delete[] x;
+    if (b) delete[] b;
+}
+
+void measure_trisolv_mpi_single(int n, std::ofstream &outputFile)
+{
+    int size, rank;
+    double *A = nullptr, *x = nullptr, *b = nullptr;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    double time = trisolv_mpi_gao_single(size, rank, n, A, x, b, lowertriangular_trisolv);
+    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_single" << std::endl;
+
+    if (A) delete[] A;
+    if (x) delete[] x;
+    if (b) delete[] b;
+}
+
+void measure_trisolv_mpi_double(int n, std::ofstream &outputFile)
+{
+    int size, rank;
+    double *A = nullptr, *x = nullptr, *b = nullptr;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    double time = trisolv_mpi_gao_double(size, rank, n, A, x, b, lowertriangular_trisolv);
+    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_double" << std::endl;
+
+    if (A) delete[] A;
+    if (x) delete[] x;
+    if (b) delete[] b;
+}
+
+void measure_trisolv_mpi_combined(int n, std::ofstream &outputFile)
 {
     int size, rank;
     double *A = nullptr, *x = nullptr, *b = nullptr;
@@ -131,22 +176,7 @@ void measure_trisolv_mpi(int n, std::ofstream &outputFile)
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     double time = trisolv_mpi_gao(size, rank, n, A, x, b, lowertriangular_trisolv);
-    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao" << std::endl;
-
-    if (A) delete[] A;
-    if (x) delete[] x;
-    if (b) delete[] b;
-}
-
-void measure_trisolv_mpi_2(int n, std::ofstream &outputFile)
-{
-    int size, rank;
-    double *A = nullptr, *x = nullptr, *b = nullptr;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    double time = trisolv_mpi_gao_2(size, rank, n, A, x, b, lowertriangular_trisolv);
-    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_2" << std::endl;
+    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_combined" << std::endl;
 
     if (A) delete[] A;
     if (x) delete[] x;
