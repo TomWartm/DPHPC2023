@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method gao ///////////////////////////////////
 //            measure_trisolv_mpi(n, outputFile);
-            measure_trisolv_mpi_naive(n, outputFile);
+            measure_trisolv_naive(n, outputFile);
             measure_trisolv_mpi_double(n, outputFile);
             measure_trisolv_mpi_single(n, outputFile);
         }
