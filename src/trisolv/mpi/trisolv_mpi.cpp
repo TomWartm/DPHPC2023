@@ -37,30 +37,32 @@ void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
     int process_start = world_rank * process_size;
     int process_end = (world_rank+1) * process_size;
 
-    //send b and L and initialize x
-    if (world_rank == 0) {
-        MPI_Request *send_req_b = (MPI_Request *)malloc((world_size-1) * sizeof(MPI_Request));
-        MPI_Request *send_req_L = (MPI_Request *)malloc((world_size-1) * sizeof(MPI_Request));
-        for (int p = 1; p < world_size; p++) {
-            MPI_Isend(&b[p*process_size], process_size, MPI_DOUBLE, p, p, MPI_COMM_WORLD, &send_req_b[p-1]);
-            MPI_Isend(&L[n*p*process_size], process_size * n, MPI_DOUBLE, p, p, MPI_COMM_WORLD, &send_req_L[p-1]);
-        }
-        MPI_Waitall(world_size-1, send_req_b, MPI_STATUSES_IGNORE);
-        MPI_Waitall(world_size-1, send_req_L, MPI_STATUSES_IGNORE);
-        free(send_req_b);
-        free(send_req_L);
-        for (i = 0; i < process_size; i++) {
-            x[i] = b[i];
-        }
+    // //send b and L and initialize x
+    // if (world_rank == 0) {
+    //     MPI_Request *send_req_b = (MPI_Request *)malloc((world_size-1) * sizeof(MPI_Request));
+    //     MPI_Request *send_req_L = (MPI_Request *)malloc((world_size-1) * sizeof(MPI_Request));
+    //     for (int p = 1; p < world_size; p++) {
+    //         MPI_Isend(&b[p*process_size], process_size, MPI_DOUBLE, p, p, MPI_COMM_WORLD, &send_req_b[p-1]);
+    //         MPI_Isend(&L[n*p*process_size], process_size * n, MPI_DOUBLE, p, p, MPI_COMM_WORLD, &send_req_L[p-1]);
+    //     }
+    //     MPI_Waitall(world_size-1, send_req_b, MPI_STATUSES_IGNORE);
+    //     MPI_Waitall(world_size-1, send_req_L, MPI_STATUSES_IGNORE);
+    //     free(send_req_b);
+    //     free(send_req_L);
+    //     for (i = 0; i < process_size; i++) {
+    //         x[i] = b[i];
+    //     }
+    // }
+    // else { //receive b and L and initialize x
+    //     MPI_Recv(&b[process_start], process_size, MPI_DOUBLE, 0, world_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //     MPI_Recv(&L[n*process_start], n * process_size, MPI_DOUBLE, 0, world_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //     for (i = process_start; i < process_end; i++) {
+    //         x[i] = b[i];
+    //     }
+    // }
+    for (i = process_start; i < process_end; i++) {
+        x[i] = b[i];
     }
-    else { //receive b and L and initialize x
-        MPI_Recv(&b[process_start], process_size, MPI_DOUBLE, 0, world_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(&L[n*process_start], n * process_size, MPI_DOUBLE, 0, world_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        for (i = process_start; i < process_end; i++) {
-            x[i] = b[i];
-        }
-    }
-    
 
     //RECEIVE PHASE
     int receive_from = -1;
@@ -157,20 +159,20 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
     int process_start = world_rank * process_size;
     int process_end = (world_rank+1) * process_size;
 
-    //get relevant parts of b and L from process 0
-    MPI_Win b_win, L_win;
-    MPI_Win_create(b, n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &b_win);
-    MPI_Win_create(L, n * n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &L_win);
-    if (world_rank != 0) {
-        MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, b_win);
-            MPI_Get(&b[process_start], process_size, MPI_DOUBLE, 0, process_start, process_size, MPI_DOUBLE, b_win);
-        MPI_Win_unlock(0, b_win);
-        MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, L_win);
-            MPI_Get(&L[n*process_start], n*process_size, MPI_DOUBLE, 0, n*process_start, n*process_size, MPI_DOUBLE, L_win);
-        MPI_Win_unlock(0, L_win);
-    }
-    MPI_Win_free(&b_win);
-    MPI_Win_free(&L_win);
+    // //get relevant parts of b and L from process 0
+    // MPI_Win b_win, L_win;
+    // MPI_Win_create(b, n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &b_win);
+    // MPI_Win_create(L, n * n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &L_win);
+    // if (world_rank != 0) {
+    //     MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, b_win);
+    //         MPI_Get(&b[process_start], process_size, MPI_DOUBLE, 0, process_start, process_size, MPI_DOUBLE, b_win);
+    //     MPI_Win_unlock(0, b_win);
+    //     MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, L_win);
+    //         MPI_Get(&L[n*process_start], n*process_size, MPI_DOUBLE, 0, n*process_start, n*process_size, MPI_DOUBLE, L_win);
+    //     MPI_Win_unlock(0, L_win);
+    // }
+    // MPI_Win_free(&b_win);
+    // MPI_Win_free(&L_win);
     
     //only initialize the necessary part
     for (i = process_start; i < process_end; i++) {

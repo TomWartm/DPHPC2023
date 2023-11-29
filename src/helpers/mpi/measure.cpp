@@ -99,9 +99,8 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     struct timespec start, end;
     double elapsed_time;
 
-    if (rank == 0) {
-        init_trisolv(n, L, x, b);
-    }
+    //initialize on all nodes
+    init_trisolv(n, L, x, b);
     
     MPI_Barrier(MPI_COMM_WORLD);
     clock_gettime(CLOCK_MONOTONIC, &start);
