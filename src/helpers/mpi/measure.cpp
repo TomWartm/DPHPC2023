@@ -3,9 +3,12 @@
 #include <fstream>
 #include <stdlib.h>
 #include <mpi.h>
+#include <chrono>
+#include <iomanip>
 #include "../gemver_init.h"
 #include "../trisolv_init.h"
 #include "../../trisolv/mpi/trisolv_mpi_gao.h"
+#include "../../trisolv/trisolv_baseline.h"
 
 void measure_gemver_mpi(std::string functionName, void (*func)(int, double, double, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *), int n, std::ofstream &outputFile)
 {   
@@ -123,6 +126,47 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     free((void*)b);
 }
 
+void measure_trisolv_baseline(int n, std::ofstream &outputFile) {
+	int size, rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+	if (rank == 0) {
+	    double *A = new double[n * n];
+    	double *x = new double[n];
+	    double *b = new double[n];
+    	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+    	
+	    init_trisolv(n, A, x, b);    	
+		
+	    start = std::chrono::high_resolution_clock::now();
+    	trisolv_baseline(n, A, x, b);
+		end = std::chrono::high_resolution_clock::now();
+		const std::chrono::duration<double> time = end - start;
+    	outputFile << n << ";" << time.count() << ";" << "trisolv_mpi_baseline" << std::endl;
+    	std::cout << std::fixed << std::setprecision(9) << std::left;
+		std::cout << "bline" << "\t" << n << "\t" << time.count() << "\n";
+   	    if (A) delete[] A;
+	    if (x) delete[] x;
+	    if (b) delete[] b;
+    }
+}
+
+void measure_trisolv_mpi(int n, std::ofstream &outputFile)
+{
+    int size, rank;
+    double *A = nullptr, *x = nullptr, *b = nullptr;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    double time = trisolv_mpi_gao(size, rank, n, A, x, b, init_trisolv);
+    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao" << std::endl;
+
+    if (A) delete[] A;
+    if (x) delete[] x;
+    if (b) delete[] b;
+}
+
+/*
 void measure_trisolv_naive(int n, std::ofstream &outputFile)
 {
     int size, rank;
@@ -130,7 +174,7 @@ void measure_trisolv_naive(int n, std::ofstream &outputFile)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    double time = trisolv_naive(size, rank, n, A, x, b, lowertriangular_trisolv);
+    double time = trisolv_naive(size, rank, n, A, x, b, init_trisolv);
     if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_naive" << std::endl;
 
     if (A) delete[] A;
@@ -145,7 +189,7 @@ void measure_trisolv_mpi_single(int n, std::ofstream &outputFile)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    double time = trisolv_mpi_gao_single(size, rank, n, A, x, b, lowertriangular_trisolv);
+    double time = trisolv_mpi_gao_single(size, rank, n, A, x, b, init_trisolv);
     if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_single" << std::endl;
 
     if (A) delete[] A;
@@ -160,25 +204,12 @@ void measure_trisolv_mpi_double(int n, std::ofstream &outputFile)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    double time = trisolv_mpi_gao_double(size, rank, n, A, x, b, lowertriangular_trisolv);
+    double time = trisolv_mpi_gao_double(size, rank, n, A, x, b, init_trisolv);
     if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_double" << std::endl;
 
     if (A) delete[] A;
     if (x) delete[] x;
     if (b) delete[] b;
 }
+*/
 
-void measure_trisolv_mpi_combined(int n, std::ofstream &outputFile)
-{
-    int size, rank;
-    double *A = nullptr, *x = nullptr, *b = nullptr;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    double time = trisolv_mpi_gao(size, rank, n, A, x, b, lowertriangular_trisolv);
-    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_combined" << std::endl;
-
-    if (A) delete[] A;
-    if (x) delete[] x;
-    if (b) delete[] b;
-}

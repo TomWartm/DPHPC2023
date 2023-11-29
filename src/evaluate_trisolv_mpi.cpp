@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 10;
+    int num_runs = 4;
     int n_max = std::pow(2, POW);
     for (int n = 128; n <= n_max; n *= 2)
     {
@@ -31,15 +31,13 @@ int main(int argc, char *argv[])
             // give user feedback
             //std::cout << "N = " << n << std::endl;
 
-            /////////////////////////// method 1 /////////////////////////////////////
+            /////////////////////////// baseline /////////////////////////////////////
 
             //measure_trisolv_mpi((std::string) "trisolv_mpi", &kernel_trisolv_mpi, n, outputFile);
+            measure_trisolv_baseline(n, outputFile);
 
             /////////////////////////// method gao ///////////////////////////////////
-            measure_trisolv_naive(n, outputFile);			
-            measure_trisolv_mpi_single(n, outputFile);
-            measure_trisolv_mpi_double(n, outputFile);
-//            measure_trisolv_mpi_combined(n, outputFile);
+            measure_trisolv_mpi(n, outputFile);
         }
     }
 
