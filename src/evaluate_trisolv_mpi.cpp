@@ -21,9 +21,10 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 5;
-    int n_max = std::pow(2, POW);
-    for (int n = 128; n <= n_max; n *= 2)
+    int num_runs = 10;
+    int n_min = std::pow(2, N_MIN);
+    int n_max = std::pow(2, N_MAX);
+    for (int n = n_min; n <= n_max; n *= 2)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)
@@ -40,8 +41,9 @@ int main(int argc, char *argv[])
             /////////////////////////// method gao ///////////////////////////////////
 //            measure_trisolv_mpi(n, outputFile);
             measure_trisolv_naive(n, outputFile);
-            measure_trisolv_mpi_double(n, outputFile);
+            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "mono", 1);
             measure_trisolv_mpi_single(n, outputFile);
+            measure_trisolv_mpi_double(n, outputFile);
             measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "quad", 4);
             measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "octa", 8);
         }
