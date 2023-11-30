@@ -269,18 +269,17 @@ double trisolv_mpi_gao_double(int size, int rank, int N, double*& A, double*& x,
     return 0.0;
 }
 
-double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
+double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*), int block_size) {
     int std_rows = std::ceil(1.0 * N / size);
     int rows, A_size;
-
+	int N_mod_std_rows = N % std_rows;
     if (rank == 0) {
         A_size = N;
         rows = std_rows;
     }
-    else if (rank == size - 1 && N % std_rows != 0) {
+    else if (rank == size - 1 && N_mod_std_rows != 0) {
         A_size = N % std_rows;
         rows = N % std_rows;
-        std::cout << "last " << rows << "\n";
     }
     else {
         A_size = std_rows;
@@ -309,39 +308,35 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
     MPI_Barrier(MPI_COMM_WORLD);
 
     /****************COMPUTATION******************/
+    int sender, remain_rows, send_count;
+    int rank_x_std_rows = rank * std_rows;
     for (int j = 0; j < N;) {
-        int rank_x_std_rows = rank * std_rows;
-        int sender = j / std_rows;
-        int remain_rows = rows - j % std_rows;
-//        if (remain_rows != 0) break;
-//        if (rank == 0) std::cout << j << "\n";
-        int send_count = remain_rows >= BLOCK_SIZE || remain_rows == 0 ? BLOCK_SIZE: remain_rows;
-        if (rank == 0) std::cout << j << "   " << send_count << "   " << remain_rows << "\n";
-//        int send_count = BLOCK_SIZE;
+        sender = j / std_rows;
+        remain_rows = std_rows;
+        if (sender == size - 1 && N_mod_std_rows != 0) remain_rows = N_mod_std_rows;
+        remain_rows -= j % std_rows;
+        send_count = remain_rows >= block_size || remain_rows == 0 ? block_size: remain_rows;
+        
         if (rank == sender) {
         	for (int k = 0; k < send_count; ++k) {
-	       		if (b + j + k >= b + N) throw std::range_error("b");
-        		if (A + (j + k - rank_x_std_rows) + (j + k) * A_size >= A + N * A_size) throw std::range_error("A");
-        		if (x + j + k >= x + N) throw std::range_error("x");
-        		x[j + k] = b[j + k] / A[(j + k - rank_x_std_rows) + (j + k) * A_size];	        	
+        		int j_plus_k = j + k;
+        		x[j_plus_k] = b[j_plus_k] / A[(j_plus_k - rank_x_std_rows) + (j_plus_k) * A_size];
+        		//x[j + k] = b[j + k] / A[(j + k - rank_x_std_rows) + (j + k) * A_size];
+        		double x_tmp = x[j_plus_k];
         		for (int l = 1; l < send_count; ++l) {
-	        		if (b + j + l >= b + N) throw std::range_error("b");
-	        		if (A + (j + l - rank_x_std_rows) + (j + k) * A_size >= A + N * A_size) throw std::range_error("A");
-	        		if (x + j + k >= x + N) throw std::range_error("x");	        		        	
-        			b[j + l] -= A[(j + l - rank_x_std_rows) + (j + k) * A_size] * x[j + k];
+        			b[j + l] -= A[j + l - rank_x_std_rows + (j_plus_k) * A_size] * x_tmp;
         		}
         	}
         }
+        
 #ifdef TIME_BCAST
 		if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
 #endif
-		if (rank == 0) std::cout << "bcast at " << j << " rank " << sender << " sending " << send_count << "\n";
-/*		if (rank == 2) {
-			for (int i = j; i < j + send_count; ++i) std::cout << x[i] << " ";
-			std::cout << "\n";
-		}*/
+
+//		if (rank == 0) std::cout << "bcast at " << j << " rank " << sender << " sending " << send_count << "\n";
        	MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
-       	if (rank == 0) std::cout << "bcast complete\n";
+//       	if (rank == 0) std::cout << "bcast complete\n";
+
 #ifdef TIME_BCAST
         if (rank == 0) {
         	b_end = std::chrono::high_resolution_clock::now();
@@ -349,15 +344,12 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
         	bcast_time += bcast_dur.count();
         }
 #endif
+
         for (int k = 0; k < send_count; ++k) {
-	        for (int i = 0; i < rows; ++i) {
-	        	if (b + rank_x_std_rows + i >= b + N) throw std::range_error("b");
-	        	if (A + (j + k) * A_size + i >= A + N * A_size) throw std::range_error("A");
-	        	if (x + j + k >= x + N) throw std::range_error("x");	        		        	
+	        for (int i = 0; i < rows; ++i) {  		        	
     	        b[rank_x_std_rows + i] -= A[(j + k) * A_size + i] * x[j + k];
     	    }
     	}
-
 		
     	j += send_count;
     	
@@ -376,7 +368,7 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
 #endif
         const std::chrono::duration<double> diff = end - start;
         std::cout << std::fixed << std::setprecision(9) << std::left;
-        std::cout << BLOCK_SIZE << "\t" << N << "\t" << diff.count()
+        std::cout << block_size << "\t" << N << "\t" << diff.count()
 #ifdef TIME_BCAST
         	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
 #endif

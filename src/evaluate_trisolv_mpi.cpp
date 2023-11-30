@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 1;
+    int num_runs = 5;
     int n_max = std::pow(2, POW);
     for (int n = 128; n <= n_max; n *= 2)
     {
@@ -39,18 +39,16 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method gao ///////////////////////////////////
 //            measure_trisolv_mpi(n, outputFile);
-//            measure_trisolv_naive(n, outputFile);
-//            measure_trisolv_mpi_double(n, outputFile);
-//            measure_trisolv_mpi_single(n, outputFile);
-            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "4");
+            measure_trisolv_naive(n, outputFile);
+            measure_trisolv_mpi_double(n, outputFile);
+            measure_trisolv_mpi_single(n, outputFile);
+            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "quad", 4);
+            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "octa", 8);
         }
     }
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	std::cout << rank << "DONE\n";
     outputFile.close();
-	std::cout << rank << "DONE2\n";
     MPI_Finalize();
-   	std::cout << rank << "DONE3\n";
     return 0;
 }
