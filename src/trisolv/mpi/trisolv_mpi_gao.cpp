@@ -176,14 +176,14 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
     double x_tmp;
     int rank_x_std_rows = rank * std_rows;
     
-    for (int j = 0; j < N;) {
+    for (int j = 0; j < N; j += send_count) {
         sender = j / std_rows;
         if (sender == size - 1 && N_mod_std_rows != 0) remain_rows = N_mod_std_rows;
         else remain_rows = std_rows;
         remain_rows -= j % std_rows;
         send_count = remain_rows >= block_size || remain_rows == 0 ? block_size: remain_rows;
         
-        if (rank == sender) {
+        if (rank == sender) { //Compute small triangular matrix of size BLOCK_SIZE
         	for (int k = 0; k < send_count; ++k) {
         		j_plus_k = j + k;
         		x[j_plus_k] = b[j_plus_k] / A[(j_plus_k - rank_x_std_rows) + (j_plus_k) * A_size];
@@ -206,13 +206,11 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
 		MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
 #endif
 
-        for (int k = 0; k < send_count; ++k) {
+        for (int k = 0; k < send_count; ++k) { //b - A * x
 	        for (int i = 0; i < rows; ++i) {  		        	
     	        b[rank_x_std_rows + i] -= A[(j + k) * A_size + i] * x[j + k];
     	    }
     	}
-		
-    	j += send_count;
     }
     /*********************************************/
 
