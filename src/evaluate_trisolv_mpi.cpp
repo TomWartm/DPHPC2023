@@ -40,12 +40,12 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method gao ///////////////////////////////////
 //            measure_trisolv_mpi(n, outputFile);
-            measure_trisolv_naive(n, outputFile);
+//            measure_trisolv_naive(n, outputFile);
             measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "mono", 1);
             measure_trisolv_mpi_single(n, outputFile);
-            measure_trisolv_mpi_double(n, outputFile);
+//            measure_trisolv_mpi_double(n, outputFile);
             measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "quad", 4);
-            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "octa", 8);
+//            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "octa", 8);
         }
     }
     int rank;
