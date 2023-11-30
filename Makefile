@@ -64,7 +64,7 @@ build_trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp
 	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DPOW=7 -DBLOCK_SIZE=4 -DPRINT_X
 
 trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
-	mpirun -np 2 ./$(TRISOLV_MPI_EXECUTABLE)
+	mpirun -np 5 ./$(TRISOLV_MPI_EXECUTABLE)
 
 
 ## Testing

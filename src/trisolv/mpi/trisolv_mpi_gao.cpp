@@ -27,8 +27,8 @@ void init_colMaj(int size, int rank, int N, double*& A, double*& x, double*& b, 
 	if (rank == 0) {
         double* tmp = new double[N * N];
         A = new double[N * N];
-        x = new double[N * sizeof(double)];
-        b = new double[N * sizeof(double)];
+        x = new double[N];
+        b = new double[N];
         init(N, tmp, x, b);
         rowMaj_to_colMaj(N, tmp, A);
         delete[] tmp;
@@ -52,8 +52,8 @@ void init_colMaj(int size, int rank, int N, double*& A, double*& x, double*& b, 
     }
     else {
         A = new double[rows * N];
-        x = new double[N * sizeof(double)];
-        b = new double[N * sizeof(double)];
+        x = new double[N];
+        b = new double[N];
         for (int j = 0; j < N; ++j) {
             MPI_Recv(A + j * rows, rows, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
@@ -71,8 +71,8 @@ double trisolv_mpi_gao(int size, int rank, int N, double*& A, double*& x, double
 double trisolv_naive(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
 	if (rank == 0) {
         A = new double[N * N];
-        x = new double[N * sizeof(double)];
-        b = new double[N * sizeof(double)];
+        x = new double[N];
+        b = new double[N];
         init(N, A, x, b);
 		std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
         start = std::chrono::high_resolution_clock::now();
@@ -280,6 +280,7 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
     else if (rank == size - 1 && N % std_rows != 0) {
         A_size = N % std_rows;
         rows = N % std_rows;
+        std::cout << "last " << rows << "\n";
     }
     else {
         A_size = std_rows;
@@ -311,12 +312,13 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
     for (int j = 0; j < N;) {
         int rank_x_std_rows = rank * std_rows;
         int sender = j / std_rows;
-        int remain_rows = rows - (j - rank_x_std_rows);
-        std::cout << remain_rows << "\n";
-        if (remain_rows == 0) break;
-        int send_count = remain_rows >= BLOCK_SIZE ? BLOCK_SIZE: remain_rows;
+        int remain_rows = rows - j % std_rows;
+//        if (remain_rows != 0) break;
+//        if (rank == 0) std::cout << j << "\n";
+        int send_count = remain_rows >= BLOCK_SIZE || remain_rows == 0 ? BLOCK_SIZE: remain_rows;
+        if (rank == 0) std::cout << j << "   " << send_count << "   " << remain_rows << "\n";
+//        int send_count = BLOCK_SIZE;
         if (rank == sender) {
-        	std::cout << "rank " << rank << " computing\n";
         	for (int k = 0; k < send_count; ++k) {
 	       		if (b + j + k >= b + N) throw std::range_error("b");
         		if (A + (j + k - rank_x_std_rows) + (j + k) * A_size >= A + N * A_size) throw std::range_error("A");
@@ -329,20 +331,17 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
         			b[j + l] -= A[(j + l - rank_x_std_rows) + (j + k) * A_size] * x[j + k];
         		}
         	}
-        	/*x[j] = b[j] / A[(j - rank_x_std_rows) + j * A_size];
-        	b[j + 1] -= A[(j + 1 - rank_x_std_rows) + j * A_size] * x[j];
-        	x[j + 1] = b[j + 1] / A[(j + 1 - rank_x_std_rows) + (j + 1) * A_size];*/
-//        	std::cout << "j = " << j << " sending " << send_count;
         }
 #ifdef TIME_BCAST
 		if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
 #endif
-    MPI_Barrier(MPI_COMM_WORLD);
-        if (sender != size - 1) {
-           	if (rank == sender) std::cout << "size = " << size << ", " << sender << " sending " << send_count << " at " << j << "\n";
-        	MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
-			if (rank == sender) std::cout << sender << " sent " << send_count << "\n";
-		}
+		if (rank == 0) std::cout << "bcast at " << j << " rank " << sender << " sending " << send_count << "\n";
+/*		if (rank == 2) {
+			for (int i = j; i < j + send_count; ++i) std::cout << x[i] << " ";
+			std::cout << "\n";
+		}*/
+       	MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
+       	if (rank == 0) std::cout << "bcast complete\n";
 #ifdef TIME_BCAST
         if (rank == 0) {
         	b_end = std::chrono::high_resolution_clock::now();
@@ -350,8 +349,6 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
         	bcast_time += bcast_dur.count();
         }
 #endif
-        /*int j0_x_A_size = j * A_size;
-        int j1_x_A_size = (j + 1) * A_size;*/
         for (int k = 0; k < send_count; ++k) {
 	        for (int i = 0; i < rows; ++i) {
 	        	if (b + rank_x_std_rows + i >= b + N) throw std::range_error("b");
@@ -368,7 +365,6 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
     /*********************************************/
 
     MPI_Barrier(MPI_COMM_WORLD);
-    if (rank == 0) std::cout << "COMPLETE\n";
 
     /****************END TIMER******************/
     if (rank == 0) {
