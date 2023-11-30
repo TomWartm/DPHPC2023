@@ -268,3 +268,125 @@ double trisolv_mpi_gao_double(int size, int rank, int N, double*& A, double*& x,
     /*******************************************/
     return 0.0;
 }
+
+double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, double*& b, void (*init)(int, double*, double*, double*)) {
+    int std_rows = std::ceil(1.0 * N / size);
+    int rows, A_size;
+
+    if (rank == 0) {
+        A_size = N;
+        rows = std_rows;
+    }
+    else if (rank == size - 1 && N % std_rows != 0) {
+        A_size = N % std_rows;
+        rows = N % std_rows;
+    }
+    else {
+        A_size = std_rows;
+        rows = std_rows;
+    }
+
+
+    /****************INITIALIZATION******************/
+    init_colMaj(size, rank, N, A, x, b, init);
+    /************************************************/
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    /****************START TIMER******************/
+    std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+#ifdef TIME_BCAST
+	std::chrono::time_point<std::chrono::high_resolution_clock> b_start, b_end;
+    std::chrono::duration<double> bcast_dur;
+    double bcast_time = 0;
+#endif
+    if (rank == 0) {
+        start = std::chrono::high_resolution_clock::now();
+    }
+    /*********************************************/
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    /****************COMPUTATION******************/
+    for (int j = 0; j < N;) {
+        int rank_x_std_rows = rank * std_rows;
+        int sender = j / std_rows;
+        int remain_rows = rows - (j - rank_x_std_rows);
+        std::cout << remain_rows << "\n";
+        if (remain_rows == 0) break;
+        int send_count = remain_rows >= BLOCK_SIZE ? BLOCK_SIZE: remain_rows;
+        if (rank == sender) {
+        	std::cout << "rank " << rank << " computing\n";
+        	for (int k = 0; k < send_count; ++k) {
+	       		if (b + j + k >= b + N) throw std::range_error("b");
+        		if (A + (j + k - rank_x_std_rows) + (j + k) * A_size >= A + N * A_size) throw std::range_error("A");
+        		if (x + j + k >= x + N) throw std::range_error("x");
+        		x[j + k] = b[j + k] / A[(j + k - rank_x_std_rows) + (j + k) * A_size];	        	
+        		for (int l = 1; l < send_count; ++l) {
+	        		if (b + j + l >= b + N) throw std::range_error("b");
+	        		if (A + (j + l - rank_x_std_rows) + (j + k) * A_size >= A + N * A_size) throw std::range_error("A");
+	        		if (x + j + k >= x + N) throw std::range_error("x");	        		        	
+        			b[j + l] -= A[(j + l - rank_x_std_rows) + (j + k) * A_size] * x[j + k];
+        		}
+        	}
+        	/*x[j] = b[j] / A[(j - rank_x_std_rows) + j * A_size];
+        	b[j + 1] -= A[(j + 1 - rank_x_std_rows) + j * A_size] * x[j];
+        	x[j + 1] = b[j + 1] / A[(j + 1 - rank_x_std_rows) + (j + 1) * A_size];*/
+//        	std::cout << "j = " << j << " sending " << send_count;
+        }
+#ifdef TIME_BCAST
+		if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
+#endif
+    MPI_Barrier(MPI_COMM_WORLD);
+        if (sender != size - 1) {
+           	if (rank == sender) std::cout << "size = " << size << ", " << sender << " sending " << send_count << " at " << j << "\n";
+        	MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
+			if (rank == sender) std::cout << sender << " sent " << send_count << "\n";
+		}
+#ifdef TIME_BCAST
+        if (rank == 0) {
+        	b_end = std::chrono::high_resolution_clock::now();
+        	bcast_dur = b_end - b_start;
+        	bcast_time += bcast_dur.count();
+        }
+#endif
+        /*int j0_x_A_size = j * A_size;
+        int j1_x_A_size = (j + 1) * A_size;*/
+        for (int k = 0; k < send_count; ++k) {
+	        for (int i = 0; i < rows; ++i) {
+	        	if (b + rank_x_std_rows + i >= b + N) throw std::range_error("b");
+	        	if (A + (j + k) * A_size + i >= A + N * A_size) throw std::range_error("A");
+	        	if (x + j + k >= x + N) throw std::range_error("x");	        		        	
+    	        b[rank_x_std_rows + i] -= A[(j + k) * A_size + i] * x[j + k];
+    	    }
+    	}
+
+		
+    	j += send_count;
+    	
+    }
+    /*********************************************/
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (rank == 0) std::cout << "COMPLETE\n";
+
+    /****************END TIMER******************/
+    if (rank == 0) {
+        end = std::chrono::high_resolution_clock::now();
+#ifdef PRINT_X
+        std::cout << "x = [";
+		for (int i = 0; i < N; ++i) std::cout << x[i] << " ";
+		std::cout << "]\n";
+#endif
+        const std::chrono::duration<double> diff = end - start;
+        std::cout << std::fixed << std::setprecision(9) << std::left;
+        std::cout << BLOCK_SIZE << "\t" << N << "\t" << diff.count()
+#ifdef TIME_BCAST
+        	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
+#endif
+        	<< "\n";
+        return diff.count();
+    }
+    /*******************************************/
+    return 0.0;
+}
