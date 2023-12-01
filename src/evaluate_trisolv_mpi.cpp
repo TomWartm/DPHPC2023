@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 31;
+//    int num_runs = 31;
     int n_min = std::pow(2, N_MIN);
     int n_max = std::pow(2, N_MAX);
     
@@ -61,12 +61,13 @@ int main(int argc, char *argv[])
     	std::vector<double> block_medians;
 	    for (int b = 1; b <= MAX_BLOCK; b *= 2) {
     		std::vector<double> N_results;
+    		int num_runs = 131072 / 2 / (N / b);
     		for (int i = 0; i < num_runs; ++i) {
 //    			if (rank == 0) std::cout << b << " " << N << " " << i << "\n";
     			N_results.push_back(measure_trisolv_mpi(N, outputFile, trisolv_mpi_gao_any, std::to_string(b), b));
     		}
     		std::sort(N_results.begin(), N_results.end());
-	        double median = N_results.at(N_results.size() / 2 + 1);
+	        double median = N_results.at(N_results.size() / 2);
     		if (rank == 0) {
 	    		std::cout << std::fixed << std::setprecision(9) << std::left;
 	    		std::cout << N << "\t" << b << "\t" << median << "\n";
