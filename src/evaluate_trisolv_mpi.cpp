@@ -24,14 +24,14 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-//    int num_runs = 31;
+    int num_runs = 10;
     int n_min = std::pow(2, N_MIN);
     int n_max = std::pow(2, N_MAX);
     
-/*    for (int n = n_min; n <= n_max; n *= 2)
+    for (int n = n_min; n <= n_max; n *= 2)
     {
 
-        /*for (int num_run = 0; num_run < num_runs; ++num_run)
+       *for (int num_run = 0; num_run < num_runs; ++num_run)
         {
 
             // give user feedback
@@ -48,12 +48,13 @@ int main(int argc, char *argv[])
             measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "mono", 1);
 //            measure_trisolv_mpi_single(n, outputFile);
 //            measure_trisolv_mpi_double(n, outputFile);
-            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "quad", 4);
-//            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "octa", 8);
+//            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "quad", 4);
+            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "octa", 8);
 
 		
         }      
-    }*/
+    }
+    /*
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 //    std::vector<std::vector<std::vector<double>>> results;
@@ -77,7 +78,7 @@ int main(int argc, char *argv[])
     	auto it = std::min_element(block_medians.begin(), block_medians.end());
     	if (rank == 0) std::cout << "Best block size for " << N << " is " << int(std::pow(2, it - block_medians.begin())) << "\n\n";  	
 //    	results.push_back(block_results);
-    }
+    }*/
 
     outputFile.close();
     MPI_Finalize();
