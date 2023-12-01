@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     for (int n = n_min; n <= n_max; n *= 2)
     {
 
-       *for (int num_run = 0; num_run < num_runs; ++num_run)
+       for (int num_run = 0; num_run < num_runs; ++num_run)
         {
 
             // give user feedback
