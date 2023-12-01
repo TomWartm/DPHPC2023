@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     	std::vector<double> block_medians;
 	    for (int b = 1; b <= MAX_BLOCK; b *= 2) {
     		std::vector<double> N_results;
-    		int num_runs = 131072 / 2 / (N / b);
+    		int num_runs = 4096 / 2 / (N / b);
     		for (int i = 0; i < num_runs; ++i) {
 //    			if (rank == 0) std::cout << b << " " << N << " " << i << "\n";
     			N_results.push_back(measure_trisolv_mpi(N, outputFile, trisolv_mpi_gao_any, std::to_string(b), b));
