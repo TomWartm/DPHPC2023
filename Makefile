@@ -55,16 +55,16 @@ TRISOLV_MPI_EXECUTABLE = evaluate_trisolv_mpi
 TRISOLV_MPI_EXECUTABLE_SRC = src/evaluate_trisolv_mpi.cpp
 
 $(TRISOLV_MPI_EXECUTABLE): $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DN_MIN=3 -DN_MAX=6 -DPRINT_X
+	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DN_MIN=7 -DN_MAX=12 -DMAX_BLOCK=32
 
 build_trisolv_mpi_time_bcast: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=7 -DN_MAX=15 -DTIME_BCAST 
+	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=7 -DN_MAX=15 -DTIME_BCAST -DMAX_BLOCK=128
 
 build_trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=7 -DN_MAX=15
+	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=7 -DN_MAX=15 -DMAX_BLOCK=128
 
 trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
-	mpirun -np 3 ./$(TRISOLV_MPI_EXECUTABLE)
+	mpirun -np 4 ./$(TRISOLV_MPI_EXECUTABLE)
 
 
 ## Testing

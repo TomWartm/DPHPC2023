@@ -197,7 +197,7 @@ void measure_trisolv_mpi_single(int n, std::ofstream &outputFile)
     if (b) delete[] b;
 }
 
-void measure_trisolv_mpi(int n,
+double measure_trisolv_mpi(int n,
 						std::ofstream &outputFile,
 						double (*solver)(int, int, int, double*&, double*&, double*&, void (*)(int, double*, double*, double*), int),
 						const std::string& name,
@@ -213,5 +213,6 @@ void measure_trisolv_mpi(int n,
     if (A) delete[] A;
     if (x) delete[] x;
     if (b) delete[] b;
+    return time;
 }
 

@@ -225,12 +225,14 @@ double trisolv_mpi_gao_any(int size, int rank, int N, double*& A, double*& x, do
 		std::cout << "]\n";
 #endif
         const std::chrono::duration<double> diff = end - start;
+#ifdef PRINT_TIME
         std::cout << std::fixed << std::setprecision(9) << std::left;
         std::cout << block_size << "\t" << N << "\t" << diff.count()
 #ifdef TIME_BCAST
         	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
 #endif
         	<< "\n";
+#endif
         return diff.count();
     }
     /*******************************************/
