@@ -13,6 +13,9 @@ int main(int argc, char *argv[])
     double* A;
     for (int i = 1; i < 1024; i *= 2) {
     	A = new double[i];
+    	for (int j = 0; j < 16; ++j) {
+			MPI_Bcast(A, i, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    	}
     	if (rank == 0) {
     		for (int n = 0; n < i; ++n) A[n] = n;
         	start = std::chrono::high_resolution_clock::now();
