@@ -71,7 +71,7 @@ void lowertriangular_trisolv(int n, double* L, double* x, double* b){
 /*
 * For Gao's mpi approach
 */
-void init_colMaj(int N, double* A, double* x, double* b) {
+void init_colMaj(int N, double* A, double* x, double* b, void ( *init)(int, double*, double*, double*)) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -80,7 +80,7 @@ void init_colMaj(int N, double* A, double* x, double* b) {
     
 	if (rank == 0) {
         double* tmp = new double[N * N];
-        init_trisolv(N, tmp, x, b);
+        init(N, tmp, x, b);
         rowMaj_to_colMaj(N, tmp, A);
         delete[] tmp;
 

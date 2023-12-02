@@ -111,7 +111,7 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
 
     //initialize on all nodes
         if (functionName == (std::string) "trisolv_mpi_gao") {
-            init_colMaj(n, L, x, b);
+            init_colMaj(n, L, x, b, &init_trisolv);
         }
         else {
             init_trisolv(n, L, x, b);
