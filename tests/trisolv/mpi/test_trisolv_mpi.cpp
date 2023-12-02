@@ -3,7 +3,6 @@
 #include "../../../src/trisolv/trisolv_baseline.h"
 #include "../../../src/helpers/trisolv_init.h"
 #include "../../../src/trisolv/mpi/trisolv_mpi.h"
-#include "../../../src/trisolv/mpi/trisolv_mpi_gao.h"
 
 /// @brief
 /// @param
@@ -13,30 +12,29 @@ TEST(trisolvMPITest, IdentityInitialization) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 10; // Example size
+    int n = 256; // Example size
 
-    double *L = nullptr, *x = nullptr, *b = nullptr;
-    double *L_baseline, *x_baseline, *b_baseline;
+    double *L, *b, *x, *x_baseline;
 
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
+    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b_baseline);
 
+    //////////////BASELINE
     if (rank == 0) {
         // Initialize matrices and vectors on process 0
-        //identity_trisolv(n, L, x, b);
-        identity_trisolv(n, L_baseline, x_baseline, b_baseline);
+        identity_trisolv(n, L, x_baseline, b);
 
         // Compute baseline solution
-        trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+        trisolv_baseline(n, L, x_baseline, b);
 
     }
 
-    MPI_Free_mem(L_baseline);
-    MPI_Free_mem(b_baseline);
-
+    //////////////METHOD TO TEST
+    init_colMaj(n, L, x, b, &identity_trisolv);
     // Compute trisolv using MPI
-    trisolv_mpi_gao(num_procs, rank, n, L, x, b, identity_trisolv);
+    trisolv_mpi_gao(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -44,10 +42,11 @@ TEST(trisolvMPITest, IdentityInitialization) {
         }
     }
     MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Free_mem(L);
+    MPI_Free_mem(b);
+    MPI_Free_mem(x);
     MPI_Free_mem(x_baseline);
-    delete[] L;
-    delete[] x;
-    delete[] b;
 }
 
 TEST(trisolvMPITest, RandomInitialization) {
@@ -55,30 +54,30 @@ int rank, num_procs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 10; // Example size
+    int n = 256; // Example size
 
-    double *L = nullptr, *x = nullptr, *b = nullptr;
-    double *L_baseline, *x_baseline, *b_baseline;
+    double *L, *b, *x, *x_baseline;
 
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
+    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b_baseline);
 
+    ////////////BASELINE
     if (rank == 0) {
         // Initialize matrices and vectors on process 0
         //identity_trisolv(n, L, x, b);
-        random_trisolv(n, L_baseline, x_baseline, b_baseline);
+        random_trisolv(n, L, x_baseline, b);
 
         // Compute baseline solution
-        trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+        trisolv_baseline(n, L, x_baseline, b);
 
     }
 
-    MPI_Free_mem(L_baseline);
-    MPI_Free_mem(b_baseline);
-
+    ///////////METHOD TO TEST
+    init_colMaj(n, L, x, b, &random_trisolv);
     // Compute trisolv using MPI
-    trisolv_mpi_gao(num_procs, rank, n, L, x, b, random_trisolv);
+    trisolv_mpi_gao(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -86,10 +85,11 @@ int rank, num_procs;
         }
     }
     MPI_Barrier(MPI_COMM_WORLD);
+   
+    MPI_Free_mem(L);
+    MPI_Free_mem(b);
+    MPI_Free_mem(x);
     MPI_Free_mem(x_baseline);
-    delete[] L;
-    delete[] x;
-    delete[] b;
 }
 
 TEST(trisolvMPITest, LTriangularInitialization) {
@@ -97,30 +97,30 @@ TEST(trisolvMPITest, LTriangularInitialization) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 10; // Example size
+    int n = 256; // Example size
 
-    double *L = nullptr, *x = nullptr, *b = nullptr;
-    double *L_baseline, *x_baseline, *b_baseline;
+    double *L, *b, *x, *x_baseline;
 
-    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
+    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
-    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b_baseline);
 
+    ////////////BASELINE
     if (rank == 0) {
         // Initialize matrices and vectors on process 0
         //identity_trisolv(n, L, x, b);
-        lowertriangular_trisolv(n, L_baseline, x_baseline, b_baseline);
+        lowertriangular_trisolv(n, L, x_baseline, b);
 
         // Compute baseline solution
-        trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+        trisolv_baseline(n, L, x_baseline, b);
 
     }
 
-    MPI_Free_mem(L_baseline);
-    MPI_Free_mem(b_baseline);
-
+    ///////////METHOD TO TEST
+    init_colMaj(n, L, x, b, &lowertriangular_trisolv);
     // Compute trisolv using MPI
-    trisolv_mpi_gao(num_procs, rank, n, L, x, b, lowertriangular_trisolv);
+    trisolv_mpi_gao(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -128,40 +128,40 @@ TEST(trisolvMPITest, LTriangularInitialization) {
         }
     }
     MPI_Barrier(MPI_COMM_WORLD);
+    
+    MPI_Free_mem(L);
+    MPI_Free_mem(b);
+    MPI_Free_mem(x);
     MPI_Free_mem(x_baseline);
-    delete[] L;
-    delete[] x;
-    delete[] b;
 }
 
 TEST(trisolvMPITest, DifferentSizes) {
-    std::vector<int> n_vec = {1, 100, 1000, 10000}; // Example size
+    std::vector<int> n_vec = {128, 512, 1024, 4096}; // Example size
     for (auto n : n_vec){
         int rank, num_procs;
     	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     	MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-    	double *L = nullptr, *x = nullptr, *b = nullptr;
-    	double *L_baseline, *x_baseline, *b_baseline;
-	
-    	MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L_baseline);
-    	MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
-    	MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b_baseline);
+    	
+        double *L, *b, *x, *x_baseline;
+
+        MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &L);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &b);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
+        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_baseline);
 	
     	if (rank == 0) {
     	    // Initialize matrices and vectors on process 0
-    	    //identity_trisolv(n, L, x, b);
-    	    lowertriangular_trisolv(n, L_baseline, x_baseline, b_baseline);
+    	    init_trisolv(n, L, x_baseline, b);
 	
     	    // Compute baseline solution
-    	    trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+    	    trisolv_baseline(n, L, x_baseline, b);
 	
     	}
 	
-    	MPI_Free_mem(L_baseline);
-    	MPI_Free_mem(b_baseline);
-	
-    	// Compute trisolv using MPI
-        trisolv_mpi_gao(num_procs, rank, n, L, x, b, lowertriangular_trisolv);
+    	///////////METHOD TO TEST
+        init_colMaj(n, L, x, b, &init_trisolv);
+        // Compute trisolv using MPI
+        trisolv_mpi_gao(n, L, x, b);
     	if (rank == 0) {
     	    // Check results in process 0
     	    for (int i = 0; i < n; i++) {
@@ -169,10 +169,11 @@ TEST(trisolvMPITest, DifferentSizes) {
     	    }
     	}
 	    MPI_Barrier(MPI_COMM_WORLD);
-	    MPI_Free_mem(x_baseline);
-	    delete[] L;
-	   	delete[] x;
-	    delete[] b;
+	    
+        MPI_Free_mem(L);
+        MPI_Free_mem(b);
+        MPI_Free_mem(x);
+        MPI_Free_mem(x_baseline);
     }
 
 }
