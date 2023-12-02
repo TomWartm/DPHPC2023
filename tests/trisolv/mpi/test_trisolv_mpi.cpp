@@ -36,7 +36,7 @@ TEST(trisolvMPITest, IdentityInitialization) {
     MPI_Free_mem(b_baseline);
 
     // Compute trisolv using MPI
-    trisolv_mpi_gao_any(num_procs, rank, n, L, x, b, identity_trisolv, 4);
+    trisolv_mpi_gao(num_procs, rank, n, L, x, b, identity_trisolv);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -78,7 +78,7 @@ int rank, num_procs;
     MPI_Free_mem(b_baseline);
 
     // Compute trisolv using MPI
-    trisolv_mpi_gao_any(num_procs, rank, n, L, x, b, random_trisolv, 4);
+    trisolv_mpi_gao(num_procs, rank, n, L, x, b, random_trisolv);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -120,7 +120,7 @@ TEST(trisolvMPITest, LTriangularInitialization) {
     MPI_Free_mem(b_baseline);
 
     // Compute trisolv using MPI
-    trisolv_mpi_gao_any(num_procs, rank, n, L, x, b, lowertriangular_trisolv, 4);
+    trisolv_mpi_gao(num_procs, rank, n, L, x, b, lowertriangular_trisolv);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -161,7 +161,7 @@ TEST(trisolvMPITest, DifferentSizes) {
     	MPI_Free_mem(b_baseline);
 	
     	// Compute trisolv using MPI
-        trisolv_mpi_gao_any(num_procs, rank, n, L, x, b, lowertriangular_trisolv, 4);
+        trisolv_mpi_gao(num_procs, rank, n, L, x, b, lowertriangular_trisolv);
     	if (rank == 0) {
     	    // Check results in process 0
     	    for (int i = 0; i < n; i++) {
