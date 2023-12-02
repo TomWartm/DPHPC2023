@@ -240,7 +240,7 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
 }
 
 
-void trisolv_mpi_gao_block(int n, double* A, double* x, double* b) {
+void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);

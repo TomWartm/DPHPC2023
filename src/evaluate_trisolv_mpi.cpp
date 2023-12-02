@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
             //std::cout << "N = " << n << std::endl;
 
             //////////////////////// With non blocking send ///////////////////////////////
-            measure_trisolv_mpi((std::string) "trisolv_mpi", &trisolv_mpi_isend, n, outputFile);
+            measure_trisolv_mpi((std::string) "trisolv_mpi_isend", &trisolv_mpi_isend, n, outputFile);
 
             /////////////////////// with rma //////////////////////////////////////////////
 
