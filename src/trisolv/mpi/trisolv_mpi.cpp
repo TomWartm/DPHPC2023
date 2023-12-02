@@ -1,7 +1,8 @@
+#include "trisolv_mpi.h"
 #include <mpi.h>
 #include <stdlib.h>
 #include <cassert>
-#include "trisolv_mpi.h"
+#include <cmath>
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b){
     for (int i = 0; i < n; i++)
@@ -23,7 +24,7 @@ void trisolv_mpi_v0(int n, double* L, double* x, double* b){
 * It's way slower than the original, but hopefully it has potential...
 * in both the receive and send phase openMP could be used
 */
-void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
+void trisolv_mpi_isend(int n, double* L, double* x, double* b)
 {
 
     int i, j;
@@ -126,7 +127,7 @@ void kernel_trisolv_mpi(int n, double* L, double* x, double* b)
 * Every time a process finishes its part, a new communicator that exludes
 *   that process is created
 */
-void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
+void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
 {
     const int doubles_per_line = 8; //per cache line: 8 x 8 bytes = 64 bytes
 
@@ -236,4 +237,90 @@ void kernel_trisolv_mpi_onesided(int n, double* L, double* x, double* b)
 
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Win_free(&x_win);
+}
+
+
+void trisolv_mpi_gao_block(int n, double* A, double* x, double* b) {
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    int block_size = 8;
+
+    int rows, A_size;
+    int std_rows = std::ceil(1.0 * n / size);
+	int n_mod_std_rows = n % std_rows;
+    if (rank == 0) {
+        A_size = n;
+        rows = std_rows;
+    }
+    else if (rank == size - 1 && n_mod_std_rows != 0) {
+        A_size = std_rows;
+        rows = n % std_rows;
+    }
+    else {
+        A_size = std_rows;
+        rows = std_rows;
+    }
+
+    
+#ifdef TIME_BCAST
+	std::chrono::time_point<std::chrono::high_resolution_clock> b_start, b_end;
+    std::chrono::duration<double> bcast_dur;
+    double bcast_time = 0;
+#endif
+
+
+    /****************COMPUTATIOn******************/
+    int sender, remain_rows, send_count, j_plus_k;
+    double x_tmp;
+    int rank_x_std_rows = rank * std_rows;
+    
+    for (int j = 0; j < n; j += send_count) {
+        sender = j / std_rows;
+        if (sender == size - 1 && n_mod_std_rows != 0) remain_rows = n_mod_std_rows;
+        else remain_rows = std_rows;
+        remain_rows -= j % std_rows;
+        send_count = remain_rows >= block_size || remain_rows == 0 ? block_size: remain_rows;
+        
+        if (rank == sender) { //Compute small triangular matrix of size BLOCK_SIZE
+        	for (int k = 0; k < send_count; ++k) {
+        		j_plus_k = j + k;
+        		x[j_plus_k] = b[j_plus_k] / A[(j_plus_k - rank_x_std_rows) + (j_plus_k) * A_size];
+        		x_tmp = x[j_plus_k];
+        		for (int l = 1; l < send_count; ++l) {
+        			b[j + l] -= A[j + l - rank_x_std_rows + (j_plus_k) * A_size] * x_tmp;
+        		}
+        	}
+        }
+        
+#ifdef TIME_BCAST
+		if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
+       	MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
+        if (rank == 0) {
+        	b_end = std::chrono::high_resolution_clock::now();
+        	bcast_dur = b_end - b_start;
+        	bcast_time += bcast_dur.count();
+        }
+#else
+		MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
+#endif
+
+        for (int k = 0; k < send_count; ++k) { //b - A * x
+	        for (int i = 0; i < rows; ++i) {  		        	
+    	        b[rank_x_std_rows + i] -= A[(j + k) * A_size + i] * x[j + k];
+    	    }
+    	}
+    }
+    /*********************************************/
+
+    MPI_Barrier(MPI_COMM_WORLD);
+#ifdef PRINT_X
+        std::cout << "x = [";
+		for (int i = 0; i < n; ++i) std::cout << x[i] << " ";
+		std::cout << "]\n";
+#endif
+#ifdef TIME_BCAST
+        	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
+#endif
 }

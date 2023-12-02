@@ -2,6 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <mpi.h>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <iomanip>
 #include "trisolv/mpi/trisolv_mpi.h"
 
 int main(int argc, char *argv[])
@@ -23,24 +27,25 @@ int main(int argc, char *argv[])
     for (int n = 4096; n <= 20000; n += 4096)
     {
 
-        for (int num_run = 0; num_run < num_runs; ++num_run)
+       for (int num_run = 0; num_run < num_runs; ++num_run)
         {
 
             // give user feedback
-            std::cout << "N = " << n << std::endl;
+            //std::cout << "N = " << n << std::endl;
 
-            /////////////////////////// method 1 /////////////////////////////////////
+            //////////////////////// With non blocking send ///////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_mpi", &trisolv_mpi_isend, n, outputFile);
 
-            //measure_trisolv_mpi((std::string) "trisolv_mpi", &kernel_trisolv_mpi, n, outputFile);
+            /////////////////////// with rma //////////////////////////////////////////////
 
-            ///////////method 2
+            measure_trisolv_mpi((std::string) "trisolv_mpi_onesided", &trisolv_mpi_onesided, n, outputFile);
 
-            measure_trisolv_mpi((std::string) "trisolv_mpi_onesided", &kernel_trisolv_mpi_onesided, n, outputFile);
-        }
+            /////////////////////////// method gao ///////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_mpi_gao", &trisolv_mpi_gao, n, outputFile);
+        }   
     }
 
     outputFile.close();
-
     MPI_Finalize();
     return 0;
 }
