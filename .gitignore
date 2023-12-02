@@ -20,5 +20,3 @@ build_test_trisolv_mpi
 
 # Ignore result files
 results/
-
-trisolv_mpi/
