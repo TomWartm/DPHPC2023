@@ -38,47 +38,12 @@ int main(int argc, char *argv[])
             //std::cout << "N = " << n << std::endl;
 
             /////////////////////////// baseline /////////////////////////////////////
-
-            //measure_trisolv_mpi((std::string) "trisolv_mpi", &kernel_trisolv_mpi, n, outputFile);
             measure_trisolv_baseline(n, outputFile);
 
             /////////////////////////// method gao ///////////////////////////////////
-//            measure_trisolv_mpi(n, outputFile);
-//            measure_trisolv_naive(n, outputFile);
-            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "mono", 1);
-//            measure_trisolv_mpi_single(n, outputFile);
-//            measure_trisolv_mpi_double(n, outputFile);
-//            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "quad", 4);
-            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao_any, "octa", 8);
-
-		
+            measure_trisolv_mpi(n, outputFile, trisolv_mpi_gao, "trisolv_mpi_gao");
         }      
     }
-    /*
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//    std::vector<std::vector<std::vector<double>>> results;
-    for (int N = n_min; N <= n_max; N *= 2) {
-    	std::vector<double> block_medians;
-	    for (int b = 1; b <= MAX_BLOCK; b *= 2) {
-    		std::vector<double> N_results;
-    		int num_runs = std::max(16384 / (N / b), 1);
-    		for (int i = 0; i < num_runs; ++i) {
-//    			if (rank == 0) std::cout << b << " " << N << " " << i << "\n";
-    			N_results.push_back(measure_trisolv_mpi(N, outputFile, trisolv_mpi_gao_any, std::to_string(b), b));
-    		}
-    		std::sort(N_results.begin(), N_results.end());
-	        double median = N_results.at(N_results.size() / 2);
-    		if (rank == 0) {
-	    		std::cout << std::fixed << std::setprecision(9) << std::left;
-	    		std::cout << N << "\t" << b << "\t" << median << "\n";
-	    	}
-	    	block_medians.push_back(median);
-    	}
-    	auto it = std::min_element(block_medians.begin(), block_medians.end());
-    	if (rank == 0) std::cout << "Best block size for " << N << " is " << int(std::pow(2, it - block_medians.begin())) << "\n\n";  	
-//    	results.push_back(block_results);
-    }*/
 
     outputFile.close();
     MPI_Finalize();

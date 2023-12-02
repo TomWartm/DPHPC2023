@@ -151,53 +151,25 @@ void measure_trisolv_baseline(int n, std::ofstream &outputFile) {
     }
 }
 
-void measure_trisolv_mpi(int n, std::ofstream &outputFile)
-{
-    int size, rank;
-    double *A = nullptr, *x = nullptr, *b = nullptr;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    double time = trisolv_mpi_gao(size, rank, n, A, x, b, init_trisolv);
-    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao" << std::endl;
-
-    if (A) delete[] A;
-    if (x) delete[] x;
-    if (b) delete[] b;
-}
-
-
-void measure_trisolv_naive(int n, std::ofstream &outputFile)
-{
-    int size, rank;
-    double *A = nullptr, *x = nullptr, *b = nullptr;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    double time = trisolv_naive(size, rank, n, A, x, b, init_trisolv);
-    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_naive" << std::endl;
-
-    if (A) delete[] A;
-    if (x) delete[] x;
-    if (b) delete[] b;
-}
-
-void measure_trisolv_mpi_single(int n, std::ofstream &outputFile)
-{
-    int size, rank;
-    double *A = nullptr, *x = nullptr, *b = nullptr;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    double time = trisolv_mpi_gao_single(size, rank, n, A, x, b, init_trisolv);
-    if (rank == 0) outputFile << n << ";" << time << ";" << "trisolv_mpi_gao_single" << std::endl;
-
-    if (A) delete[] A;
-    if (x) delete[] x;
-    if (b) delete[] b;
-}
-
 double measure_trisolv_mpi(int n,
+						std::ofstream &outputFile,
+						double (*solver)(int, int, int, double*&, double*&, double*&, void (*)(int, double*, double*, double*)),
+						const std::string& name) {
+	int size, rank;
+    double *A = nullptr, *x = nullptr, *b = nullptr;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    double time = solver(size, rank, n, A, x, b, lowertriangular_trisolv);
+    if (rank == 0) outputFile << n << ";" << time << ";" << name << std::endl;
+
+    if (A) delete[] A;
+    if (x) delete[] x;
+    if (b) delete[] b;
+    return time;
+}
+
+double measure_trisolv_mpi_block(int n,
 						std::ofstream &outputFile,
 						double (*solver)(int, int, int, double*&, double*&, double*&, void (*)(int, double*, double*, double*), int),
 						const std::string& name,
