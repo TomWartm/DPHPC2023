@@ -7,6 +7,7 @@
 #include <iomanip>
 #include "../gemver_init.h"
 #include "../trisolv_init.h"
+#include "measure.h"
 
 void measure_gemver_mpi(std::string functionName, void (*func)(int, double, double, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *), int n, std::ofstream &outputFile)
 {   
