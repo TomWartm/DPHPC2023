@@ -110,14 +110,12 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     double elapsed_time;
 
     //initialize on all nodes
-    if (rank == 0) {
         if (functionName == (std::string) "trisolv_mpi_gao") {
             init_colMaj(n, L, x, b);
         }
         else {
             init_trisolv(n, L, x, b);
         }
-    }
 
     MPI_Barrier(MPI_COMM_WORLD);
     clock_gettime(CLOCK_MONOTONIC, &start);
