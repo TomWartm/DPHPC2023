@@ -73,6 +73,8 @@ void lowertriangular_trisolv(int n, double* L, double* x, double* b){
 */
 void init_colMaj(int N, double* A, double* x, double* b) {
     int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
     
 	int std_rows = std::ceil(1.0 * N / size);
     
