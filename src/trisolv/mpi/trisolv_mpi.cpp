@@ -263,15 +263,6 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
         rows = std_rows;
     }
 
-    
-#ifdef TIME_BCAST
-	std::chrono::time_point<std::chrono::high_resolution_clock> b_start, b_end;
-    std::chrono::duration<double> bcast_dur;
-    double bcast_time = 0;
-#endif
-
-
-    /****************COMPUTATIOn******************/
     int sender, remain_rows, send_count, j_plus_k;
     double x_tmp;
     int rank_x_std_rows = rank * std_rows;
@@ -294,17 +285,7 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
         	}
         }
         
-#ifdef TIME_BCAST
-		if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
-       	MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
-        if (rank == 0) {
-        	b_end = std::chrono::high_resolution_clock::now();
-        	bcast_dur = b_end - b_start;
-        	bcast_time += bcast_dur.count();
-        }
-#else
 		MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
-#endif
 
         for (int k = 0; k < send_count; ++k) { //b - A * x
 	        for (int i = 0; i < rows; ++i) {  		        	
@@ -312,15 +293,4 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     	    }
     	}
     }
-    /*********************************************/
-
-    MPI_Barrier(MPI_COMM_WORLD);
-#ifdef PRINT_X
-        std::cout << "x = [";
-		for (int i = 0; i < n; ++i) std::cout << x[i] << " ";
-		std::cout << "]\n";
-#endif
-#ifdef TIME_BCAST
-        	<< "\t" << bcast_time << "\t" << bcast_time / diff.count() * 100 << "%"
-#endif
 }
