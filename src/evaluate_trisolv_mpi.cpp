@@ -22,11 +22,12 @@ int main(int argc, char *argv[])
     }
     outputFile << "N;time [s];method" << std::endl;
 
-    // run experiments
-    int num_runs = 20;
-    for (int n = 4096; n <= 20000; n += 4096)
+	// run experiments
+    int num_runs = 10;
+    int n_min = std::pow(2, N_MIN);
+    int n_max = std::pow(2, N_MAX);
+    for (int n = n_min; n <= n_max; n *= 2)
     {
-
        for (int num_run = 0; num_run < num_runs; ++num_run)
         {
 
