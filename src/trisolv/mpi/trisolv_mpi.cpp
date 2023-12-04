@@ -248,7 +248,7 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     int block_size = 8;
 
     int rows, A_size;
-    int std_rows = std::ceil(1.0 * n / size);
+    int std_rows = std::ceil((double)n / size);
 	int n_mod_std_rows = n % std_rows;
     if (rank == 0) {
         A_size = n;
@@ -263,10 +263,10 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
         rows = std_rows;
     }
 
-    int sender, remain_rows, send_count, j_plus_k;
+    int sender, remain_rows, send_count, j_plus_k, A_pos1, A_pos2;
     double x_tmp;
     int rank_x_std_rows = rank * std_rows;
-    
+
     for (int j = 0; j < n; j += send_count) {
         sender = j / std_rows;
         if (sender == size - 1 && n_mod_std_rows != 0) remain_rows = n_mod_std_rows;
@@ -275,22 +275,29 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
         send_count = remain_rows >= block_size || remain_rows == 0 ? block_size: remain_rows;
         
         if (rank == sender) { //Compute small triangular matrix of size BLOCK_SIZE
+        	A_pos1 = j - rank_x_std_rows + j * A_size;
         	for (int k = 0; k < send_count; ++k) {
         		j_plus_k = j + k;
-        		x[j_plus_k] = b[j_plus_k] / A[(j_plus_k - rank_x_std_rows) + (j_plus_k) * A_size];
+        		x[j_plus_k] = b[j_plus_k] / A[A_pos1];
         		x_tmp = x[j_plus_k];
+        		A_pos2 = A_pos1 + 1 - k;
         		for (int l = 1; l < send_count; ++l) {
-        			b[j + l] -= A[j + l - rank_x_std_rows + (j_plus_k) * A_size] * x_tmp;
+        			b[j + l] -= A[A_pos2] * x_tmp;
+        			A_pos2 += 1;
         		}
+        		A_pos1 += 1 + A_size;
         	}
         }
         
 		MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
-
+		
+		A_pos1 = j * A_size;
         for (int k = 0; k < send_count; ++k) { //b - A * x
+        	x_tmp = x[j + k];
 	        for (int i = 0; i < rows; ++i) {  		        	
-    	        b[rank_x_std_rows + i] -= A[(j + k) * A_size + i] * x[j + k];
+    	        b[rank_x_std_rows + i] -= A[A_pos1 + i] * x_tmp;
     	    }
+    	    A_pos1 += A_size;
     	}
     }
 }
