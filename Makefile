@@ -19,7 +19,7 @@ TRISOLV_MPI_DIR = $(SRC_DIR)/trisolv/mpi
 ## Timing
 # Compile and run evaluate_gemver_openmp.cpp
 GEMVER_OPENMP_EXECUTABLE = evaluate_gemver_openmp
-GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver.cpp
+GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver_openmp.cpp
 
 $(GEMVER_OPENMP_EXECUTABLE): $(GEMVER_OPENMP_EXECUTABLE_SRC)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
 	g++ $(CXXFLAGS)  -o $@ $^
