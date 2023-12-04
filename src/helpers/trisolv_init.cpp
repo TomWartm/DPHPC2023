@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include <cstring>
-#include <mpi.h>
-#include <cmath>
 #include "trisolv_init.h"
 
 void init_trisolv(int n, double* L, double* x, double* b){
