@@ -3,7 +3,6 @@
 #include <mpi.h>
 #include <cmath>
 #include "trisolv_init.h"
-#include "mpi/util_gao.h"
 
 void init_trisolv(int n, double* L, double* x, double* b){
     memset(L, 0, n * n * sizeof(double));
