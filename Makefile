@@ -111,7 +111,7 @@ test_trisolv_openmp: $(TEST_TRISOLV_OPENMP_EXECUTABLE)
 TEST_TRISOLV_MPI_EXECUTABLE = build_test_trisolv_mpi
 TEST_TRISOLV_MPI_DIR = tests/trisolv/mpi
 
-$(TEST_TRISOLV_MPI_EXECUTABLE): $(wildcard $(TEST_TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp)
+$(TEST_TRISOLV_MPI_EXECUTABLE): $(wildcard $(TEST_TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/mpi/*.cpp) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp)
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_trisolv_mpi: $(TEST_TRISOLV_MPI_EXECUTABLE)
