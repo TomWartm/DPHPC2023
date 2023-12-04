@@ -2,12 +2,13 @@
 #include <iostream>
 #include <fstream>
 #include "gemver/mpi/gemver_mpi.h"
+#include "gemver/mpi/gemver_mpi_blocking.h"
 #include <mpi.h>
 
 int main(int argc, char *argv[])
-{   
+{
     MPI_Init(&argc, &argv);
-    
+
     // open file
     std::string filePath = "./results/gemver/output_gemver_mpi.csv";
     std::ofstream outputFile(filePath);
@@ -19,8 +20,8 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 5;
-    for (int n = 4000; n <= 8000; n *= 2)
+    int num_runs = 4;
+    for (int n = 1000; n <= 5000; n +=1000)
     {
 
         for (int num_run = 0; num_run < num_runs; ++num_run)
@@ -30,10 +31,15 @@ int main(int argc, char *argv[])
             std::cout << "N = " << n << std::endl;
 
             /////////////////////////// method 1 /////////////////////////////////////
-
-            measure_gemver_mpi((std::string) "gemver_mpi_1", &gemver_mpi_1, n, outputFile);
-            
-            
+            MPI_Barrier(MPI_COMM_WORLD);
+            //measure_gemver_mpi((std::string) "mpi_baseline", &gemver_mpi_1, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
+            measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
+            measure_gemver_mpi((std::string) "gemver_mpi_3", &gemver_mpi_3, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
+            measure_gemver_mpi((std::string) "gemver_mpi_4", &gemver_mpi_4, n, outputFile);
+            MPI_Barrier(MPI_COMM_WORLD);
         }
     }
 

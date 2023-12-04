@@ -1,5 +1,5 @@
 # Compiler flags
-CXXFLAGS = -std=c++14 -Wall -fopenmp
+CXXFLAGS = -std=c++14 -Wall -O3 -ffast-math -fopenmp
 
 # MPI flags
 MPIFLAGS = -I/path/to/mpi/include -L/path/to/mpi/lib -lmpi
@@ -19,7 +19,7 @@ TRISOLV_MPI_DIR = $(SRC_DIR)/trisolv/mpi
 ## Timing
 # Compile and run evaluate_gemver_openmp.cpp
 GEMVER_OPENMP_EXECUTABLE = evaluate_gemver_openmp
-GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver_openmp.cpp
+GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver.cpp
 
 $(GEMVER_OPENMP_EXECUTABLE): $(GEMVER_OPENMP_EXECUTABLE_SRC)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
 	g++ $(CXXFLAGS)  -o $@ $^
@@ -72,6 +72,15 @@ $(TEST_GEMVER_OPENMP_EXECUTABLE): $(wildcard $(TEST_GEMVER_OPENMP_DIR)/*.cpp) $(
 test_gemver_openmp: $(TEST_GEMVER_OPENMP_EXECUTABLE)
 	./$(TEST_GEMVER_OPENMP_EXECUTABLE)
 
+# Compile and run test_gemver.cpp
+TEST_GEMVER_EXECUTABLE = build_test_gemver
+TEST_GEMVER_DIR = tests/gemver
+
+$(TEST_GEMVER_EXECUTABLE): $(wildcard $(TEST_GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) 
+	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main
+
+test_gemver: $(TEST_GEMVER_EXECUTABLE)
+	./$(TEST_GEMVER_EXECUTABLE)
 
 # Compile and run test_gemver_mpi.cpp
 TEST_GEMVER_MPI_EXECUTABLE = build_test_gemver_mpi
@@ -81,7 +90,7 @@ $(TEST_GEMVER_MPI_EXECUTABLE): $(wildcard $(TEST_GEMVER_MPI_DIR)/*.cpp) $(wildca
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_gemver_mpi: $(TEST_GEMVER_MPI_EXECUTABLE)
-	mpirun -np 2 ./$(TEST_GEMVER_MPI_EXECUTABLE)
+	mpirun -np 4 ./$(TEST_GEMVER_MPI_EXECUTABLE)
 
 
 # Compile and run test_trisolv_openmp.cpp
