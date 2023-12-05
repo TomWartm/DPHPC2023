@@ -31,7 +31,7 @@ sns.lineplot(
 # plt.xscale('log')
 
 plt.show()
-file_path = "./results/plot_gemver.png"
+file_path = "./results/plot_gemver_openmp.png"
 plt.savefig(file_path)
 
 ###################################################################
@@ -61,5 +61,5 @@ sns.lineplot(
 # plt.xscale('log')
 
 plt.show()
-file_path = "./results/plot_trisolv.png"
+file_path = "./results/plot_trisolv_openmp.png"
 plt.savefig(file_path)

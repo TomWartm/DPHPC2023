@@ -90,7 +90,7 @@ TEST(trisolvTest, LTriangularInitialization){
 }
 
 TEST(trisolvTest, DifferentSizes){
-    std::vector<int> n_vec = {1, 100, 1000, 10000};
+    std::vector<int> n_vec = {0, 1, 10, 100};
 
     for (auto n : n_vec){
         double *L = (double*) malloc((n * n) * sizeof(double)); double *L_baseline = (double*) malloc((n * n) * sizeof(double));

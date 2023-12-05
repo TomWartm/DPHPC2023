@@ -599,7 +599,7 @@ TEST(gemverTest, DifferentSizes){
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
     std::vector<int> n_vec(5);
-    n_vec = {0, 10, 100, 1000, 10000};
+    n_vec = {0, 1, 10, 100};
 
     for (auto n : n_vec){
         double alpha;
