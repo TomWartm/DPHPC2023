@@ -2,10 +2,10 @@
 
 Create the plot data:
 ```
-make trisolv
+make trisol_openmp
 make trisolv_mpi
 
-make gemver
+make gemver_openmp
 make gemver_mpi
 ```
 
