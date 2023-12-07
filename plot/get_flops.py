@@ -5,7 +5,7 @@ def get_flops_gemver(method:str, n:int) -> int:
     """
     no_additions = 0
     no_multiplications = 0
-    if method in ["baseline","gemver_mpi_2", "gemver_mpi_3"]:
+    if method in ["baseline","gemver_mpi_2", "gemver_mpi_3","gemver_mpi_2_1"]:
         no_additions = n*n*2 + n*n + n + n*n
         no_multiplications = n*n*2 + n*n*2 + n*n*2
     

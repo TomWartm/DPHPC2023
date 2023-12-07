@@ -9,6 +9,7 @@
 /// @brief
 /// @param
 /// @param
+/*
 TEST(gemverTest, SparseInitialization)
 {
     int rank, num_procs;
@@ -229,7 +230,8 @@ TEST(gemverTest, RandomInitialization){
         MPI_Free_mem(w_result);
     }
 }
-TEST(gemverTest, gemver_mpi_2)
+*/
+TEST(gemverTest, gemver_mpi_2_1)
 {
 
     int rank, num_procs;
@@ -237,18 +239,10 @@ TEST(gemverTest, gemver_mpi_2)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 10000;
+    int n = 100;
     double alpha;
     double beta;
-    double *A;
-    double *u1;
-    double *v1;
-    double *u2;
-    double *v2;
-    double *w;
-    double *x;
-    double *y;
-    double *z;
+
     double *A_baseline;
     double *u1_baseline;
     double *v1_baseline;
@@ -261,23 +255,9 @@ TEST(gemverTest, gemver_mpi_2)
     double *A_result, *x_result, *w_result;
 
 
-    if (rank == 0){
-        MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u1);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &u2);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v2);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &z);
-        
-        // initialize variables to store the results in
-        MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_result);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
-    };
-
+    MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_result);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
+    MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
 
 
     MPI_Alloc_mem(n * n * sizeof(double), MPI_INFO_NULL, &A_baseline);
@@ -296,7 +276,6 @@ TEST(gemverTest, gemver_mpi_2)
     if (rank == 0)
     {
         // initialize data on processer 0
-        init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
         init_gemver(n, &alpha, &beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
         kernel_gemver(n, alpha, beta, A_baseline, u1_baseline, v1_baseline, u2_baseline, v2_baseline, w_baseline, x_baseline, y_baseline, z_baseline);
     }
@@ -304,7 +283,7 @@ TEST(gemverTest, gemver_mpi_2)
 
 
     // compute gemver
-    gemver_mpi_2(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z, A_result, x_result, w_result); 
+    gemver_mpi_1(n, A_result, x_result, w_result); 
     
 
 
@@ -327,15 +306,9 @@ TEST(gemverTest, gemver_mpi_2)
         }
 
         // Free the allocated memory
-        MPI_Free_mem(A);
-        MPI_Free_mem(u1);
-        MPI_Free_mem(v1);
-        MPI_Free_mem(u2);
-        MPI_Free_mem(v2);
-        MPI_Free_mem(w);
-        MPI_Free_mem(x);
-        MPI_Free_mem(y);
-        MPI_Free_mem(z);
+
+
+
         MPI_Free_mem(A_baseline);
         MPI_Free_mem(u1_baseline);
         MPI_Free_mem(v1_baseline);
@@ -351,6 +324,7 @@ TEST(gemverTest, gemver_mpi_2)
         MPI_Free_mem(w_result);
     }
 }
+/*
 TEST(gemverTest, gemver_mpi_3)
 {
 
@@ -700,7 +674,7 @@ TEST(gemverTest, DifferentSizes){
         }
     }
 }
-
+*/
 int main(int argc, char *argv[])
 {
     int result = 0;

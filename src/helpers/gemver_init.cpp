@@ -131,3 +131,9 @@ void init_gemver(int n, int m, double *alpha, double *beta, double *A, double *u
         x[j] = 0.0;
     }
 }
+
+// TODO:
+// 1) Move current initialization into measurement: i.e. init on node 0
+// 2) Move init of baseline into measurement
+// 3) create init_gemver for parts of matrices
+// 4) create gemver without 
