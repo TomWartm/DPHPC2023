@@ -19,7 +19,7 @@ TRISOLV_MPI_DIR = $(SRC_DIR)/trisolv/mpi
 ## Timing
 # Compile and run evaluate_gemver_openmp.cpp
 GEMVER_OPENMP_EXECUTABLE = evaluate_gemver_openmp
-GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver.cpp
+GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver_openmp.cpp
 
 $(GEMVER_OPENMP_EXECUTABLE): $(GEMVER_OPENMP_EXECUTABLE_SRC)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
 	g++ $(CXXFLAGS)  -o $@ $^
@@ -55,10 +55,13 @@ TRISOLV_MPI_EXECUTABLE = evaluate_trisolv_mpi
 TRISOLV_MPI_EXECUTABLE_SRC = src/evaluate_trisolv_mpi.cpp
 
 $(TRISOLV_MPI_EXECUTABLE): $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS)
+	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=12
+
+build_trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
+	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=15
 
 trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
-	mpirun -np 3 ./$(TRISOLV_MPI_EXECUTABLE)
+	mpirun -np 4 ./$(TRISOLV_MPI_EXECUTABLE)
 
 
 ## Testing
@@ -108,11 +111,11 @@ test_trisolv_openmp: $(TEST_TRISOLV_OPENMP_EXECUTABLE)
 TEST_TRISOLV_MPI_EXECUTABLE = build_test_trisolv_mpi
 TEST_TRISOLV_MPI_DIR = tests/trisolv/mpi
 
-$(TEST_TRISOLV_MPI_EXECUTABLE): $(wildcard $(TEST_TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp)
+$(TEST_TRISOLV_MPI_EXECUTABLE): $(wildcard $(TEST_TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/mpi/*.cpp) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp)
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_trisolv_mpi: $(TEST_TRISOLV_MPI_EXECUTABLE)
-	mpirun -np 2 ./$(TEST_TRISOLV_MPI_EXECUTABLE)
+	mpirun -np 3 ./$(TEST_TRISOLV_MPI_EXECUTABLE)
 
 # remove all .o and executable files
 clean:

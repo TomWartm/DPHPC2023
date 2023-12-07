@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <cstring>
+#include "trisolv_init.h"
+
 void init_trisolv(int n, double* L, double* x, double* b){
     memset(L, 0, n * n * sizeof(double));
     for (int i = 0; i < n; i++)

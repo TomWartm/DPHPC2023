@@ -3,8 +3,12 @@
 #include <fstream>
 #include <stdlib.h>
 #include <mpi.h>
+#include <chrono>
+#include <iomanip>
 #include "../gemver_init.h"
 #include "../trisolv_init.h"
+#include "util_gao.h"
+#include "measure.h"
 
 void measure_gemver_mpi(std::string functionName, void (*func)(int, double *, double *, double *), int n, std::ofstream &outputFile)
 {   
@@ -67,14 +71,16 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     struct timespec start, end;
     double elapsed_time;
 
-    // initialize data on process 0
-    if (rank == 0) {
-        init_trisolv(n, L, x, b);
-    }
+    //initialize on all nodes
+        if (functionName == (std::string) "trisolv_mpi_gao") {
+            init_colMaj(n, L, x, b, &init_trisolv);
+        }
+        else {
+            init_trisolv(n, L, x, b);
+        }
 
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    // Broadcast data to all other
     MPI_Barrier(MPI_COMM_WORLD);
+    clock_gettime(CLOCK_MONOTONIC, &start);
     func(n, L, x, b);
     clock_gettime(CLOCK_MONOTONIC, &end);
     MPI_Barrier(MPI_COMM_WORLD);
@@ -82,10 +88,13 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     elapsed_time = (end.tv_sec - start.tv_sec) + (double)(end.tv_nsec - start.tv_nsec) / 1e9;
 
     // write to output file
-    outputFile << n << ";" << elapsed_time << ";" << functionName << std::endl;
+    if (rank == 0) {
+        outputFile << n << ";" << elapsed_time << ";" << functionName << std::endl;
+    }
 
     // free memory
-    free((void*)L);
-    free((void*)x);
-    free((void*)b);
+    MPI_Free_mem((void*)L);
+    MPI_Free_mem((void*)x);
+    MPI_Free_mem((void*)b);
 }
+
