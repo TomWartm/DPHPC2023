@@ -29,7 +29,7 @@ df = pd.concat(dataframes, ignore_index=True)
 df["flops"] = df.apply(lambda x: get_flops_gemver(x['method'], x['N']), axis=1)
 
 # compute performance
-df["Performance [Gflop/s]"] = df["flops"]/df["time [s]"]/1000
+df["Performance [Gflop/s]"] = df["flops"]/df["time [s]"]/10**9
 
 
 

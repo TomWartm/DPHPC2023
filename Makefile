@@ -93,7 +93,7 @@ $(TEST_GEMVER_MPI_EXECUTABLE): $(wildcard $(TEST_GEMVER_MPI_DIR)/*.cpp) $(wildca
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_gemver_mpi: $(TEST_GEMVER_MPI_EXECUTABLE)
-	mpirun -np 4 ./$(TEST_GEMVER_MPI_EXECUTABLE)
+	mpirun -np 2 ./$(TEST_GEMVER_MPI_EXECUTABLE)
 
 
 # Compile and run test_trisolv_openmp.cpp

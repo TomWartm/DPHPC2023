@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 4;
+    int num_runs = 400;
     for (int n = 1000; n <= 5000; n +=1000)
     {
 
@@ -32,15 +32,15 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
             
-            measure_gemver_mpi((std::string) "mpi_baseline", &gemver_mpi_1, n, outputFile);
+            //measure_gemver_mpi((std::string) "mpi_baseline", &gemver_mpi_1, n, outputFile);
             
             measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
-           
-            //measure_gemver_mpi((std::string) "gemver_mpi_3", &gemver_mpi_3, n, outputFile);
-            
-            //measure_gemver_mpi((std::string) "gemver_mpi_4", &gemver_mpi_4, n, outputFile);
 
-            //measure_gemver_mpi((std::string) "gemver_mpi_2_1", &gemver_mpi_2_1, n, outputFile);
+            //measure_gemver_mpi((std::string) "gemver_mpi_2_new", &gemver_mpi_2_new, n, outputFile);
+           
+            
+
+            
             
         }
     }
