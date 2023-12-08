@@ -325,7 +325,7 @@ void gemver_mpi_2(int n,  double *A_result, double *x_result, double *w_result)
     MPI_Free_mem(local_z);
     MPI_Free_mem(local_x);
     MPI_Free_mem(local_w);
-    
+    MPI_Free_mem(local_A_result)
     MPI_Free_mem(v1); 
     MPI_Free_mem(v2);
     MPI_Free_mem(x);
@@ -550,235 +550,6 @@ void gemver_mpi_3(int n, double alpha, double beta, double *A, double *u1, doubl
     MPI_Free_mem(local_w);
 }
 
-void gemver_mpi_2_1(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z, double *A_result, double *x_result, double *w_result)
-{   
-    auto start = high_resolution_clock::now();
-    /*
-    Same as gemver_mpi_2 but Scatters all independant data in the start
-    */
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    
-
-    /*
-        Start independant stuff
-    */
-    // assign memory to variables that are used on all processes
-    if (rank != 0)
-    {
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v1);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &v2);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &y);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
-        MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
-    }
-
-    int blockSize = n / size;
-    int remSize = n % size;
-
-    // compute index 
-    int *displsVector = (int *)malloc(size * sizeof(int));  // stores start index of each block
-    int *scountsVector = (int *)malloc(size * sizeof(int)); // stores number of elements in each block
-    for (int i = 0; i < size; i++)
-    {
-        if (i < size - 1)
-        {
-            scountsVector[i] = blockSize;
-        }
-        else
-        {
-            scountsVector[i] = blockSize + remSize;
-        }
-        displsVector[i] = i * blockSize;
-    }
-    int localSize = scountsVector[rank]; // for al processes < size -1 == blockSize else blockSize + remSize
-    
-    int *displsMatrix = (int *)malloc(size * sizeof(int));  // stores start index of each block
-    int *scountsMatrix = (int *)malloc(size * sizeof(int)); // stores number of elements in each block
-    for (int i = 0; i < size; i++)
-    {
-        if (i < size - 1)
-        {
-            scountsMatrix[i] = blockSize * n;
-        }
-        else
-        {
-            scountsMatrix[i] = (blockSize + remSize) * n;
-        }
-        displsMatrix[i] = i * blockSize * n;
-    }
-    
-    int *displsMatrixTranspose = (int *)malloc(size * sizeof(int));  // stores start index of each block
-    int *scountsMatrixTranspose = (int *)malloc(size * sizeof(int)); // stores number of elements in each block
-    int block_start = 0;
-    for (int i = 0; i < size; i++)
-    {
-        if (i < size - 1)
-        {
-            scountsMatrixTranspose[i] = blockSize;
-        }
-        else
-        {
-            scountsMatrixTranspose[i] = (blockSize + remSize);
-        }
-        displsMatrixTranspose[i] = block_start;
-        block_start += scountsMatrixTranspose[i];
-    }
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    cout << "IndepPart (index comp) on Rank: "<<rank <<" took: "<<duration.count()/1000 << "" << endl;
-    start = high_resolution_clock::now(); 
-    
-    // send vectors u1, u2: all processes get size: blockSize, except last process which gets the remaining elements
-    double *local_u1 = (double *)malloc(localSize * sizeof(double));
-    double *local_u2 = (double *)malloc(localSize * sizeof(double));
-    MPI_Scatterv(u1, scountsVector, displsVector, MPI_DOUBLE, local_u1, localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD); // u1 -> local_u1
-    MPI_Scatterv(u2, scountsVector, displsVector, MPI_DOUBLE, local_u2, localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD); // u2 -> local_u2
-
-    // send array A: all processes get blockSize rows, except last process which gets the remaining elements
-    double *local_A = (double *)malloc(localSize * n * sizeof(double));
-    MPI_Scatterv(A, scountsMatrix, displsMatrix, MPI_DOUBLE, local_A, localSize * n, MPI_DOUBLE, 0, MPI_COMM_WORLD); // A -> local_A
-
-    // send v1, v2 entirely to all processes
-    MPI_Bcast(v1, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(v2, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-    // send vectors z,x : all processes get size: blockSize, except last process which gets the remaining elements
-    double *local_z = (double *)malloc(localSize * sizeof(double));
-    double *local_x = (double *)malloc(localSize * sizeof(double));
-
-    MPI_Scatterv(z, scountsVector, displsVector, MPI_DOUBLE, local_z, localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD); // z -> local_z
-    MPI_Scatterv(x, scountsVector, displsVector, MPI_DOUBLE, local_x, localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD); // x -> local_x
-
-    // send y entirely to all processes
-    MPI_Bcast(y, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&beta, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-
-    MPI_Bcast(&alpha, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-
-    // send w : all processes get size: blockSize, except last process which gets the remaining elements
-    double *local_w = (double *)malloc(localSize * sizeof(double));
-    MPI_Scatterv(w, scountsVector, displsVector, MPI_DOUBLE, local_w, localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD); // w -> local_w
-
-    /*
-        End independant part
-    */
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "IndepPart (send Data) on Rank: "<<rank <<" took: "<<duration.count()/1000 << "" << endl;
-    start = high_resolution_clock::now();
-    /*
-    Part 1: A_result = A + u1*v1 + u2*v2
-    */
-
-    // split u1, u2 and A into blocks and distribute over all processes
-
-    
-    
-    // compute  A += u1 * v1 + u2 * v2
-    for (int i = 0; i < localSize; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            local_A[i * n + j] += local_u1[i] * v1[j] + local_u2[i] * v2[j];
-        }
-    }
-
-    // get local results back to process 0
-    MPI_Gatherv(local_A, localSize * n, MPI_DOUBLE, A_result, scountsMatrix, displsMatrix, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "Part1 (computing + Gathering) on Rank: "<<rank <<" took: "<<duration.count()/1000 << "" << endl;
-    start = high_resolution_clock::now();
-
-
-    /*
-    Part 2: x_result = x + beta * (A_result)T * y + z
-    */
-
-    // array (A_result)T: all processes get blockSize columns, except last process which gets the remaining elements
-
-    MPI_Datatype coltype, resizedcoltype;
-
-    MPI_Type_vector(n, 1, n, MPI_DOUBLE, &coltype);
-
-    MPI_Type_commit(&coltype);
-
-    MPI_Type_create_resized(coltype, 0, 1 * sizeof(double), &resizedcoltype); // set upper bound of the datastrcture to be just one double away from the last one, sth. the next collumn starts just one element from the previus one
-    MPI_Type_commit(&resizedcoltype);
-
-    
-
-    // transpose by distributing localSize columns as rows
-    double *local_A_result_transpose = (double *)malloc(localSize * n * sizeof(double));
-    MPI_Scatterv(A_result, scountsMatrixTranspose, displsMatrixTranspose, resizedcoltype, local_A_result_transpose, localSize * n, MPI_DOUBLE, 0, MPI_COMM_WORLD); // A_result -> local_A_result_transpose
-
-
-    // compute x = beta * (A_result)T * y + z
-
-    for (int i = 0; i < localSize; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            local_x[i] = local_x[i] + beta * local_A_result_transpose[i * n + j] * y[j];
-        }
-        local_x[i] += local_z[i];
-    }
-
-    // recieve x_result
-    MPI_Gatherv(local_x, localSize, MPI_DOUBLE, x_result, scountsVector, displsVector, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "Part2 (sending + computing + Gathering) on Rank: "<<rank <<" took: "<<duration.count()/1000 << "" << endl;
-    start = high_resolution_clock::now();
-    /*
-    Part 3: w_result = alpha * A_result * x_result
-    */
-
-    // send A_result_transpose: all processes get blockSize rows, except last process which gets the remaining elements
-    double *local_A_result = (double *)malloc(localSize * n * sizeof(double));
-    MPI_Scatterv(A_result, scountsMatrix, displsMatrix, MPI_DOUBLE, local_A_result, localSize * n, MPI_DOUBLE, 0, MPI_COMM_WORLD); // A_result -> local_A_result
-
-    // send x entirely to all processes
-    MPI_Bcast(x_result, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    
-
-    
-
-    // compute w = alpha * A_result * x_result
-    for (int i = 0; i < localSize; i++)
-        for (int j = 0; j < n; j++)
-            local_w[i] = local_w[i] + alpha * local_A_result[i * n + j] * x_result[j];
-
-    // recieve w_result
-    MPI_Gatherv(local_w, localSize, MPI_DOUBLE, w_result, scountsVector, displsVector, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-
-
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "Part3 (sending + computing + Gathering) on Rank: "<<rank <<" took: "<<duration.count()/1000 << "" << endl;
-    start = high_resolution_clock::now();
-    // MPI_Free_mem temporary arrays
-    MPI_Free_mem(displsVector);
-    MPI_Free_mem(scountsVector);
-    MPI_Free_mem(displsMatrix);
-    MPI_Free_mem(scountsMatrix);
-    MPI_Free_mem(local_u1);
-    MPI_Free_mem(local_u2);
-    MPI_Free_mem(local_A);
-    MPI_Free_mem(local_A_result_transpose);
-    MPI_Free_mem(local_z);
-    MPI_Free_mem(local_x);
-    MPI_Free_mem(local_w);
-}
-
 void gemver_mpi_2_new(int n,  double *A_result, double *x_result, double *w_result)
 {   
 
@@ -809,9 +580,6 @@ void gemver_mpi_2_new(int n,  double *A_result, double *x_result, double *w_resu
 
     // initialize data that are on all processes
     init_gemver_vy(n, &alpha, &beta, v1, v2, y);
-
-
-
 
 
     // split u1, u2 and A into blocks and distribute over all processes
@@ -913,15 +681,8 @@ void gemver_mpi_2_new(int n,  double *A_result, double *x_result, double *w_resu
     Part 2: x_result = x + beta * (A_result)T * y + z
     */
 
- 
-
     // transpose by distributing localSize columns as rows
-    
     MPI_Scatterv(A_result, scountsMatrixTranspose, displsMatrixTranspose, resizedcoltype, local_A_result_transpose, localSize * n, MPI_DOUBLE, 0, MPI_COMM_WORLD); // A_result -> local_A_result_transpose
-    
-
-
-
 
     // compute x = beta * (A_result)T * y + z
 
@@ -939,9 +700,6 @@ void gemver_mpi_2_new(int n,  double *A_result, double *x_result, double *w_resu
     // recieve x_result adn send to all processes
     MPI_Allgatherv(local_x, localSize, MPI_DOUBLE, x_result, scountsVector, displsVector, MPI_DOUBLE, MPI_COMM_WORLD);
 
- 
-
-   
     // compute w = alpha * A_result * x_result
     for (int i = 0; i < localSize; i++)
         for (int j = 0; j < n; j++)
