@@ -325,7 +325,7 @@ void gemver_mpi_2(int n,  double *A_result, double *x_result, double *w_result)
     MPI_Free_mem(local_z);
     MPI_Free_mem(local_x);
     MPI_Free_mem(local_w);
-    MPI_Free_mem(local_A_result)
+    MPI_Free_mem(local_A_result);
     MPI_Free_mem(v1); 
     MPI_Free_mem(v2);
     MPI_Free_mem(x);
