@@ -36,7 +36,7 @@ df["Performance [Gflop/s]"] = df["flops"]/df["time [s]"]/10**9
 # plot timing
 sns.set_theme()
 sns.lineplot(
-    data=df, x="N", y="time [s]", hue="method", errorbar="sd", estimator=np.median
+    data=df, x="N", y="time [s]", hue="method", errorbar="sd", estimator=np.median, marker='o'
 )
 
 plt.show()
@@ -46,7 +46,7 @@ plt.savefig(file_path)
 
 # plot performance
 sns.lineplot(
-    data=df, x="N", y="Performance [Gflop/s]", hue="method", errorbar="sd", estimator=np.median
+    data=df, x="N", y="Performance [Gflop/s]", hue="method", errorbar="sd", estimator=np.median, marker='o'
 )
 
 plt.show()
