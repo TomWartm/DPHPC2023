@@ -1,12 +1,12 @@
 #include "helpers/measure.h"
 #include <iostream>
-#include <fstream>
-#include "gemver/gemver_baseline.h"
+#include "trisolv/trisolv_baseline.h"
+#include "trisolv/openmp/trisolv_openmp.h"
 
 int main(int argc, char *argv[])
 {
     // open file
-    std::string filePath = "./results/gemver/output_gemver.csv";
+    std::string filePath = "./results/trisolv/output_trisolv_openmp.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
@@ -16,8 +16,8 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 4;
-    for (int n = 1000; n <= 5000; n +=1000)
+    int num_runs = 20;
+    for (int n = 4000; n <= 16000; n += 4000)
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
@@ -26,9 +26,8 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
 
-            measure_gemver((std::string) "baseline", &kernel_gemver, n, outputFile);
-            measure_gemver((std::string) "baseline blocked 1", &gemver_baseline_blocked_1, n, outputFile);
-            measure_gemver((std::string) "baseline blocked 2", &gemver_baseline_blocked_2, n, outputFile);
+            measure_trisolv((std::string) "baseline", &trisolv_baseline, n, outputFile);
+            measure_trisolv((std::string) "openmp", &trisolv_openmp, n, outputFile);
         }
     }
     outputFile.close();
