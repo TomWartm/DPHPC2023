@@ -18,7 +18,7 @@ void trisolv_mpi_v0(int n, double* L, double* x, double* b){
     }
 }
 
-void trisolv_blas(int n, double* L; double* x, double* b) {
+void trisolv_blas(int n, double* L, double* x, double* b) {
 	cblas_dtrsv(CblasRowMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, L, n, b, 1);
 	for (int i = 0; i < N; ++i)
 		x[i] = b[i];
