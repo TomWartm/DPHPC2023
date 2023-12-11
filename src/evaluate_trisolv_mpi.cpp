@@ -34,14 +34,19 @@ int main(int argc, char *argv[])
             // give user feedback
             //std::cout << "N = " << n << std::endl;
 
+            //////////////////////// Baseline /////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_baseline", &trisolv_mpi_v0, n, outputFile);
+            
+            //////////////////////// BLAS /////////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_blas", &trisolv_blas, n, outputFile);            
+
             //////////////////////// With non blocking send ///////////////////////////////
             measure_trisolv_mpi((std::string) "trisolv_mpi_isend", &trisolv_mpi_isend, n, outputFile);
 
             /////////////////////// with rma //////////////////////////////////////////////
-
             measure_trisolv_mpi((std::string) "trisolv_mpi_onesided", &trisolv_mpi_onesided, n, outputFile);
 
-            /////////////////////////// method gao ///////////////////////////////////
+            /////////////////////// method gao ////////////////////////////////////////////
             measure_trisolv_mpi((std::string) "trisolv_mpi_gao", &trisolv_mpi_gao, n, outputFile);
         }   
     }
