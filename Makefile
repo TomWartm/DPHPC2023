@@ -55,10 +55,10 @@ TRISOLV_MPI_EXECUTABLE = evaluate_trisolv_mpi
 TRISOLV_MPI_EXECUTABLE_SRC = src/evaluate_trisolv_mpi.cpp
 
 $(TRISOLV_MPI_EXECUTABLE): $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=12
+	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=12 -lopenblas
 
 build_trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=15
+	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=15 -lopenblas
 
 trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
 	mpirun -np 4 ./$(TRISOLV_MPI_EXECUTABLE)
