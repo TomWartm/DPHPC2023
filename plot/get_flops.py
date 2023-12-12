@@ -5,11 +5,11 @@ def get_flops_gemver(method:str, n:int) -> int:
     """
     no_additions = 0
     no_multiplications = 0
-    if method in ["baseline","gemver_mpi_2", "gemver_mpi_3","gemver_mpi_2_1", "gemver_mpi_2_new", "openmp with padding","openmp"]:
+    if method in ["baseline","gemver_mpi_2", "gemver_mpi_3","gemver_mpi_2_1", "gemver_mpi_2_new", "openmp with padding","openmp","gemver_mpi_2_new_openmp","gemver_mpi_3_new"]:
         no_additions = n*n*2 + n*n + n + n*n
         no_multiplications = n*n*2 + n*n*2 + n*n*2
     
-    elif method in ["baseline blocked 1", "baseline blocked 2", "gemver_mpi_4",]:
+    elif method in ["baseline blocked 1", "baseline blocked 2", "gemver_mpi_4","gemver_mpi_2_new_blocking"]:
         n = n/4
 
         no_additions = n*n* 32 + n*n* 16 + n*n* 16 # same as in baseline

@@ -188,3 +188,42 @@ void init_gemver_xz(int n, int n_min, int n_max, double *x, double *z)
         x[i] = 0.0;
     }
 }
+
+void init_gemver_uy(int n ,  double *alpha, double *beta, double *u1, double *u2, double *y){
+    // intializes entire vectors u1, u2, and y
+    // initialize constants alpha and beta
+    double fn = (double)n;
+    *alpha = 1.5;
+    *beta = 1.2;
+
+    for (int i = 0; i < n; i++)
+    {
+
+        u1[i] = i;
+        u2[i] = ((i + 1) / fn) / 2.0;
+        y[i] = ((i + 1) / fn) / 8.0;
+    }   
+}
+
+void init_gemver_Av(int n, int m, int m_min, int m_max, double *A, double *v1, double *v2)
+{
+    // intializes part of array A from col m_min to m_max and all rows
+    // initializes m_max-min elements of v1 and v2 from col m_min to m_max
+    //A[i * m + j] = (double)(i * j % n) / n;
+    // v1[j] = ((j + 1) / fn) / 4.0;
+    // v2[j] = ((j + 1) / fn) / 6.0;
+
+    double fn = (double)n;
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m_max-m_min; j++){
+            
+            A[i * (m_max -m_min) + j] = (double)(i * (j+m_min) % n) / n;
+        }
+    }
+    for (int j = 0; j < m_max-m_min; j++) {
+        v1[j] = (((j+m_min) + 1) / fn) / 4.0;
+        v2[j] = (((j+m_min) + 1) / fn) / 6.0;
+    }
+}

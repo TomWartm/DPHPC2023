@@ -23,6 +23,10 @@ void measure_gemver_mpi(std::string functionName, void (*func)(int, double *, do
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &x_result);
     MPI_Alloc_mem(n * sizeof(double), MPI_INFO_NULL, &w_result);
 
+    // set values of w_result to zero
+    for (int i = 0; i < n; i++){
+        w_result[i] = 0;
+    }
     //////////////measure/////////////
     struct timespec start, end;
     double elapsed_time;
