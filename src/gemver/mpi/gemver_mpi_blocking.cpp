@@ -412,7 +412,7 @@ void gemver_mpi_2_new_blocking(int n,  double *A_result, double *x_result, doubl
 }
 
 
-#define NUM_THREADS 2
+
 void gemver_mpi_2_new_openmp(int n,  double *A_result, double *x_result, double *w_result)
 {   
     
