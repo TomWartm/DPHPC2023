@@ -38,11 +38,12 @@ int main(int argc, char *argv[])
             measure_trisolv_mpi((std::string) "trisolv_mpi_isend", &trisolv_mpi_isend, n, outputFile);
 
             /////////////////////// with rma //////////////////////////////////////////////
-
             measure_trisolv_mpi((std::string) "trisolv_mpi_onesided", &trisolv_mpi_onesided, n, outputFile);
 
             /////////////////////////// method gao ///////////////////////////////////
             measure_trisolv_mpi((std::string) "trisolv_mpi_gao", &trisolv_mpi_gao, n, outputFile);
+
+            measure_trisolv_mpi((std::string) "trisolv_mpi_onesided_openmp", &trisolv_mpi_onesided_openmp, n, outputFile);
         }   
     }
 

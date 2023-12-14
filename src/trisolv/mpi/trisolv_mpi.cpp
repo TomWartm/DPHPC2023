@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <cassert>
 #include <cmath>
+#include <omp.h>
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b){
     for (int i = 0; i < n; i++)
@@ -130,6 +131,7 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
             origin_ranks[i] = j;
         }
         MPI_Group_incl(group_world, num_origins, origin_ranks, &group_origin);
+        delete[] origin_ranks;
     }
 
     assert(n % (world_size * block_size) == 0);
@@ -153,17 +155,18 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
             MPI_Group_incl(group_world, 1, &target_rank, &group_target);
         }
 
-        MPI_Win_start(group_target, 0 /*MPI_MODE_NOCHECK? */, x_win);
+        MPI_Win_start(group_target, 0, x_win);
             double x_block[block_size];
             MPI_Get(x_block, block_size, MPI_DOUBLE, target_rank, i, block_size, MPI_DOUBLE, x_win);
         MPI_Win_complete(x_win);
 
         for (int k = process_start; k < process_end; k++) {
-            j = i;
-            //this loop can be unrolled for fixed block_size
+            double temp = 0;
+            //could be unrolled for fixed block_size
             for (int line_idx = 0, j = i; line_idx < block_size; line_idx++, j++) { 
-                x[k] -= L[k*n + j] * x_block[line_idx];
+                temp += L[k*n + j] * x_block[line_idx];
             }
+            x[k] -= temp;
         }
     }
 
@@ -171,12 +174,14 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
     if (world_rank != world_size-1) { //not the last process
         for (i = process_start; i < process_end; i++) {
             //compute
+            double temp = 0;
             for (j = process_start; j < i; j++) {
-                x[i] -= L[i*n + j] * x[j];
+                temp += L[i*n + j] * x[j];
             }
-            x[i] /= L[i*n + i];
-            if ((i + 1) % block_size == 0) { //give access to other processes
-                MPI_Win_post(group_origin, 0 /* MPI_MODE_NOCHECK? */, x_win);
+            x[i] = (x[i] - temp) / L[i*n + i];
+            //give access to other processes
+            if ((i + 1) % block_size == 0) {
+                MPI_Win_post(group_origin, 0, x_win);
                 MPI_Win_wait(x_win);
             }
         }
@@ -184,10 +189,11 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
     else { //last process doesn't do synchronization
         for (i = process_start; i < process_end; i++) {
             //compute
+            double temp = 0;
             for (j = process_start; j < i; j++) {
-                x[i] -= L[i*n + j] * x[j];
+                temp += L[i*n + j] * x[j];
             }
-            x[i] /= L[i*n + i];
+            x[i] = (x[i] - temp) / L[i*n + i];
         }
     }
 
@@ -262,4 +268,112 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     	    A_pos1 += A_size;
     	}
     }
+}
+
+
+/*
+* Use openMP to speedup the sequential parts
+*/
+void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
+{
+    const int block_size = 8; //per cache line: 8 x 8 bytes = 64 bytes
+
+    int i, j;
+
+    int world_size, world_rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+    MPI_Win x_win;
+
+    MPI_Group group_world;
+    MPI_Comm_group(MPI_COMM_WORLD, &group_world);
+
+    MPI_Group group_target;
+    int target_rank = -1;
+
+    MPI_Group group_origin;
+    if (world_rank != world_size - 1) {
+        int num_origins = world_size - world_rank - 1;
+        int *origin_ranks = new int[num_origins];
+        for (i = 0, j = world_rank + 1; i < num_origins; i++, j++) {
+            origin_ranks[i] = j;
+        }
+        MPI_Group_incl(group_world, num_origins, origin_ranks, &group_origin);
+        delete[] origin_ranks;
+    }
+
+    assert(n % (world_size * block_size) == 0);
+    int process_size = n / world_size;
+    int process_start = world_rank * process_size;
+    int process_end = (world_rank+1) * process_size;
+    
+    //only initialize the necessary part
+    #pragma omp parallel for
+        for (i = process_start; i < process_end; i++) {
+            x[i] = b[i];
+        }
+
+    //OPEN WINDOW
+    MPI_Win_create(x, n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &x_win);
+
+    //GET PHASE
+    for (i = 0; i < process_start; i += block_size) {
+        //create group containing the target process
+        if (i % process_size == 0) {
+            target_rank++;
+            MPI_Group_incl(group_world, 1, &target_rank, &group_target);
+        }
+
+        MPI_Win_start(group_target, 0, x_win);
+            double x_block[block_size];
+            MPI_Get(x_block, block_size, MPI_DOUBLE, target_rank, i, block_size, MPI_DOUBLE, x_win);
+        MPI_Win_complete(x_win);
+
+        #pragma omp parallel for
+        for (int k = process_start; k < process_end; k++) {
+            double temp = 0;
+            //could be unrolled for fixed block_size
+            for (int line_idx = 0, j = i; line_idx < block_size; line_idx++, j++) { 
+                temp += L[k*n + j] * x_block[line_idx];
+            }
+            x[k] -= temp;
+        }
+    }
+
+    //COMPUTE PHASE
+    if (world_rank != world_size-1) { //not the last process
+        for (i = process_start; i < process_end; i++) {
+            //compute
+            double temp = 0;
+            for (j = process_start; j < i; j++) {
+                temp += L[i*n + j] * x[j];
+            }
+            x[i] = (x[i] - temp) / L[i*n + i];
+            //give access to other processes
+            if ((i + 1) % block_size == 0) { 
+                MPI_Win_post(group_origin, 0, x_win);
+                MPI_Win_wait(x_win);
+            }
+        }
+    }
+    else { //last process doesn't do synchronization
+        for (i = process_start; i < process_end; i++) {
+            //compute
+            double temp = 0;
+            for (j = process_start; j < i; j++) {
+                temp += L[i*n + j] * x[j];
+            }
+            x[i] = (x[i] - temp) / L[i*n + i];
+        }
+    }
+
+    if (world_rank != 0) {
+        MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, x_win);
+        MPI_Put(&x[process_start], process_size, MPI_DOUBLE, 0, process_start, process_size, MPI_DOUBLE, x_win);
+        MPI_Win_unlock(0, x_win);
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Win_free(&x_win);
 }
