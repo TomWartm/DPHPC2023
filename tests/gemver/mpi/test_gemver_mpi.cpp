@@ -5,6 +5,7 @@
 #include "../../../src/helpers/gemver_init.h"
 #include "../../../src/gemver/mpi/gemver_mpi.h"
 #include "../../../src/gemver/mpi/gemver_mpi_blocking.h"
+#include "../../../src/gemver/mpi/gemver_mpi_openmp.h"
 
 /// @brief
 /// @param
@@ -484,7 +485,7 @@ TEST(gemverTest, DifferentSizes)
         }
 
         // compute gemver
-        gemver_mpi_3_new(n, A_result, x_result, w_result);
+        gemver_mpi_3_new_blocking(n, A_result, x_result, w_result);
 
         if (rank == 0)
         {

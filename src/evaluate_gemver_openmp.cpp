@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
 
             /////////////////////////// method 1 /////////////////////////////////////
             measure_gemver((std::string) "baseline", &kernel_gemver, n, outputFile);
-            //measure_gemver((std::string) "baseline blocked 1", &gemver_baseline_blocked_1, n, outputFile);
+            measure_gemver((std::string) "baseline blocked 1", &gemver_baseline_blocked_1, n, outputFile);
             //measure_gemver((std::string) "baseline blocked 2", &gemver_baseline_blocked_2, n, outputFile);
             measure_gemver((std::string) "openmp", &gemver_openmp_v1, n, outputFile);
-            measure_gemver((std::string) "openmp with padding", &gemver_openmp_v2, n, outputFile);
+            //measure_gemver((std::string) "openmp with padding", &gemver_openmp_v2, n, outputFile);
         }
     }
     outputFile.close();

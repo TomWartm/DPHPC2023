@@ -3,6 +3,7 @@
 #include <fstream>
 #include "gemver/mpi/gemver_mpi.h"
 #include "gemver/mpi/gemver_mpi_blocking.h"
+#include "gemver/mpi/gemver_mpi_openmp.h"
 #include <mpi.h>
 
 int main(int argc, char *argv[])
@@ -34,15 +35,19 @@ int main(int argc, char *argv[])
             
             //measure_gemver_mpi((std::string) "mpi_baseline", &gemver_mpi_1, n, outputFile);
             
-            measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
+            //measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
 
-            measure_gemver_mpi((std::string) "gemver_mpi_2_new", &gemver_mpi_2_new, n, outputFile);
+            //measure_gemver_mpi((std::string) "gemver_mpi_2_new", &gemver_mpi_2_new, n, outputFile);
            
-            measure_gemver_mpi((std::string) "gemver_mpi_2_new_blocking", &gemver_mpi_2_new_blocking, n, outputFile);
+            //measure_gemver_mpi((std::string) "gemver_mpi_2_new_blocking", &gemver_mpi_2_new_blocking, n, outputFile);
 
-            measure_gemver_mpi((std::string) "gemver_mpi_2_new_openmp_4", &gemver_mpi_2_new_openmp, n, outputFile);
+            //measure_gemver_mpi((std::string) "gemver_mpi_2_new_openmp_4", &gemver_mpi_2_new_openmp, n, outputFile);
 
             measure_gemver_mpi((std::string) "gemver_mpi_3_new", &gemver_mpi_3_new, n, outputFile);
+
+            measure_gemver_mpi((std::string) "gemver_mpi_3_new_openmp", &gemver_mpi_3_new_openmp, n, outputFile);
+
+            measure_gemver_mpi((std::string) "gemver_mpi_3_new_blocking", &gemver_mpi_3_new_blocking, n, outputFile);
             
         }
     }
