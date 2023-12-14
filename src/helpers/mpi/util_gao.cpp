@@ -30,9 +30,6 @@ void init_colMaj(int N, double*& A, double*& x, double*& b, void (*init)(int, do
     
 	if (rank == 0) {
         double* tmp = new double[N * N];
-        A = new double[N * N];
-        x = new double[N];
-        b = new double[N];
         init(N, tmp, x, b);
         rowMaj_to_colMaj(N, tmp, A);
         delete[] tmp;
@@ -47,9 +44,7 @@ void init_colMaj(int N, double*& A, double*& x, double*& b, void (*init)(int, do
    		MPI_Bcast(b, N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     }
     else {
-        A = new double[std_rows * N];
-        x = new double[N];
-        b = new double[N];
+        MPI_Alloc_mem( std_rows * N * sizeof(double), MPI_INFO_NULL, A);
         MPI_Recv(A, N * std_rows, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
    		MPI_Bcast(x, N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
    		MPI_Bcast(b, N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
