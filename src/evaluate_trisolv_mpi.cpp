@@ -24,8 +24,10 @@ int main(int argc, char *argv[])
 
 	// run experiments
     int num_runs = 10;
-    int n_min = std::pow(2, N_MIN);
-    int n_max = std::pow(2, N_MAX);
+    int e_min = 9;
+    int e_max = 13;
+    int n_min = std::pow(2, e_min);
+    int n_max = std::pow(2, e_max);
     for (int n = n_min; n <= n_max; n *= 2)
     {
        for (int num_run = 0; num_run < num_runs; ++num_run)
