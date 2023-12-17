@@ -22,7 +22,7 @@ GEMVER_OPENMP_EXECUTABLE = evaluate_gemver_openmp
 GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver_openmp.cpp
 
 $(GEMVER_OPENMP_EXECUTABLE): $(GEMVER_OPENMP_EXECUTABLE_SRC)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^
+	g++ $(CXXFLAGS)  -o $@ $^ -DNUM_THREADS=2
 
 gemver_openmp: $(GEMVER_OPENMP_EXECUTABLE)
 	./$(GEMVER_OPENMP_EXECUTABLE)
@@ -33,7 +33,7 @@ GEMVER_MPI_EXECUTABLE = evaluate_gemver_mpi
 GEMVER_MPI_EXECUTABLE_SRC = src/evaluate_gemver_mpi.cpp
 
 $(GEMVER_MPI_EXECUTABLE): $(GEMVER_MPI_EXECUTABLE_SRC) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS)
+	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DNUM_THREADS=2
 
 gemver_mpi: $(GEMVER_MPI_EXECUTABLE)
 	mpirun -np 3 ./$(GEMVER_MPI_EXECUTABLE)
@@ -70,7 +70,7 @@ TEST_GEMVER_OPENMP_EXECUTABLE = build_test_gemver_openmp
 TEST_GEMVER_OPENMP_DIR = tests/gemver/openmp
 
 $(TEST_GEMVER_OPENMP_EXECUTABLE): $(wildcard $(TEST_GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main
+	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main -DNUM_THREADS=2
 
 test_gemver_openmp: $(TEST_GEMVER_OPENMP_EXECUTABLE)
 	./$(TEST_GEMVER_OPENMP_EXECUTABLE)
@@ -90,10 +90,10 @@ TEST_GEMVER_MPI_EXECUTABLE = build_test_gemver_mpi
 TEST_GEMVER_MPI_DIR = tests/gemver/mpi
 
 $(TEST_GEMVER_MPI_EXECUTABLE): $(wildcard $(TEST_GEMVER_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
+	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main -DNUM_THREADS=2
 
 test_gemver_mpi: $(TEST_GEMVER_MPI_EXECUTABLE)
-	mpirun -np 4 ./$(TEST_GEMVER_MPI_EXECUTABLE)
+	mpirun -np 2 ./$(TEST_GEMVER_MPI_EXECUTABLE)
 
 
 # Compile and run test_trisolv_openmp.cpp

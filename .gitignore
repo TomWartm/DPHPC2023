@@ -14,11 +14,15 @@ build_test_gemver_mpi
 build_test_gemver
 build_test_trisolv_openmp
 build_test_trisolv_mpi
+Bcast_timer
+
 
 
 # Ignore Visual Studio Code workspace and user-specific files
 .vscode/
 .settings.json
+.pyc
 
 # Ignore result files
 results/
+plot/
