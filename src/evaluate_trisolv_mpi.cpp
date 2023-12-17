@@ -2,6 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <mpi.h>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <iomanip>
 #include "trisolv/mpi/trisolv_mpi.h"
 
 int main(int argc, char *argv[])
@@ -18,25 +22,37 @@ int main(int argc, char *argv[])
     }
     outputFile << "N;time [s];method" << std::endl;
 
-    // run experiments
-    int num_runs = 5;
-    for (int n = 4000; n <= 8000; n *= 2)
+	// run experiments
+    int num_runs = NUM_RUNS;
+    int n_min = std::pow(2, N_MIN);
+    int n_max = std::pow(2, N_MAX);
+    for (int n = n_min; n <= n_max; n *= 2)
     {
-
-        for (int num_run = 0; num_run < num_runs; ++num_run)
+       for (int num_run = 0; num_run < num_runs; ++num_run)
         {
 
             // give user feedback
-            std::cout << "N = " << n << std::endl;
+            //std::cout << "N = " << n << std::endl;
 
-            /////////////////////////// method 1 /////////////////////////////////////
+            //////////////////////// Baseline /////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_baseline", &trisolv_mpi_v0, n, outputFile);
+            
+            //////////////////////// BLAS /////////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_blas", &trisolv_blas, n, outputFile);            
 
-            measure_trisolv_mpi((std::string) "trisolv_mpi", &kernel_trisolv_mpi, n, outputFile);
-        }
+            //////////////////////// With non blocking send ///////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_mpi_isend", &trisolv_mpi_isend, n, outputFile);  //isend and onesided don't work for matrix size > 8192,
+	   												//comment them out for benchmarks exceeding that size
+
+            /////////////////////// with rma //////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_mpi_onesided", &trisolv_mpi_onesided, n, outputFile);
+
+            /////////////////////// method gao ////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_mpi_gao", &trisolv_mpi_gao, n, outputFile);
+        }   
     }
 
     outputFile.close();
-
     MPI_Finalize();
     return 0;
 }

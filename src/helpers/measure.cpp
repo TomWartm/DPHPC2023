@@ -25,8 +25,8 @@ void measure_gemver(std::string functionName, void (*func)(int, double, double, 
     //////////////measure/////////////
     struct timespec start, end;
     double elapsed_time;
-    init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
     clock_gettime(CLOCK_MONOTONIC, &start);
+    init_gemver(n, &alpha, &beta, A, u1, v1, u2, v2, w, x, y, z);
     func(n, alpha, beta, A, u1, v1, u2, v2, w, x, y, z);
     clock_gettime(CLOCK_MONOTONIC, &end);
     // Calculate the elapsed time in seconds and nanoseconds

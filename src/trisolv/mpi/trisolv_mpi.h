@@ -1,7 +1,15 @@
-#ifndef GEMVER_MPI_H
-#define GEMVER_MPI_H
+#ifndef TRISOLV_MPI_H
+#define TRISOLV_MPI_H
 
-// Function to perform the GEMVER operation
 void trisolv_mpi_v0(int n, double* L, double* x, double* b);
 
-#endif 
+void trisolv_blas(int n, double* L, double* x, double* b);
+
+void trisolv_mpi_isend(int n, double* L, double* x, double* b);
+
+void trisolv_mpi_onesided(int n, double* L, double* x, double* b);
+
+void trisolv_mpi_gao(int n, double* A, double* x, double* b);
+
+
+#endif //TRISOLV_MPI_H
