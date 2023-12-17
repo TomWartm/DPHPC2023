@@ -79,6 +79,9 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
         if (functionName == (std::string) "trisolv_mpi_gao") {
             init_colMaj(n, L, x, b, &init_trisolv);
         }
+	else if (functionName == "trisolv_baseline" || functionName == "trisolv_blas") {
+		if (rank == 0) init_trisolv(n, L, x, b);
+	}
         else {
             init_trisolv(n, L, x, b);
         }

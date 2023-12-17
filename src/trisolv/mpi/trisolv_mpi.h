@@ -3,6 +3,8 @@
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b);
 
+void trisolv_blas(int n, double* L, double* x, double* b);
+
 void trisolv_mpi_isend(int n, double* L, double* x, double* b);
 
 void trisolv_mpi_onesided(int n, double* L, double* x, double* b);
