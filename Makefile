@@ -115,7 +115,7 @@ $(TEST_TRISOLV_MPI_EXECUTABLE): $(wildcard $(TEST_TRISOLV_MPI_DIR)/*.cpp) $(wild
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
 
 test_trisolv_mpi: $(TEST_TRISOLV_MPI_EXECUTABLE)
-	mpirun -np 3 ./$(TEST_TRISOLV_MPI_EXECUTABLE)
+	mpirun -np 4 ./$(TEST_TRISOLV_MPI_EXECUTABLE)
 
 # remove all .o and executable files
 clean:

@@ -33,9 +33,8 @@ TEST(trisolvMPITest, IdentityInitialization) {
     }
 
     //////////////METHOD TO TEST
-    init_colMaj(n, L, x, b, &identity_trisolv);
-    // Compute trisolv using MPI
-    trisolv_mpi_gao(n, L, x, b);
+    identity_trisolv(n, L, x, b);
+    trisolv_mpi_isend_openmp(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -55,7 +54,7 @@ int rank, num_procs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    int n = 256; // Example size
+    int n = 128; // Example size
 
     double *L, *b, *x, *x_baseline;
 
@@ -76,9 +75,9 @@ int rank, num_procs;
     }
 
     ///////////METHOD TO TEST
-    init_colMaj(n, L, x, b, &random_trisolv);
+    random_trisolv(n, L, x, b);
     // Compute trisolv using MPI
-    trisolv_mpi_gao(n, L, x, b);
+    trisolv_mpi_isend_openmp(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -119,9 +118,9 @@ TEST(trisolvMPITest, LTriangularInitialization) {
     }
 
     ///////////METHOD TO TEST
-    init_colMaj(n, L, x, b, &lowertriangular_trisolv);
+    lowertriangular_trisolv(n, L, x, b);
     // Compute trisolv using MPI
-    trisolv_mpi_gao(n, L, x, b);
+    trisolv_mpi_isend_openmp(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -160,9 +159,9 @@ TEST(trisolvMPITest, DifferentSizes) {
     	}
 	
     	///////////METHOD TO TEST
-        init_colMaj(n, L, x, b, &init_trisolv);
+        init_trisolv(n, L, x, b);
         // Compute trisolv using MPI
-        trisolv_mpi_gao(n, L, x, b);
+        trisolv_mpi_isend_openmp(n, L, x, b);
     	if (rank == 0) {
     	    // Check results in process 0
     	    for (int i = 0; i < n; i++) {

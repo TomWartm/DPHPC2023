@@ -42,13 +42,19 @@ int main(int argc, char *argv[])
 
             //////////////////////// With non blocking send ///////////////////////////////
             measure_trisolv_mpi((std::string) "trisolv_mpi_isend", &trisolv_mpi_isend, n, outputFile);  //isend and onesided don't work for matrix size > 8192,
-	   												//comment them out for benchmarks exceeding that size
+	   												//comment them out for benchmarks exceeding that size - it works for me...
 
             /////////////////////// with rma //////////////////////////////////////////////
             measure_trisolv_mpi((std::string) "trisolv_mpi_onesided", &trisolv_mpi_onesided, n, outputFile);
 
             /////////////////////// method gao ////////////////////////////////////////////
             measure_trisolv_mpi((std::string) "trisolv_mpi_gao", &trisolv_mpi_gao, n, outputFile);
+
+            /////////////////////// rma + openmp ////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_mpi_onesided_openmp", &trisolv_mpi_onesided_openmp, n, outputFile);
+
+            /////////////////////// isend + openmp ////////////////////////////////////////////
+            measure_trisolv_mpi((std::string) "trisolv_mpi_isend_openmp", &trisolv_mpi_isend_openmp, n, outputFile);
         }   
     }
 
