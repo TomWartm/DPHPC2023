@@ -13,5 +13,6 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b);
 
 void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b);
 
+void trisolv_mpi_isend_openmp(int n, double* L, double* x, double* b);
 
 #endif //TRISOLV_MPI_H

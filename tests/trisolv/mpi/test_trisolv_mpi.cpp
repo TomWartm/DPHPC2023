@@ -34,7 +34,7 @@ TEST(trisolvMPITest, IdentityInitialization) {
 
     //////////////METHOD TO TEST
     identity_trisolv(n, L, x, b);
-    trisolv_mpi_onesided_openmp(n, L, x, b);
+    trisolv_mpi_isend_openmp(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -77,7 +77,7 @@ int rank, num_procs;
     ///////////METHOD TO TEST
     random_trisolv(n, L, x, b);
     // Compute trisolv using MPI
-    trisolv_mpi_onesided_openmp(n, L, x, b);
+    trisolv_mpi_isend_openmp(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -120,7 +120,7 @@ TEST(trisolvMPITest, LTriangularInitialization) {
     ///////////METHOD TO TEST
     lowertriangular_trisolv(n, L, x, b);
     // Compute trisolv using MPI
-    trisolv_mpi_onesided_openmp(n, L, x, b);
+    trisolv_mpi_isend_openmp(n, L, x, b);
     if (rank == 0) {
         // Check results in process 0
         for (int i = 0; i < n; i++) {
@@ -161,7 +161,7 @@ TEST(trisolvMPITest, DifferentSizes) {
     	///////////METHOD TO TEST
         init_trisolv(n, L, x, b);
         // Compute trisolv using MPI
-        trisolv_mpi_onesided_openmp(n, L, x, b);
+        trisolv_mpi_isend_openmp(n, L, x, b);
     	if (rank == 0) {
     	    // Check results in process 0
     	    for (int i = 0; i < n; i++) {
