@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <omp.h>
+#include <iostream>
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b){
     for (int i = 0; i < n; i++)
@@ -27,6 +28,7 @@ void trisolv_mpi_v0(int n, double* L, double* x, double* b){
 */
 void trisolv_mpi_isend(int n, double* L, double* x, double* b)
 {
+    const int block_size = 8; //per cache line: 8 x 8 bytes = 64 bytes
 
     int i, j;
     int world_size, world_rank;
@@ -34,56 +36,58 @@ void trisolv_mpi_isend(int n, double* L, double* x, double* b)
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     //for simplicity
-    assert(n % world_size == 0);
+    assert(n % (world_size * block_size) == 0);
     int process_size = n / world_size;
     int process_start = world_rank * process_size;
     int process_end = (world_rank+1) * process_size;
 
-    for (i = process_start; i < process_end; i++) {
-        x[i] = b[i];
-    }
-
     //RECEIVE PHASE
-    int receive_from = -1;
-    for (i = 0; i < process_start; i++) {
-        if (i % process_size == 0) { //switch to receiving from the next process
-            receive_from++;
-        }
-        double xi; //x[i]
-        MPI_Recv(&xi, 1, MPI_DOUBLE, receive_from, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int receive_from;
+    for (i = 0; i < process_start; i += block_size) {
+        receive_from = i / process_size;
+        double x_block[block_size]; 
+        MPI_Recv(&x_block, block_size, MPI_DOUBLE, receive_from, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         for (int k = process_start; k < process_end; k++) {
-            x[k] -= L[k*n + i] * xi;
+            double temp = 0;
+            for (int block_idx = 0, j = i; block_idx < block_size; block_idx++, j++) { 
+                temp += L[k*n + j] * x_block[block_idx];
+            }
+            b[k] -= temp; //do the computations on b
         }
     }
 
     //SEND PHASE
     if (world_rank < world_size-1) { //not last process
-        int nof_send_to = world_size - world_rank - 1;
+        int processes_to_send_to = world_size - world_rank - 1;
+        int nof_sends = (process_size * processes_to_send_to) / block_size;
         int req_idx = 0;
-        //should change to "new" to keep it all c++
-        MPI_Request *send_req = (MPI_Request *)malloc(process_size * nof_send_to * sizeof(MPI_Request));
-        for (/*i already set*/; i < process_end; i++) {
+        MPI_Request *send_req;
+        MPI_Alloc_mem(nof_sends * sizeof(MPI_Request), MPI_INFO_NULL, &send_req);
+        for (i = process_start; i < process_end; i++) {
             //compute
+            double temp = 0;
             for (j = process_start; j < i; j++) {
-                x[i] -= L[i*n + j] * x[j];
+                temp += L[i*n + j] * x[j];
             }
-            x[i] /= L[i*n + i];
+            x[i] = (b[i] - temp) / L[i*n + i];
             //send
-            for (int send_to = world_rank + 1; send_to < world_size; send_to++) {
-                MPI_Isend(&x[i], 1, MPI_DOUBLE, send_to, i, MPI_COMM_WORLD, &send_req[req_idx]);
-                req_idx++;
+            if ((i + 1) % block_size == 0) {
+                for (int send_to = world_rank + 1; send_to < world_size; send_to++) {
+                    MPI_Isend(&x[i-block_size+1], block_size, MPI_DOUBLE, send_to, i-block_size+1, MPI_COMM_WORLD, &send_req[req_idx]);
+                    req_idx++;
+                }
             }
         }
-        MPI_Waitall(nof_send_to * process_size, send_req, MPI_STATUSES_IGNORE);
-        free(send_req);
+        MPI_Waitall(nof_sends, send_req, MPI_STATUSES_IGNORE);
+        MPI_Free_mem(send_req);
     }
     else {//last process doesn't send
-        for (/*i already set*/; i < process_end; i++) {
-            //compute
+        for (i = process_start; i < process_end; i++) {
+            double temp = 0;
             for (j = process_start; j < i; j++) {
-                x[i] -= L[i*n + j] * x[j];
+                temp += L[i*n + j] * x[j];
             }
-            x[i] /= L[i*n + i];
+            x[i] = (b[i] - temp) / L[i*n + i];
         }
     }
 
@@ -138,11 +142,6 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
     int process_size = n / world_size;
     int process_start = world_rank * process_size;
     int process_end = (world_rank+1) * process_size;
-    
-    //only initialize the necessary part
-    for (i = process_start; i < process_end; i++) {
-        x[i] = b[i];
-    }
 
     //OPEN WINDOW
     MPI_Win_create(x, n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &x_win);
@@ -163,10 +162,10 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
         for (int k = process_start; k < process_end; k++) {
             double temp = 0;
             //could be unrolled for fixed block_size
-            for (int line_idx = 0, j = i; line_idx < block_size; line_idx++, j++) { 
-                temp += L[k*n + j] * x_block[line_idx];
+            for (int block_idx = 0, j = i; block_idx < block_size; block_idx++, j++) { 
+                temp += L[k*n + j] * x_block[block_idx];
             }
-            x[k] -= temp;
+            b[k] -= temp; //do the computations on b
         }
     }
 
@@ -178,7 +177,7 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
             for (j = process_start; j < i; j++) {
                 temp += L[i*n + j] * x[j];
             }
-            x[i] = (x[i] - temp) / L[i*n + i];
+            x[i] = (b[i] - temp) / L[i*n + i];
             //give access to other processes
             if ((i + 1) % block_size == 0) {
                 MPI_Win_post(group_origin, 0, x_win);
@@ -193,7 +192,7 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
             for (j = process_start; j < i; j++) {
                 temp += L[i*n + j] * x[j];
             }
-            x[i] = (x[i] - temp) / L[i*n + i];
+            x[i] = (b[i] - temp) / L[i*n + i];
         }
     }
 
@@ -206,7 +205,6 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Win_free(&x_win);
 }
-
 
 void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     int rank, size;
@@ -273,6 +271,7 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
 
 /*
 * Use openMP to speedup the sequential parts
+* Faster starting from a size of ~4000
 */
 void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
 {
@@ -307,12 +306,6 @@ void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
     int process_size = n / world_size;
     int process_start = world_rank * process_size;
     int process_end = (world_rank+1) * process_size;
-    
-    //only initialize the necessary part
-    #pragma omp parallel for
-        for (i = process_start; i < process_end; i++) {
-            x[i] = b[i];
-        }
 
     //OPEN WINDOW
     MPI_Win_create(x, n * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &x_win);
@@ -330,17 +323,27 @@ void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
             MPI_Get(x_block, block_size, MPI_DOUBLE, target_rank, i, block_size, MPI_DOUBLE, x_win);
         MPI_Win_complete(x_win);
 
-        #pragma omp parallel for
-        for (int k = process_start; k < process_end; k++) {
-            double temp = 0;
-            //could be unrolled for fixed block_size
-            for (int line_idx = 0, j = i; line_idx < block_size; line_idx++, j++) { 
-                temp += L[k*n + j] * x_block[line_idx];
+        #pragma omp parallel
+        {
+            double private_block[block_size];
+            for (int block_idx = 0; block_idx < block_size; block_idx++) {
+                private_block[block_idx] = x_block[block_idx];
             }
-            x[k] -= temp;
+            int id = omp_get_thread_num();
+            int threads = omp_get_num_threads();
+            int size = process_size / threads;
+            int start = process_start + id * size;
+            int end = start + size;
+            for (int k = start; k < end; k++) {
+                double temp = 0;
+                for (int block_idx = 0, l = i; block_idx < block_size; block_idx++, l++) { 
+                    temp += L[k*n + l] * private_block[block_idx];
+                }
+                b[k] -= temp; //do the computations on b
+            }
         }
     }
-
+    
     //COMPUTE PHASE
     if (world_rank != world_size-1) { //not the last process
         for (i = process_start; i < process_end; i++) {
@@ -349,9 +352,9 @@ void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
             for (j = process_start; j < i; j++) {
                 temp += L[i*n + j] * x[j];
             }
-            x[i] = (x[i] - temp) / L[i*n + i];
+            x[i] = (b[i] - temp) / L[i*n + i];
             //give access to other processes
-            if ((i + 1) % block_size == 0) { 
+            if ((i + 1) % block_size == 0) {
                 MPI_Win_post(group_origin, 0, x_win);
                 MPI_Win_wait(x_win);
             }
@@ -364,7 +367,7 @@ void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
             for (j = process_start; j < i; j++) {
                 temp += L[i*n + j] * x[j];
             }
-            x[i] = (x[i] - temp) / L[i*n + i];
+            x[i] = (b[i] - temp) / L[i*n + i];
         }
     }
 
