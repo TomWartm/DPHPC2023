@@ -52,3 +52,27 @@ export OMP_PLACES=cores
 srun --cpu-per-task=6 a.out
 ```
 This works for OpenMPI >= 4.1.4
+
+
+## Evaluate gemver
+
+
+How I evaluate gemver on euler sth. all experiments are run on the same set of machines:
+0) copy entire code
+1) import modules:
+```
+module load gcc
+module load openmpi
+```
+2) compile: 
+```
+export  OMP_NUM_THREADS=2
+make gemver_mpi
+make gemver_openmp
+```  
+3) run:
+```
+sbatch -C ib --ntasks=8 --mem-per-cpu=16G --cpus-per-task=2 --wrap="mpirun ./evaluate_gemver_mpi; ./evaluate_gemver_openmp"
+```  
+
+

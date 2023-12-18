@@ -3,20 +3,35 @@
 #include <stdlib.h>
 #include <cassert>
 #include <cmath>
+#include <cblas.h>
 #include <omp.h>
 #include <iostream>
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b){
-    for (int i = 0; i < n; i++)
-    {
-        x[i] = b[i];
-        for (int j = 0; j <i; j++)
-        {
-            double tmp = -L[i * n + j] * x[j];
-            x[i] = x[i] +tmp;
-        }
-        x[i] = x[i] / L[i * n + i];
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (rank == 0) {
+	    for (int i = 0; i < n; i++)
+   		{
+    	    x[i] = b[i];
+    	    for (int j = 0; j <i; j++)
+        	{
+        	    double tmp = -L[i * n + j] * x[j];
+        	    x[i] = x[i] +tmp;
+        	}
+        	x[i] = x[i] / L[i * n + i];
+    	}
     }
+}
+
+void trisolv_blas(int n, double* L, double* x, double* b) {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (rank == 0) {
+		cblas_dtrsv(CblasRowMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, L, n, b, 1);
+		for (int i = 0; i < n; ++i)
+			x[i] = b[i];
+	}
 }
 
 /*
@@ -271,10 +286,11 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
 
 /*
 * Use openMP to speedup the sequential parts
-* Faster starting from a size of ~4000
 */
 void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
 {
+    omp_set_num_threads(2); //remove before running on euler
+
     const int block_size = 8; //per cache line: 8 x 8 bytes = 64 bytes
 
     int i, j;

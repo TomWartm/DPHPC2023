@@ -3,7 +3,7 @@
 
 #define PAD 8
 
-#define NUM_THREADS 4
+
 
 //Used the baseline implementation as a place holder
 void gemver_openmp_v0(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
