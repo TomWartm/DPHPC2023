@@ -290,7 +290,7 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
 */
 void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
 {
-    omp_set_num_threads(2); //remove before running on euler
+    omp_set_num_threads(NUM_THREADS);
 
     const int block_size = 8; //per cache line: 8 x 8 bytes = 64 bytes
 
@@ -403,7 +403,7 @@ void trisolv_mpi_onesided_openmp(int n, double* L, double* x, double* b)
 */
 void trisolv_mpi_isend_openmp(int n, double* L, double* x, double* b)
 {
-    omp_set_num_threads(2); //remove before running on euler
+    omp_set_num_threads(NUM_THREADS);
 
     const int block_size = 8; //per cache line: 8 x 8 bytes = 64 bytes
 
