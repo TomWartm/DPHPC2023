@@ -36,9 +36,9 @@ df = df[df['method'] != baseline_name]
 
 
 sns.set_theme()
-sns.lineplot(
+plot = sns.lineplot(
     data=df, x="N", y="speedup", hue="method", errorbar="sd", estimator=np.median
-)
+).set(title='Gemver Speedups')
 # plt.xscale('log')
 
 plt.show()
@@ -78,7 +78,8 @@ df = df[df['method'] != baseline_name]
 sns.set_theme()
 sns.lineplot(
     data=df, x="N", y="speedup", hue="method", errorbar="sd", estimator=np.median
-)
+).set(title='Trisolv Speedups')
+
 # plt.xscale('log')
 
 plt.show()
