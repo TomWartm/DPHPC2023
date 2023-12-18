@@ -33,6 +33,40 @@ TEST(trisolvTest, IdentityInitialization){
     free((void*)b); free((void*)b_baseline);
 }
 
+
+
+TEST(trisolvOpenBlasTest, INIT_TRISOLV){
+    int n = 3;
+
+    double *L = (double*) malloc((n * n) * sizeof(double));
+    double *L_baseline = (double*) malloc((n * n) * sizeof(double));
+    double *x = (double*) malloc((n) * sizeof(double));
+    double *x_baseline = (double*) malloc((n) * sizeof(double));
+    double *b = (double*) malloc((n) * sizeof(double));
+    double *b_baseline = (double*) malloc((n) * sizeof(double));
+
+    init_trisolv(n, L, x, b);
+    init_trisolv(n, L_baseline, x_baseline, b_baseline);
+
+    trisolv_openblas(n, L, x, b);
+    trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
+
+    for (int j = 0; j < n * n; j++) {
+        EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
+    }
+    for (int j = 0; j < n; j++) {
+        EXPECT_NEAR(b[j], x_baseline[j], 1e-6);
+    }
+    /*for (int j = 0; j < n; j++) {
+        EXPECT_NEAR(b[j], b_baseline[j], 1e-6);
+    }*/
+    free((void*)L); free((void*)L_baseline);
+    free((void*)x); free((void*)x_baseline);
+    free((void*)b); free((void*)b_baseline);
+}
+
+
+
 TEST(trisolvTest, RandomInitialization){
     int n = 5;
     double *L = (double*) malloc((n * n) * sizeof(double)); double *L_baseline = (double*) malloc((n * n) * sizeof(double));

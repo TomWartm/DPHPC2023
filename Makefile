@@ -22,7 +22,7 @@ GEMVER_OPENMP_EXECUTABLE = evaluate_gemver_openmp
 GEMVER_OPENMP_EXECUTABLE_SRC = src/evaluate_gemver_openmp.cpp
 
 $(GEMVER_OPENMP_EXECUTABLE): $(GEMVER_OPENMP_EXECUTABLE_SRC)  $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^ -DNUM_THREADS=2
+	g++ $(CXXFLAGS)  -o $@ $^ ./libopenblas.a -DNUM_THREADS=2
 
 gemver_openmp: $(GEMVER_OPENMP_EXECUTABLE)
 	./$(GEMVER_OPENMP_EXECUTABLE)
@@ -33,7 +33,7 @@ GEMVER_MPI_EXECUTABLE = evaluate_gemver_mpi
 GEMVER_MPI_EXECUTABLE_SRC = src/evaluate_gemver_mpi.cpp
 
 $(GEMVER_MPI_EXECUTABLE): $(GEMVER_MPI_EXECUTABLE_SRC) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DNUM_THREADS=2
+	mpicxx $(CXXFLAGS) -o $@ $^ ./libopenblas.a $(MPIFLAGS) -DNUM_THREADS=2
 
 gemver_mpi: $(GEMVER_MPI_EXECUTABLE)
 	mpirun -np 3 ./$(GEMVER_MPI_EXECUTABLE)
@@ -44,9 +44,9 @@ TRISOLV_OPENMP_EXECUTABLE = evaluate_trisolv_openmp
 TRISOLV_OPENMP_EXECUTABLE_SRC = src/evaluate_trisolv_openmp.cpp
 
 $(TRISOLV_OPENMP_EXECUTABLE): $(TRISOLV_OPENMP_EXECUTABLE_SRC)  $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^
+	g++ $(CXXFLAGS)  -o $@ $^ ./libopenblas.a -DNUM_THREADS=2
 
-trisolv: $(TRISOLV_EXECUTABLE)
+trisolv_openmp: $(TRISOLV_OPENMP_EXECUTABLE)
 	./$(TRISOLV_OPENMP_EXECUTABLE)
 
 
@@ -55,10 +55,7 @@ TRISOLV_MPI_EXECUTABLE = evaluate_trisolv_mpi
 TRISOLV_MPI_EXECUTABLE_SRC = src/evaluate_trisolv_mpi.cpp
 
 $(TRISOLV_MPI_EXECUTABLE): $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=12 -DNUM_RUNS=20 -lopenblas
-
-build_trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=11 -DN_MAX=13 -DNUM_RUNS=20 -lopenblas
+	mpicxx $(CXXFLAGS) -o $@ $^ ./libopenblas.a $(MPIFLAGS) -DNUM_THREADS=2
 
 trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
 	mpirun -np 4 ./$(TRISOLV_MPI_EXECUTABLE)
@@ -70,7 +67,7 @@ TEST_GEMVER_OPENMP_EXECUTABLE = build_test_gemver_openmp
 TEST_GEMVER_OPENMP_DIR = tests/gemver/openmp
 
 $(TEST_GEMVER_OPENMP_EXECUTABLE): $(wildcard $(TEST_GEMVER_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_OPENMP_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main -DNUM_THREADS=2
+	g++ $(CXXFLAGS)  -o $@ $^ ./libopenblas.a -lgtest -lgtest_main -DNUM_THREADS=16
 
 test_gemver_openmp: $(TEST_GEMVER_OPENMP_EXECUTABLE)
 	./$(TEST_GEMVER_OPENMP_EXECUTABLE)
@@ -79,8 +76,8 @@ test_gemver_openmp: $(TEST_GEMVER_OPENMP_EXECUTABLE)
 TEST_GEMVER_EXECUTABLE = build_test_gemver
 TEST_GEMVER_DIR = tests/gemver
 
-$(TEST_GEMVER_EXECUTABLE): $(wildcard $(TEST_GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) 
-	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main
+$(TEST_GEMVER_EXECUTABLE): $(wildcard $(TEST_GEMVER_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp)
+	g++ $(CXXFLAGS)  -o $@ $^ ./libopenblas.a -lgtest -lgtest_main -DNUM_THREADS=2
 
 test_gemver: $(TEST_GEMVER_EXECUTABLE)
 	./$(TEST_GEMVER_EXECUTABLE)
@@ -90,7 +87,7 @@ TEST_GEMVER_MPI_EXECUTABLE = build_test_gemver_mpi
 TEST_GEMVER_MPI_DIR = tests/gemver/mpi
 
 $(TEST_GEMVER_MPI_EXECUTABLE): $(wildcard $(TEST_GEMVER_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(GEMVER_DIR)/*.cpp) $(wildcard $(GEMVER_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main -DNUM_THREADS=2
+	mpicxx $(CXXFLAGS) -o $@ $^ ./libopenblas.a $(MPIFLAGS) -lgtest -lgtest_main -DNUM_THREADS=2
 
 test_gemver_mpi: $(TEST_GEMVER_MPI_EXECUTABLE)
 	mpirun -np 2 ./$(TEST_GEMVER_MPI_EXECUTABLE)
@@ -101,7 +98,7 @@ TEST_TRISOLV_OPENMP_EXECUTABLE = build_test_trisolv_openmp
 TEST_TRISOLV_OPENMP_DIR = tests/trisolv/openmp
 
 $(TEST_TRISOLV_OPENMP_EXECUTABLE): $(wildcard $(TEST_TRISOLV_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_OPENMP_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^ -lgtest -lgtest_main
+	g++ $(CXXFLAGS)  -o $@ $^ ./libopenblas.a -lgtest -lgtest_main -DNUM_THREADS=2
 
 test_trisolv_openmp: $(TEST_TRISOLV_OPENMP_EXECUTABLE)
 	./$(TEST_TRISOLV_OPENMP_EXECUTABLE)
@@ -112,7 +109,7 @@ TEST_TRISOLV_MPI_EXECUTABLE = build_test_trisolv_mpi
 TEST_TRISOLV_MPI_DIR = tests/trisolv/mpi
 
 $(TEST_TRISOLV_MPI_EXECUTABLE): $(wildcard $(TEST_TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/mpi/*.cpp) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -lgtest -lgtest_main
+	mpicxx $(CXXFLAGS) -o $@ $^ ./libopenblas.a $(MPIFLAGS) -lgtest -lgtest_main -DNUM_THREADS=2
 
 test_trisolv_mpi: $(TEST_TRISOLV_MPI_EXECUTABLE)
 	mpirun -np 4 ./$(TEST_TRISOLV_MPI_EXECUTABLE)

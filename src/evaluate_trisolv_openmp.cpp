@@ -21,12 +21,9 @@ int main(int argc, char *argv[])
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
-            // give user feedback
             std::cout << "N = " << n << std::endl;
-
-            /////////////////////////// method 1 /////////////////////////////////////
-
             measure_trisolv((std::string) "baseline", &trisolv_baseline, n, outputFile);
+            measure_trisolv((std::string) "openblas", &trisolv_openblas, n, outputFile);
             measure_trisolv((std::string) "openmp", &trisolv_openmp, n, outputFile);
         }
     }

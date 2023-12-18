@@ -4,7 +4,6 @@
 #define PAD 8
 
 // TODO: Test what number of threads is optimal
-#define NUM_THREADS 8
 
 void trisolv_openmp(int n, double* L, double* x, double* b) {
     for (int i = 0; i < n; i++) {
