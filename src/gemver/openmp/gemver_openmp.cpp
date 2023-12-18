@@ -3,9 +3,7 @@
 
 #define PAD 8
 
-
-
-//Used the baseline implementation as a place holder
+//baseline implementation
 void gemver_openmp_v0(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
 
@@ -25,10 +23,9 @@ void gemver_openmp_v0(int n, double alpha, double beta, double *A, double *u1, d
             w[i] = w[i] + alpha * A[i * n + j] * x[j];
 }
 
-//OpenMP without padding
+//OpenMP simple version
 void gemver_openmp_v1(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
-    omp_set_num_threads(NUM_THREADS);
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
@@ -42,12 +39,7 @@ void gemver_openmp_v1(int n, double alpha, double beta, double *A, double *u1, d
         for (int j = 0; j < n; j++){
             sum += beta * A[j * n + i] * y[j];
         }
-        x[i] += sum;
-    }
-
-    #pragma omp parallel for
-    for (int i = 0; i < n; i++){
-        x[i] += z[i];
+        x[i] += sum + z[i];
     }
 
     #pragma omp parallel for
@@ -60,11 +52,10 @@ void gemver_openmp_v1(int n, double alpha, double beta, double *A, double *u1, d
     }
 }
 
-//OpenMP with padding
+//OpenMP with blocking except first
 void gemver_openmp_v2(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
-    omp_set_num_threads(NUM_THREADS);
-    double sums[NUM_THREADS][PAD];
+    const int block_size = 64/sizeof(double);
 
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < n; i++){
@@ -72,44 +63,103 @@ void gemver_openmp_v2(int n, double alpha, double beta, double *A, double *u1, d
             A[i * n + j] += u1[i] * v1[j] + u2[i] * v2[j];
         }
     }
-    for (int i = 0; i < n; i++){
-        int block_size = n / NUM_THREADS;
-        omp_set_num_threads(NUM_THREADS);
-        #pragma omp parallel
-        {
-            int id = omp_get_thread_num();
-            int start = id * block_size;
-            int end = (id == NUM_THREADS - 1) ? n : start + block_size;
-            sums[id][0] = 0.0;
-            for (int j = start; j < end; j++){
-                sums[id][0] += beta * A[j * n + i] * y[j];
+
+
+    #pragma omp parallel for
+    for (int i = 0; i < n; i++) {
+        double sum = 0.0;
+
+        for (int jblock = 0; jblock < n; jblock += block_size) {
+            int jmax = jblock + block_size < n ? jblock + block_size : n;
+            for (int j = jblock; j < jmax; j++) {
+                sum += beta * A[j * n + i] * y[j];
             }
         }
-        for (int j = 0; j < NUM_THREADS; j++){
-            x[i] += sums[j][0];
-        }
+        x[i] += sum + z[i];
     }
 
     #pragma omp parallel for
-    for (int i = 0; i < n; i++){
-        x[i] += z[i];
-    }
-
-    for (int i = 0; i < n; i++){
-        double sums[NUM_THREADS][PAD];
-        int block_size = n / NUM_THREADS;
-        #pragma omp parallel
-        {
-            int id = omp_get_thread_num();
-            int start = id * block_size;
-            int end = (id == NUM_THREADS - 1) ? n : start + block_size;
-            sums[id][0] = 0.0;
-            for (int j = start; j < end; j++) {
-                sums[id][0] += alpha * A[i * n + j] * x[j];
+        for (int i = 0; i < n; i++) {
+            for (int jblock = 0; jblock < n; jblock += block_size) {
+                int jmax = jblock + block_size < n ? jblock + block_size : n;
+                for (int j = jblock; j < jmax; j++) {
+                    w[i] += alpha * A[i * n + j] * x[j];
+                }
             }
         }
-        for (int j = 0; j < NUM_THREADS; j++){
-            w[i] += sums[j][0];
+    }
+
+
+//OpenMP with blocking
+void gemver_openmp_v3(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
+{
+    const int block_size = 64/sizeof(double);
+
+    #pragma omp parallel for
+        for (int iblock = 0; iblock < n; iblock += block_size) {
+            int imax = std::min(iblock + block_size, n);
+            for (int jblock = 0; jblock < n; jblock += block_size) {
+                int jmax = std::min(jblock + block_size, n);
+                for (int i = iblock; i < imax; i++) {
+                    for (int j = jblock; j < jmax; j++) {
+                        A[i * n + j] += u1[i] * v1[j] + u2[i] * v2[j];
+                    }
+                }
+            }
         }
+
+
+    #pragma omp parallel for
+    for (int i = 0; i < n; i++) {
+        double sum = 0.0;
+
+        for (int jblock = 0; jblock < n; jblock += block_size) {
+            int jmax = jblock + block_size < n ? jblock + block_size : n;
+            for (int j = jblock; j < jmax; j++) {
+                sum += beta * A[j * n + i] * y[j];
+            }
+        }
+        x[i] += sum + z[i];
+    }
+ 
+    #pragma omp parallel for
+    for (int i = 0; i < n; i++) {
+        for (int jblock = 0; jblock < n; jblock += block_size) {
+            int jmax = jblock + block_size < n ? jblock + block_size : n;
+            for (int j = jblock; j < jmax; j++) {
+                w[i] += alpha * A[i * n + j] * x[j];
+            }
+        }
+    }    
+}
+
+
+//OpenMP with reduction of the sum
+void gemver_openmp_v4(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
+{
+    double sum = 0.0;
+    #pragma omp parallel for collapse(2)
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            A[i * n + j] += u1[i] * v1[j] + u2[i] * v2[j];
+        }
+    }
+
+    #pragma omp parallel for reduction(+:sum)
+    for (int i = 0; i < n; i++) {
+        sum = 0.0;
+        for (int j = 0; j < n; j++) {
+            sum += beta * A[j * n + i] * y[j];
+        }
+        x[i] += sum +  z[i];
+    }
+
+    #pragma omp parallel for reduction(+:sum)
+    for (int i = 0; i < n; i++) {
+        sum = 0.0;
+        for (int j = 0; j < n; j++) {
+            sum += alpha * A[i * n + j] * x[j];
+        }
+        w[i] += sum;
     }
 }
