@@ -1,11 +1,6 @@
 #include "helpers/mpi/measure.h"
 #include <iostream>
-#include <fstream>
 #include <mpi.h>
-#include <cmath>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
 #include "trisolv/mpi/trisolv_mpi.h"
 
 int main(int argc, char *argv[])
@@ -24,7 +19,7 @@ int main(int argc, char *argv[])
 
 	// run experiments
     int num_runs = 20;
-    for (int n = 4000; n <= 16000; n += 4000)
+    for (int n = 4000; n <= 40000; n += 4000)
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {

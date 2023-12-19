@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 20;
-    for (int n = 4000; n <= 16000; n += 4000)
+    for (int n = 4000; n <= 40000; n += 4000)
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
             measure_trisolv((std::string) "baseline", &trisolv_baseline, n, outputFile);
             measure_trisolv((std::string) "openblas", &trisolv_openblas, n, outputFile);
             measure_trisolv((std::string) "openmp", &trisolv_openmp, n, outputFile);
+            measure_trisolv((std::string) "openmp 2", &trisolv_openmp_2, n, outputFile);
+            measure_trisolv((std::string) "openmp 3", &trisolv_openmp_3, n, outputFile);
         }
     }
     outputFile.close();

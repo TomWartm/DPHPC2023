@@ -33,7 +33,7 @@ void measure_gemver(std::string functionName, void (*func)(int, double, double, 
     elapsed_time = (end.tv_sec - start.tv_sec) + (double)(end.tv_nsec - start.tv_nsec) / 1e9;
 
     // write to output file
-    outputFile << n << ";" << elapsed_time << ";" << functionName << "\n";
+    outputFile << n << ";" << elapsed_time << ";" << functionName << std::endl;
 
 
     // free memory
