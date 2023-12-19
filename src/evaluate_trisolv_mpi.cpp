@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
             std::cout << "N = " << n << std::endl;
-            measure_trisolv_mpi((std::string) "mpi", &trisolv_mpi_isend, n, outputFile);  //isend and onesided don't work for matrix size > 8192,
+            measure_trisolv_mpi((std::string) "mpi_isend", &trisolv_mpi_isend, n, outputFile);
+            measure_trisolv_mpi((std::string) "mpi_bcast", &trisolv_mpi_gao, n, outputFile);
             measure_trisolv_mpi((std::string) "mpi openmp hybrid", &trisolv_mpi_isend_openmp, n, outputFile);
         }   
     }
