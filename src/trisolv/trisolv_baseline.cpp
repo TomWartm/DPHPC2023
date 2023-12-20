@@ -1,4 +1,5 @@
 #include <cblas.h>
+#include <string.h>
 
 void trisolv_baseline(int n, double* L, double* x, double* b)
 {
@@ -15,8 +16,6 @@ void trisolv_baseline(int n, double* L, double* x, double* b)
 }
 
 void trisolv_openblas(int n, double* L, double* x, double* b) {
-    cblas_dtrsv(CblasRowMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, L, n, b, 1);
-    for (int i = 0; i < n; ++i) {
-        x[i] = b[i];
-    }
+    memcpy(x, b, n * sizeof(double));
+    cblas_dtrsv(CblasRowMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, L, n, x, 1);
 }
