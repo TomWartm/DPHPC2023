@@ -41,23 +41,3 @@ void trisolv_openmp_2(int n, double* L, double* x, double* b) {
         x[i] = (b[i] + sum) / L[i * n + i];
     }
 }
-
-void trisolv_openmp_3(int n, double* L, double* x, double* b) {
-    omp_set_num_threads(NUM_THREADS);
-    for (int i = 0; i < n; i++) {
-        double sum = 0.0;
-        if(i > 4000) {
-            #pragma omp parallel for reduction(+:sum)
-            for (int j = 0; j < i; j++) {
-                sum -= L[i * n + j] * x[j];
-            }
-            x[i] = (b[i] + sum) / L[i * n + i];
-        } else {
-            x[i] = b[i];
-            for (int j = 0; j < i; j++) {
-                x[i] = -L[i * n + j] * x[j];
-            }
-            x[i] = x[i] / L[i * n + i];
-        }
-    }
-}

@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
             measure_trisolv((std::string) "openblas", &trisolv_openblas, n, outputFile);
             measure_trisolv((std::string) "openmp", &trisolv_openmp, n, outputFile);
             measure_trisolv((std::string) "openmp 2", &trisolv_openmp_2, n, outputFile);
-            measure_trisolv((std::string) "openmp 3", &trisolv_openmp_3, n, outputFile);
         }
     }
     outputFile.close();

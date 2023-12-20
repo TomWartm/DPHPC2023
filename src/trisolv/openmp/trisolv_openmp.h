@@ -4,5 +4,4 @@
 // Function to perform the TRISOLV operation
 void trisolv_openmp(int n, double* L, double* x, double* b);
 void trisolv_openmp_2(int n, double* L, double* x, double* b);
-void trisolv_openmp_3(int n, double* L, double* x, double* b);
 #endif // TRISOLV_OPENMP_H
