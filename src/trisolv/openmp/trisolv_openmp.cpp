@@ -1,6 +1,5 @@
 #include "omp.h"
 #include <iostream>
-#include <string.h>
 
 #define PAD 8
 
@@ -17,8 +16,10 @@ void trisolv_openmp(int n, double* L, double* x, double* b) {
         #pragma omp parallel
         {
             int id = omp_get_thread_num();
+            //Ceiling division
             int block_size = (i + num_threads - 1) / num_threads;
             int start = id * block_size;
+            //I changed this
             int end = start + block_size;
             if (end > i) {
                 end = i;
