@@ -7,6 +7,7 @@ void trisolv_openmp(int n, double* L, double* x, double* b) {
     for (int i = 0; i < n; i++) {
         double sums[NUM_THREADS][PAD];
         int block_size = i / NUM_THREADS;
+        omp_set_num_threads(NUM_THREADS);
         #pragma omp parallel
         {
             int id = omp_get_thread_num();
