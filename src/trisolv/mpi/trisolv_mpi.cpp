@@ -7,6 +7,7 @@
 #include <omp.h>
 #include <iostream>
 #include <chrono>
+#include <iomanip>
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b){
     int rank;
