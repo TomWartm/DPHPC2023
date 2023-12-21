@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	// run experiments
     int num_runs = NUM_RUNS;
 	//int num_runs = 20;
-    int n_min = std::pow(2, N_MIN);
+    //int n_min = std::pow(2, N_MIN);
 	int n_min = 4000;
     //int n_max = std::pow(2, N_MAX);
 	int n_max = 40000;
