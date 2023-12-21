@@ -6,6 +6,7 @@
 #include <cblas.h>
 #include <omp.h>
 #include <iostream>
+#include <chrono>
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b){
     int rank;
@@ -244,6 +245,27 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
         rows = std_rows;
     }
 
+	/****************START TIMER******************/
+#ifdef PRINT_TIME
+	MPI_Barrier(MPI_COMM_WORLD);
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+    
+#ifdef TIME_BCAST
+	std::chrono::time_point<std::chrono::high_resolution_clock> b_start, b_end;
+    std::chrono::duration<double> bcast_dur;
+    double bcast_time = 0;
+#endif
+
+    if (rank == 0) {
+        start = std::chrono::high_resolution_clock::now();
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+	/*********************************************/
+
+
     int sender, remain_rows, send_count, j_plus_k, A_pos1, A_pos2;
     double x_tmp;
     int rank_x_std_rows = rank * std_rows;
@@ -270,7 +292,18 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
         	}
         }
         
+#ifdef TIME_BCAST
+		if (rank == 0) b_start = std::chrono::high_resolution_clock::now();
+       	MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
+        if (rank == 0) {
+        	b_end = std::chrono::high_resolution_clock::now();
+        	bcast_dur = b_end - b_start;
+        	bcast_time += bcast_dur.count();
+        }
+#else		
 		MPI_Bcast(x + j, send_count, MPI_DOUBLE, sender, MPI_COMM_WORLD);
+#endif
+		
 		
 		A_pos1 = j * A_size;
         for (int k = 0; k < send_count; ++k) { //b - A * x
@@ -281,6 +314,31 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     	    A_pos1 += A_size;
     	}
     }
+	
+	/****************END TIMER******************/
+#ifdef PRINT_TIME
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if (rank == 0) {
+        end = std::chrono::high_resolution_clock::now();
+#ifdef PRINT_X
+        std::cout << "x = [";
+		for (int i = 0; i < N; ++i) std::cout << x[i] << " ";
+		std::cout << "]\n";
+#endif
+        const std::chrono::duration<double> diff = end - start;
+#ifdef PRINT_TIME
+        std::cout << std::fixed << std::setprecision(9) << std::left;
+        std::cout << block_size << "\t" << N << "\t" << diff.count()
+#ifdef TIME_BCAST
+        	<< "\t" << bcast_time
+#endif
+        	<< "\n";
+#endif
+    }
+#endif
+    /*******************************************/
+
 }
 
 
