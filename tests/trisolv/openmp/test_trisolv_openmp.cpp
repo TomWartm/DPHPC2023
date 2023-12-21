@@ -16,7 +16,7 @@ TEST(trisolvTest, IdentityInitialization){
     identity_trisolv(n, L, x, b);
     identity_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_3(n, L, x, b);
+    trisolv_openmp(n, L, x, b);
     trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
@@ -48,7 +48,7 @@ TEST(trisolvTest, INIT_TRISOLV){
     init_trisolv(n, L, x, b);
     init_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_3(n, L, x, b);
+    trisolv_openmp(n, L, x, b);
     trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
@@ -77,7 +77,7 @@ TEST(trisolvTest, RandomInitialization){
     random_trisolv(n, L, x, b);
     random_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_3(n, L, x, b);
+    trisolv_openmp(n, L, x, b);
     trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
@@ -105,7 +105,7 @@ TEST(trisolvTest, LTriangularInitialization){
     lowertriangular_trisolv(n, L, x, b);
     lowertriangular_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_3(n, L, x, b);
+    trisolv_openmp(n, L, x, b);
     trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     for (int j = 0; j < n * n; j++) {
@@ -134,7 +134,7 @@ TEST(trisolvTest, DifferentSizes){
         init_trisolv(n, L, x, b);
         init_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-        trisolv_openmp_3(n, L, x, b);
+        trisolv_openmp(n, L, x, b);
         trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
         for (int j = 0; j < n * n; j++) {

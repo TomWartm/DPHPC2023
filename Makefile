@@ -98,7 +98,7 @@ TEST_TRISOLV_OPENMP_EXECUTABLE = build_test_trisolv_openmp
 TEST_TRISOLV_OPENMP_DIR = tests/trisolv/openmp
 
 $(TEST_TRISOLV_OPENMP_EXECUTABLE): $(wildcard $(TEST_TRISOLV_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_OPENMP_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^ -lopenblas -lgtest -lgtest_main -DNUM_THREADS=32
+	g++ $(CXXFLAGS)  -o $@ $^ -lopenblas -lgtest -lgtest_main -DNUM_THREADS=2
 
 test_trisolv_openmp: $(TEST_TRISOLV_OPENMP_EXECUTABLE)
 	./$(TEST_TRISOLV_OPENMP_EXECUTABLE)
