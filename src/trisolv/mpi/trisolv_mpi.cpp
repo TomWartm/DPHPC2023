@@ -330,7 +330,7 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
         const std::chrono::duration<double> diff = end - start;
 #ifdef PRINT_TIME
         std::cout << std::fixed << std::setprecision(9) << std::left;
-        std::cout << block_size << "\t" << N << "\t" << diff.count()
+        std::cout << block_size << "\t" << n << "\t" << diff.count()
 #ifdef TIME_BCAST
         	<< "\t" << bcast_time
 #endif
