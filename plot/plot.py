@@ -23,11 +23,22 @@ for filename in os.listdir(directory):
 
 # Concatenate all DataFrames into one
 df = pd.concat(dataframes, ignore_index=True)
+baseline_name = 'baseline'
+base_times = df[df['method'] == baseline_name].set_index('N')['time [s]'].groupby('N').mean()
+print("Baseline mean times:\n", base_times)
+
+# Step 2: Merge the base times with the original DataFrame
+df = df.merge(base_times, left_on='N', right_index=True, suffixes=('', '_base'))
+
+df['speedup'] = df['time [s]_base'] / df['time [s]']
+df.drop(['time [s]_base'], axis=1, inplace=True)
+df = df[df['method'] != baseline_name]
+
 
 sns.set_theme()
-sns.lineplot(
-    data=df, x="N", y="time [s]", hue="method", errorbar="sd", estimator=np.median
-)
+plot = sns.lineplot(
+    data=df, x="N", y="speedup", hue="method", errorbar="sd", estimator=np.median
+).set(title='Gemver Speedups')
 # plt.xscale('log')
 
 plt.show()
@@ -53,11 +64,22 @@ for filename in os.listdir(directory):
 
 # Concatenate all DataFrames into one
 df = pd.concat(dataframes, ignore_index=True)
+baseline_name = 'baseline'
+base_times = df[df['method'] == baseline_name].set_index('N')['time [s]'].groupby('N').mean()
+print("Baseline mean times:\n", base_times)
+
+# Step 2: Merge the base times with the original DataFrame
+df = df.merge(base_times, left_on='N', right_index=True, suffixes=('', '_base'))
+
+df['speedup'] = df['time [s]_base'] / df['time [s]']
+df.drop(['time [s]_base'], axis=1, inplace=True)
+df = df[df['method'] != baseline_name]
 
 sns.set_theme()
 sns.lineplot(
-    data=df, x="N", y="time [s]", hue="method", errorbar="sd", estimator=np.median
-)
+    data=df, x="N", y="speedup", hue="method", errorbar="sd", estimator=np.median
+).set(title='Trisolv Speedups')
+
 # plt.xscale('log')
 
 plt.show()

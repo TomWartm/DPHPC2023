@@ -6,6 +6,7 @@
 //baseline implementation
 void gemver_openmp_v0(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
+    omp_set_num_threads(NUM_THREADS);
 
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
@@ -26,6 +27,8 @@ void gemver_openmp_v0(int n, double alpha, double beta, double *A, double *u1, d
 //OpenMP simple version
 void gemver_openmp_v1(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
+    omp_set_num_threads(NUM_THREADS);
+
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
@@ -56,6 +59,7 @@ void gemver_openmp_v1(int n, double alpha, double beta, double *A, double *u1, d
 void gemver_openmp_v2(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
     const int block_size = 64/sizeof(double);
+    omp_set_num_threads(NUM_THREADS);
 
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < n; i++){
@@ -94,6 +98,7 @@ void gemver_openmp_v2(int n, double alpha, double beta, double *A, double *u1, d
 void gemver_openmp_v3(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
     const int block_size = 64/sizeof(double);
+    omp_set_num_threads(NUM_THREADS);
 
     #pragma omp parallel for
         for (int iblock = 0; iblock < n; iblock += block_size) {
@@ -138,6 +143,7 @@ void gemver_openmp_v3(int n, double alpha, double beta, double *A, double *u1, d
 void gemver_openmp_v4(int n, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
 {
     double sum = 0.0;
+    omp_set_num_threads(NUM_THREADS);
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){

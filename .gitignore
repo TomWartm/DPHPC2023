@@ -8,6 +8,7 @@ evaluate_gemver
 evaluate_gemver_mpi
 evaluate_gemver_openmp
 evaluate_trisolv
+evaluate_trisolv_openmp
 evaluate_trisolv_mpi
 build_test_gemver_openmp
 build_test_gemver_mpi

@@ -1,8 +1,6 @@
 #include "helpers/mpi/measure.h"
 #include <iostream>
-#include <fstream>
 #include "gemver/mpi/gemver_mpi.h"
-#include "gemver/mpi/gemver_mpi_blocking.h"
 #include "gemver/mpi/gemver_mpi_openmp.h"
 #include <mpi.h>
 
@@ -21,34 +19,14 @@ int main(int argc, char *argv[])
     outputFile << "N;time [s];method" << std::endl;
 
     // run experiments
-    int num_runs = 5;
-    for (int n = 1000; n <= 7000; n +=1000)
+    int num_runs = 20;
+    for (int n = 4000; n <= 40000; n += 4000)
     {
-
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
-
-            // give user feedback
             std::cout << "N = " << n << std::endl;
-
-            /////////////////////////// method 1 /////////////////////////////////////
-            
-            //measure_gemver_mpi((std::string) "mpi_baseline", &gemver_mpi_1, n, outputFile);
-            
-            //measure_gemver_mpi((std::string) "gemver_mpi_2", &gemver_mpi_2, n, outputFile);
-
-            //measure_gemver_mpi((std::string) "gemver_mpi_2_new", &gemver_mpi_2_new, n, outputFile);
-           
-            //measure_gemver_mpi((std::string) "gemver_mpi_2_new_blocking", &gemver_mpi_2_new_blocking, n, outputFile);
-
-            //measure_gemver_mpi((std::string) "gemver_mpi_2_new_openmp_4", &gemver_mpi_2_new_openmp, n, outputFile);
-
-            measure_gemver_mpi((std::string) "gemver_mpi_3_new", &gemver_mpi_3_new, n, outputFile);
-
-            measure_gemver_mpi((std::string) "gemver_mpi_3_new_openmp", &gemver_mpi_3_new_openmp, n, outputFile);
-
-            measure_gemver_mpi((std::string) "gemver_mpi_3_new_blocking", &gemver_mpi_3_new_blocking, n, outputFile);
-            
+            measure_gemver_mpi((std::string) "mpi", &gemver_mpi_3_new, n, outputFile);
+            measure_gemver_mpi((std::string) "hybrid", &gemver_mpi_3_new_openmp, n, outputFile);
         }
     }
 

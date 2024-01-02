@@ -3,9 +3,6 @@
 #include <fstream>
 #include <stdlib.h>
 #include <mpi.h>
-#include <chrono>
-#include <iomanip>
-#include "../gemver_init.h"
 #include "../trisolv_init.h"
 #include "util_gao.h"
 #include "measure.h"
@@ -76,15 +73,13 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     double elapsed_time;
 
     //initialize on all nodes
-        if (functionName == (std::string) "trisolv_mpi_gao") {
-            init_colMaj(n, L, x, b, &init_trisolv);
-        }
-	else if (functionName == "trisolv_baseline" || functionName == "trisolv_blas") {
-		if (rank == 0) init_trisolv(n, L, x, b);
-	}
-        else {
-            init_trisolv(n, L, x, b);
-        }
+    if (functionName == (std::string) "trisolv_mpi_gao") {
+        init_colMaj(n, L, x, b, &init_trisolv);
+    } else if (functionName == "trisolv_baseline" || functionName == "trisolv_blas") {
+        if (rank == 0) init_trisolv(n, L, x, b);
+    } else {
+        init_trisolv(n, L, x, b);
+    }
 
     MPI_Barrier(MPI_COMM_WORLD);
     clock_gettime(CLOCK_MONOTONIC, &start);
