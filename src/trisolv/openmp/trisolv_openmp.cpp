@@ -6,10 +6,26 @@
 #define PAD 8
 
 void trisolv_openmp(int n, double* L, double* x, double* b) {
-    for (int i = 0; i < n; i++) {
+    omp_set_num_threads(NUM_THREADS);
+    memcpy(x, b, (sizeof (double)) * n);
+    int limit = std::min(NUM_THREADS * 16, n);
+    double test[limit][PAD];
+    for(int i = 0; i < limit; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < i; j++) {
+            sum -= L[i * n + j] * test[j][0];
+        }
+        test[i][0] = (b[i] + sum) / L[i * n + i];
+    }
+
+    #pragma omp parallel for
+    for(int i = 0; i < limit; i++) {
+        x[i] = test[i][0];
+    }
+
+    for (int i = NUM_THREADS * 16; i < n; i++) {
         double sums[NUM_THREADS][PAD];
         int block_size = i / NUM_THREADS;
-        omp_set_num_threads(NUM_THREADS);
         #pragma omp parallel
         {
             int id = omp_get_thread_num();
@@ -25,7 +41,6 @@ void trisolv_openmp(int n, double* L, double* x, double* b) {
                 sums[id][0] += -L[i * n + j] * x[j];
             }
         }
-        x[i] = b[i];
         for (int j = 0; j < NUM_THREADS; j++) {
             x[i] += sums[j][0];
         }
@@ -49,7 +64,7 @@ void trisolv_openmp_lowspace(int n, double* L, double* x, double* b) {
     omp_set_num_threads(NUM_THREADS);
     memcpy(x, b, (sizeof (double)) * n);
     for (int i = 0; i < n; i++) {
-        int index = ((i + 1) * i) / 2;
+        int index = ((i + 1) * i) >> 1;
         double sums[NUM_THREADS][PAD];
         int block_size = i / NUM_THREADS;
         #pragma omp parallel

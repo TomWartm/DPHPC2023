@@ -45,10 +45,10 @@ TEST(trisolvTest, INIT_TRISOLV){
     double *b = (double*) malloc((n) * sizeof(double));
     double *b_baseline = (double*) malloc((n) * sizeof(double));
 
-    init_trisolv_colmaj(n, L, x, b);
+    init_trisolv_lowspace(n, L, x, b);
     init_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp_3(n, L, x, b);
+    trisolv_openmp_lowspace(n, L, x, b);
     trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
     /*for (int j = 0; j < n * n; j++) {
