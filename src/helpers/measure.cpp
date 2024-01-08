@@ -57,7 +57,11 @@ void measure_trisolv(std::string functionName,void (*func)(int , double*, double
     //////////////measure/////////////
     struct timespec start, end;
     double elapsed_time;
-    init_trisolv(n, L, x, b);
+    if (functionName == (std::string) "openmp lowspace") {
+        init_trisolv_lowspace(n, L, x, b);
+    } else {
+        init_trisolv(n, L, x, b);
+    }
     clock_gettime(CLOCK_MONOTONIC, &start);
     func(n, L, x, b);
     clock_gettime(CLOCK_MONOTONIC, &end);

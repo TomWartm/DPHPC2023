@@ -65,3 +65,27 @@ void lowertriangular_trisolv(int n, double* L, double* x, double* b){
         b[i] = b[i - 1] + (i + 1); // b[i] = 1, 3, 6, 10, ..., n*(n+1)/2
     }
 }
+
+void init_trisolv_lowspace(int n, double* L, double* x, double* b){
+    for (int i = 0; i < n; i++)
+    {
+        x[i] = -999;
+        b[i] = i;
+        for (int j = 0; j <= i; j++) {
+            int index = ((i + 1) * (i)) / 2;
+            L[index + j] = (double) (i + n - j + 1) * 2 / n;
+        }
+    }
+}
+
+void init_trisolv_colmaj(int n, double* L, double* x, double* b){
+    memset(L, 0, n * n * sizeof(double));
+    for (int i = 0; i < n; i++)
+    {
+        x[i] = -999;
+        b[i] = i ;
+        for (int j = 0; j <= i; j++)
+            L[j * n + i] = (double) (i + n - j + 1) * 2 / n;
+    }
+}
+

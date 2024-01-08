@@ -45,15 +45,15 @@ TEST(trisolvTest, INIT_TRISOLV){
     double *b = (double*) malloc((n) * sizeof(double));
     double *b_baseline = (double*) malloc((n) * sizeof(double));
 
-    init_trisolv(n, L, x, b);
+    init_trisolv_colmaj(n, L, x, b);
     init_trisolv(n, L_baseline, x_baseline, b_baseline);
 
-    trisolv_openmp(n, L, x, b);
+    trisolv_openmp_3(n, L, x, b);
     trisolv_baseline(n, L_baseline, x_baseline, b_baseline);
 
-    for (int j = 0; j < n * n; j++) {
+    /*for (int j = 0; j < n * n; j++) {
         EXPECT_NEAR(L[j], L_baseline[j], 1e-6);
-    }
+    }*/
     for (int j = 0; j < n; j++) {
         EXPECT_NEAR(x[j], x_baseline[j], 1e-6);
     }
@@ -72,8 +72,6 @@ TEST(trisolvTest, RandomInitialization){
     double *L = (double*) malloc((n * n) * sizeof(double)); double *L_baseline = (double*) malloc((n * n) * sizeof(double));
     double *x = (double*) malloc((n) * sizeof(double)); double *x_baseline = (double*) malloc((n) * sizeof(double));
     double *b = (double*) malloc((n) * sizeof(double)); double *b_baseline = (double*) malloc((n) * sizeof(double));
-
-
     random_trisolv(n, L, x, b);
     random_trisolv(n, L_baseline, x_baseline, b_baseline);
 

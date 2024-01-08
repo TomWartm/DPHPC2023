@@ -44,10 +44,17 @@ TRISOLV_OPENMP_EXECUTABLE = evaluate_trisolv_openmp
 TRISOLV_OPENMP_EXECUTABLE_SRC = src/evaluate_trisolv_openmp.cpp
 
 $(TRISOLV_OPENMP_EXECUTABLE): $(TRISOLV_OPENMP_EXECUTABLE_SRC)  $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
-	g++ $(CXXFLAGS)  -o $@ $^ -lopenblas -DNUM_THREADS=32
+	g++ $(CXXFLAGS)  -o $@ $^ -lopenblas -DNUM_THREADS=16 -DOPENBLAS_NUM_THREADS=16
 
 trisolv_openmp: $(TRISOLV_OPENMP_EXECUTABLE)
 	./$(TRISOLV_OPENMP_EXECUTABLE)
+
+
+TRISOLV_RUN_EXECUTABLE = run_trisolv
+TRISOLV_RUN_EXECUTABLE_SRC = src/run_trisolv.cpp
+
+$(TRISOLV_RUN_EXECUTABLE): $(TRISOLV_RUN_EXECUTABLE_SRC)  $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_OPENMP_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp)
+	g++ $(CXXFLAGS)  -o $@ $^ -lopenblas -DNUM_THREADS=16 -DOPENBLAS_NUM_THREADS=16
 
 
 # Compile and run evaluate_trisolv_mpi.cpp

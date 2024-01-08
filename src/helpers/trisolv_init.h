@@ -6,6 +6,8 @@ void init_trisolv(int n, double* L, double* x, double* b);
 void identity_trisolv(int n, double* L, double* x, double* b);
 void random_trisolv(int n, double* L, double* x, double* b);
 void lowertriangular_trisolv(int n, double* L, double* x, double* b);
+void init_trisolv_lowspace(int n, double* L, double* x, double* b);
+void init_trisolv_colmaj(int n, double* L, double* x, double* b);
 // You can also declare any other necessary constants, data structures, or functions here
 
 #endif // TRISOLV_INIT_H
