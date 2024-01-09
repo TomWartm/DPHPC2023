@@ -4,16 +4,16 @@
 #define PAD 8
 
 void trisolv_openmp(int n, double* L, double* x, double* b) {
+    int num_threads = omp_get_max_threads();
     for (int i = 0; i < n; i++) {
-        double sums[NUM_THREADS][PAD];
-        int block_size = i / NUM_THREADS;
-        omp_set_num_threads(NUM_THREADS);
+        double sums[num_threads][PAD];
+        int block_size = i / num_threads;
         #pragma omp parallel
         {
             int id = omp_get_thread_num();
             int start = id * block_size;
             int end;
-            if (id == NUM_THREADS - 1) {
+            if (id == num_threads - 1) {
                 end = i;
             } else {
                 end = start + block_size;
@@ -24,7 +24,7 @@ void trisolv_openmp(int n, double* L, double* x, double* b) {
             }
         }
         x[i] = b[i];
-        for (int j = 0; j < NUM_THREADS; j++) {
+        for (int j = 0; j < num_threads; j++) {
             x[i] += sums[j][0];
         }
         x[i] = x[i] / L[i * n + i];
@@ -32,7 +32,6 @@ void trisolv_openmp(int n, double* L, double* x, double* b) {
 }
 
 void trisolv_openmp_2(int n, double* L, double* x, double* b) {
-    omp_set_num_threads(NUM_THREADS);
     for (int i = 0; i < n; i++) {
         double sum = 0.0;
         #pragma omp parallel for reduction(+:sum)
