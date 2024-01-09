@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     // open file
     int threads = omp_get_max_threads();
-    std::string filePath = "./results/gemver/output_gemver_openmp_" + std::to_string(threads) + "_omp_threads.csv";
+    std::string filePath = "./results/trisolv/output_trisolv_openmp_" + std::to_string(threads) + "_omp_threads.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
