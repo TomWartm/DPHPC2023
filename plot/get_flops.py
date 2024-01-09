@@ -5,7 +5,7 @@ def get_flops_gemver(method:str, n:int) -> int:
     """
     no_additions = 0
     no_multiplications = 0
-    if method in ["baseline","gemver_mpi_2", "gemver_mpi_3","gemver_mpi_2_1", "gemver_mpi_2_new", "openmp with padding","openmp","gemver_mpi_2_new_openmp","gemver_mpi_3_new"]:
+    if method in ["baseline","gemver_mpi_2", "gemver_mpi_3","gemver_mpi_2_1", "gemver_mpi_2_new" ,"gemver_mpi_2_new_openmp","gemver_mpi_3_new"]:
         no_additions = n*n*2 + n*n + n + n*n
         no_multiplications = n*n*2 + n*n*2 + n*n*2
     
@@ -14,6 +14,11 @@ def get_flops_gemver(method:str, n:int) -> int:
 
         no_additions = n*n* 32 + n*n* 16 + n*n* 16 # same as in baseline
         no_multiplications = n*n*32 + n*n*20 + n*n*20 # less as baseline
+
+    elif method == "openmp":
+        no_additions = 4*n*n + 3*n
+        no_multiplications = 6*n*n
+
     else:
         print("Not implemented flop count for method: {}".format(method))
     
