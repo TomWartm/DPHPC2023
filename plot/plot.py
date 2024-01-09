@@ -44,7 +44,7 @@ plot = sns.lineplot(
 file_path = "./results/plot_gemver_openmp.png"
 plt.savefig(file_path)
 plt.show()
-git
+
 ###################################################################
 #                           TRISOLV                               #
 ###################################################################
