@@ -2,11 +2,13 @@
 #include <iostream>
 #include "trisolv/trisolv_baseline.h"
 #include "trisolv/openmp/trisolv_openmp.h"
+#include "omp.h"
 
 int main(int argc, char *argv[])
 {
     // open file
-    std::string filePath = "./results/trisolv/output_trisolv_openmp.csv";
+    int threads = omp_get_max_threads();
+    std::string filePath = "./results/gemver/output_gemver_openmp_" + std::to_string(threads) + "_omp_threads.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {

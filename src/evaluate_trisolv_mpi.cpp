@@ -2,13 +2,15 @@
 #include <iostream>
 #include <mpi.h>
 #include "trisolv/mpi/trisolv_mpi.h"
+#include "omp.h"
 
 int main(int argc, char *argv[])
 {   
     MPI_Init(&argc, &argv);
-    
-    // open file
-    std::string filePath = "./results/trisolv/output_trisolv_mpi.csv";
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    int threads = omp_get_max_threads();
+    std::string filePath = "./results/trisolv/output_trisolv_mpi_" + std::to_string(threads) + "_omp_threads_" + std::to_string(world_size) + "_mpi_tasks.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
