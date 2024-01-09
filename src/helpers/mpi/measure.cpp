@@ -73,10 +73,8 @@ void measure_trisolv_mpi(std::string functionName,void (*func)(int , double*, do
     double elapsed_time;
 
     //initialize on all nodes
-    if (functionName == (std::string) "trisolv_mpi_gao") {
+    if (functionName == (std::string) "mpi_bcast") {
         init_colMaj(n, L, x, b, &init_trisolv);
-    } else if (functionName == "trisolv_baseline" || functionName == "trisolv_blas") {
-        if (rank == 0) init_trisolv(n, L, x, b);
     } else {
         init_trisolv(n, L, x, b);
     }
