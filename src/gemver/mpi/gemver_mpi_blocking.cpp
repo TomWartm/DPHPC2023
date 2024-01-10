@@ -414,9 +414,7 @@ void gemver_mpi_2_new_blocking(int n,  double *A_result, double *x_result, doubl
 
 
 void gemver_mpi_2_new_openmp(int n,  double *A_result, double *x_result, double *w_result)
-{   
-    
-    omp_set_num_threads(NUM_THREADS);
+{
     /*
     Works for all numbers of processes.
     Same as gemver_mpi_2 but initializes data on each node.

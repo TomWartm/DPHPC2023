@@ -1,13 +1,16 @@
 #include "helpers/measure.h"
 #include <iostream>
+#include <string>
 #include "gemver/gemver_baseline.h"
 #include "gemver/openmp/gemver_openmp.h"
+#include "omp.h"
 
 
 int main(int argc, char *argv[])
 {
     // open file
-    std::string filePath = "./results/gemver/output_gemver_openmp.csv";
+    int threads = omp_get_max_threads();
+    std::string filePath = "./results/gemver/output_gemver_openmp_" + std::to_string(threads) + "_omp_threads.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
@@ -18,7 +21,7 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 20;
-    for (int n = 4000; n <= 40000; n += 4000)
+    for (int n = 1024; n <= 40000; n *= 2)
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {

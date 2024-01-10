@@ -2,14 +2,17 @@
 #include <iostream>
 #include "gemver/mpi/gemver_mpi.h"
 #include "gemver/mpi/gemver_mpi_openmp.h"
+#include "omp.h"
 #include <mpi.h>
 
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
 
-    // open file
-    std::string filePath = "./results/gemver/output_gemver_mpi.csv";
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    int threads = omp_get_max_threads();
+    std::string filePath = "./results/gemver/output_gemver_mpi_" + std::to_string(threads) + "_omp_threads_" + std::to_string(world_size) + "_mpi_tasks.csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
@@ -20,7 +23,7 @@ int main(int argc, char *argv[])
 
     // run experiments
     int num_runs = 20;
-    for (int n = 4000; n <= 40000; n += 4000)
+    for (int n = 1024; n <= 40000; n *= 2)
     {
         for (int num_run = 0; num_run < num_runs; ++num_run)
         {
