@@ -39,9 +39,9 @@ sns.lineplot(
     data=df, x="N", y="time [s]", hue="method", errorbar="sd", estimator=np.median, marker='o'
 )
 
-plt.show()
 file_path = "./results/plot_gemver_timing.png"
 plt.savefig(file_path)
+plt.show()
 
 
 # plot performance
@@ -49,6 +49,6 @@ sns.lineplot(
     data=df, x="N", y="Performance [Gflop/s]", hue="method", errorbar="sd", estimator=np.median, marker='o'
 )
 
-plt.show()
 file_path = "./results/plot_gemver_performance.png"
 plt.savefig(file_path)
+plt.show()

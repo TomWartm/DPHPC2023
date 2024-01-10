@@ -2,12 +2,14 @@
 #include <iostream>
 #include "gemver/gemver_baseline.h"
 #include "gemver/openmp/gemver_openmp.h"
+#include "omp.h"
 
 
 int main(int argc, char *argv[])
 {
     // open file
-    std::string filePath = "./results/gemver/output_gemver_openmp.csv";
+
+    std::string filePath = "./results/gemver/output_gemver_openmp_T" + std::to_string(NUM_THREADS) + ".csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {

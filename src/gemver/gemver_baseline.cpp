@@ -26,13 +26,10 @@ void kernel_gemver_openblas(int n, double alpha, double beta, double *A, double 
     cblas_dger(CblasRowMajor, n, n, 1.0, u1, 1, v1, 1, A, n);
     cblas_dger(CblasRowMajor, n, n, 1.0, u2, 1, v2, 1, A, n);
 
-    cblas_dgemv(CblasRowMajor, CblasTrans, n, n, beta, A, n, y, 1, 1.0, z, 1);
+    cblas_dgemv(CblasRowMajor, CblasTrans, n, n, beta, A, n, y, 1, 1.0, x, 1);
+    cblas_daxpy(n, 1.0, z, 1, x, 1);
 
-    for(int i = 0; i < n; i++) {
-        x[i] = z[i];
-    }
-
-    cblas_dgemv(CblasRowMajor, CblasNoTrans, n, n, alpha, A, n, x, 1, 0.0, w, 1);
+    cblas_dgemv(CblasRowMajor, CblasNoTrans, n, n, alpha, A, n, x, 1, 1.0, w, 1);
 }
 
 void kernel_gemver(int n, int m, double alpha, double beta, double *A, double *u1, double *v1, double *u2, double *v2, double *w, double *x, double *y, double *z)
