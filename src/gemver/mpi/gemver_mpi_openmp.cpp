@@ -13,9 +13,7 @@ using namespace std;
 
 
 void gemver_mpi_3_new_openmp(int n,  double *A_result, double *x_result, double *w_result)
-{   
-
-    omp_set_num_threads(NUM_THREADS);
+{
     //std::cout <<"NumThreads: "<< numThreads << std::endl;
     //auto start = high_resolution_clock::now();
 
