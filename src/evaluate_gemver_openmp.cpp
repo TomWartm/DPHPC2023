@@ -8,8 +8,12 @@
 int main(int argc, char *argv[])
 {
     // open file
-
-    std::string filePath = "./results/gemver/output_gemver_openmp_T" + std::to_string(NUM_THREADS) + ".csv";
+    int num_threads;    
+    #pragma omp parallel
+    {
+      num_threads = omp_get_num_threads();
+    }
+    std::string filePath = "./results/gemver/output_gemver_openmp_T" + std::to_string(num_threads) + ".csv";
     std::ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
