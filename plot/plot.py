@@ -41,7 +41,6 @@ plot = sns.lineplot(
 ).set(title='Gemver Speedups')
 # plt.xscale('log')
 
-
 file_path = "./results/plot_gemver_openmp.png"
 plt.savefig(file_path)
 plt.show()
@@ -82,7 +81,6 @@ sns.lineplot(
 ).set(title='Trisolv Speedups')
 
 # plt.xscale('log')
-
 
 file_path = "./results/plot_trisolv_openmp.png"
 plt.savefig(file_path)
