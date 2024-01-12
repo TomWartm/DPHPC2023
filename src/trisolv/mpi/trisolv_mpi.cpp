@@ -8,9 +8,11 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
+#include <papi.h>
 
 void trisolv_mpi_v0(int n, double* L, double* x, double* b){
     int rank;
+	PAPI_hl_region_begin("v0");
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
 	    for (int i = 0; i < n; i++)
@@ -24,9 +26,11 @@ void trisolv_mpi_v0(int n, double* L, double* x, double* b){
         	x[i] = x[i] / L[i * n + i];
     	}
     }
+	PAPI_hl_region_end("v0");
 }
 
 void trisolv_blas(int n, double* L, double* x, double* b) {
+PAPI_hl_region_begin("blas");
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
@@ -34,6 +38,7 @@ void trisolv_blas(int n, double* L, double* x, double* b) {
 		for (int i = 0; i < n; ++i)
 			x[i] = b[i];
 	}
+    PAPI_hl_region_end("blas");
 }
 
 /*
@@ -45,6 +50,7 @@ void trisolv_blas(int n, double* L, double* x, double* b) {
 */
 void trisolv_mpi_isend(int n, double* L, double* x, double* b)
 {
+	PAPI_hl_region_begin("isend");
     const int block_size = 8; //per cache line: 8 x 8 bytes = 64 bytes
 
     int i, j;
@@ -118,6 +124,7 @@ void trisolv_mpi_isend(int n, double* L, double* x, double* b)
     else {
         MPI_Send(&x[process_start], process_size, MPI_DOUBLE, 0, world_rank, MPI_COMM_WORLD);
     }
+    PAPI_hl_region_end("isend");
 }
 
 
@@ -128,6 +135,7 @@ void trisolv_mpi_isend(int n, double* L, double* x, double* b)
 */
 void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
 {
+	PAPI_hl_region_begin("onesided");
     const int block_size = 8; //per cache line: 8 x 8 bytes = 64 bytes
 
     int i, j;
@@ -221,9 +229,11 @@ void trisolv_mpi_onesided(int n, double* L, double* x, double* b)
 
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Win_free(&x_win);
+    PAPI_hl_region_end("onesided");
 }
 
 void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
+	PAPI_hl_region_begin("bcast");
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -270,7 +280,6 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     int sender, remain_rows, send_count, j_plus_k, A_pos1, A_pos2;
     double x_tmp;
     int rank_x_std_rows = rank * std_rows;
-
     for (int j = 0; j < n; j += send_count) {
         sender = j / std_rows;
         if (sender == size - 1 && n_mod_std_rows != 0) remain_rows = n_mod_std_rows;
@@ -315,7 +324,7 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     	    A_pos1 += A_size;
     	}
     }
-	
+
 	/****************END TIMER******************/
 #ifdef PRINT_TIME
     MPI_Barrier(MPI_COMM_WORLD);
@@ -339,7 +348,7 @@ void trisolv_mpi_gao(int n, double* A, double* x, double* b) {
     }
 #endif
     /*******************************************/
-
+		PAPI_hl_region_end("bcast");
 }
 
 

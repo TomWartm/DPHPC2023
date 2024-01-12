@@ -1,5 +1,8 @@
+#include <papi.h>
+
 void trisolv_baseline(int n, double* L, double* x, double* b)
 {
+  PAPI_hl_region_begin("baseline");
   for (int i = 0; i < n; i++)
   {
       x[i] = b[i];
@@ -10,4 +13,5 @@ void trisolv_baseline(int n, double* L, double* x, double* b)
       }
       x[i] = x[i] / L[i * n + i];
   }
+  PAPI_hl_region_end("baseline");
 }

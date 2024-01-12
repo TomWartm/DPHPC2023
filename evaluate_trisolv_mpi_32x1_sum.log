@@ -1,0 +1,58 @@
+S=C=A=N: Sun Jan  7 18:23:45 2024: Collect start
+/cluster/apps/gcc-6.3.0/openmpi-3.0.1-k6n5k3l3baqlkdw3w7il7dwb6wilr6r6/bin/mpirun ./evaluate_trisolv_mpi
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+-------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+-------------------------------------------------------
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+Event does not exist
+[Score-P] ../src/services/metric/scorep_metric_papi.c:650: Error: Could not initialize PAPI library: PAPI_add_event(0:"PAPI_L1_ICM") (fatal)
+
+S=C=A=N: Sun Jan  7 18:23:45 2024: Collect done (status=0) 0s

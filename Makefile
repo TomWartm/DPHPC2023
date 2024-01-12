@@ -58,7 +58,10 @@ $(TRISOLV_MPI_EXECUTABLE): $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DI
 	mpicxx $(CXXFLAGS) -o $@ $^ $(MPIFLAGS) -DN_MIN=9 -DN_MAX=12 -DNUM_RUNS=20 -lopenblas
 
 build_trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
-	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DN_MIN=11 -DN_MAX=13 -DNUM_RUNS=20 -lopenblas
+	mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DNUM_RUNS=20 -lopenblas -DNUM_THREADS=2 -lpapi -DN_MIN=14 -DN_MAX=14
+
+scorep_trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE_SRC) $(wildcard $(TRISOLV_DIR)/*.cpp) $(wildcard $(TRISOLV_MPI_DIR)/*.cpp) $(wildcard $(HELPERS_DIR)/*.cpp) $(wildcard $(HELPERS_MPI_DIR)/*.cpp)
+	scorep mpicxx $(CXXFLAGS) -o $(TRISOLV_MPI_EXECUTABLE) $^ $(MPIFLAGS) -DNUM_RUNS=1 -lopenblas -DNUM_THREADS=2
 
 trisolv_mpi: $(TRISOLV_MPI_EXECUTABLE)
 	mpirun -np 4 ./$(TRISOLV_MPI_EXECUTABLE)
