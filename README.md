@@ -1,3 +1,12 @@
+# Project in Design of Paralell and High Performance Computing (DPHPC) 2023
+## Polybench Parallelization of Gemver and Trisolv
+
+(Abstract) 
+
+In this work, we address the efficiency of solving large-scale computing problems by parallelizing and optimizing two benchmarks, Gemver and Trisolv, from the Polybench collection. We employ parallelization using Message Passing Interface (MPI) and OpenMP, aiming to reduce cache misses and floating-point operations. Performance evaluations were conducted on the ETH cluster Euler, with a varying number of input sizes, processors, and threads. Our OpenMP implementation for Gemver performs similarly to OpenBLAS when utilizing higher thread numbers, whereas our MPI implementation for Trisolv surpasses the performance of the OpenBLAS routine by nearly 1.5 times and achieves a speedup of 7x over the baseline
+
+(see `report.pdf` for full text)
+
 # Generate plots
 
 Create the plot data:
